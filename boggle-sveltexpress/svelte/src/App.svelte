@@ -12,7 +12,9 @@
 	<h1>Hello World</h1>
 </main>
 
-<style>
+<style type="text/scss">
+	$color: red;
+
 	main {
 		text-align: center;
 		padding: 1em;
@@ -21,7 +23,7 @@
 	}
 
 	h1 {
-		color: #ff3e00;
+		color: $color;
 		text-transform: uppercase;
 		font-size: 4em;
 		font-weight: 100;
