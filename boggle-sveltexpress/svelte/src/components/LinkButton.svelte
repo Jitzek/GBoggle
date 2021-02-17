@@ -1,5 +1,4 @@
 <script lang="ts">
-  export let id: string;
   export let value: string = "Button";
   export let text_color: string = "#ffffff";
   export let btn_background: string = "#aaaaaa";
@@ -10,7 +9,6 @@
 </script>
 
 <button
-  id="{id}"
   on:click="{() => (location.href = href)}"
   class="link-btn"
   style="color: {text_color}; background: linear-gradient(-45deg, {btn_background}, {btn_background_hover}); width: {btn_width};"
