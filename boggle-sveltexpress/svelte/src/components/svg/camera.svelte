@@ -1,6 +1,6 @@
-<script>
-	export let width = "75px";
-	export let color = "black";
+<script lang="ts">
+	export let width: string = "75px";
+	export let color: string = "black";
 </script>
 
 <svg
@@ -13,8 +13,8 @@
 	viewBox="0 0 420.8 420.8"
 	style="enable-background:new 0 0 420.8 420.8;"
 	xml:space="preserve"
-	{width}
-	fill={color}
+	width="{width}"
+	fill="{color}"
 >
 	<g>
 		<g>
