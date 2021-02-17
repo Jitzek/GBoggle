@@ -24,11 +24,11 @@
                     fileinput.click();
                 }}>
             {:else}
-                <div id="labelstyle" class="uploadbutton" on:click={() => {
+                <div class="uploadbutton labelstyle" on:click={() => {
                     fileinput.click();
                 }}></div>
             {/if}
-            <div id="overlay" class="uploadbutton">
+            <div class="uploadbutton overlay">
                 <slot />
             </div>
         </label>
@@ -46,7 +46,7 @@
         position: absolute;
         z-index: -1;
     }
-    #labelstyle {
+    .labelstyle {
         background-color: #3a3838;
     }
     .uploadbutton{
@@ -61,7 +61,7 @@
         justify-content: center;
         cursor: pointer;
     }
-    #overlay {
+    .overlay {
         background-color: rgba(102, 102, 102, 0.699);
         display: flex;
         justify-content: center;
@@ -70,7 +70,7 @@
         transition: 0.3s ease;
         z-index: -1;
     }
-    label:hover #overlay {
+    label:hover .overlay {
         opacity: 1;
         z-index: 2;
     }
