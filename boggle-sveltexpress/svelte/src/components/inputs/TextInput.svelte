@@ -12,14 +12,19 @@
     let trimmedInputValue = String(inputElement.value).trim();
     if (trimmedInputValue.length < min || trimmedInputValue.length > max) {
       validated = false;
-    }
-    else validated = true;
+    } else validated = true;
   }
-
 </script>
 
 <div class="input-field" style="{style}">
-  <input class:validated on:input="{handleInput}" bind:this="{inputElement}" name="{name}" required type="text" />
+  <input
+    class:validated
+    on:input="{handleInput}"
+    bind:this="{inputElement}"
+    name="{name}"
+    required
+    type="text"
+  />
   {#if label !== null}
     <label for="{name}">{label}</label>
   {/if}
