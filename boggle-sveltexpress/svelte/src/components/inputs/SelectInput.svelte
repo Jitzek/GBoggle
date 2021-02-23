@@ -5,7 +5,7 @@
 
   let validated = false;
 
-  let inputElement;
+  let inputElement: HTMLSelectElement;
 </script>
 
 <div class="input-field" style="{style}">
@@ -26,6 +26,9 @@
 <style lang="scss">
   $label_height: 24px;
 
+  /**
+    Elements
+  */
   select {
     background: rgba(255, 255, 255, 0.6);
     border: 0;
@@ -55,10 +58,6 @@
     background-repeat: no-repeat;
   }
 
-  .validated {
-    border-bottom: solid rgb(120, 255, 120) 2px;
-  }
-
   label {
     color: white;
     font-size: 20px;
@@ -70,6 +69,9 @@
     transition: 0.25s;
   }
 
+  /**
+    Classes
+  */
   .input-field {
     padding-top: $label_height;
     position: relative;
@@ -80,5 +82,9 @@
     font-size: 18px;
     top: -30px;
     padding-left: 0px;
+  }
+
+  .validated {
+    border-bottom: solid rgb(120, 255, 120) 2px;
   }
 </style>

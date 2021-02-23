@@ -7,30 +7,28 @@
 
   let validated = false;
 
-  let inputElement;
+  let inputElement: HTMLInputElement;
+
   let prevValidValue = min;
   function verifyInput() {
     if (
       !isNumber(inputElement.value) ||
-      inputElement.value < min ||
-      inputElement.value > max
+      Number(inputElement.value) < min ||
+      Number(inputElement.value) > max
     ) {
-      // Not a Number
-      inputElement.value = prevValidValue;
+      inputElement.value = prevValidValue.toString();
     }
     validated = true;
-    prevValidValue = inputElement.value;
+    prevValidValue = Number(inputElement.value);
   }
 
   function increment() {
-    if (!isNumber(inputElement.value)) inputElement.value = 0;
-    inputElement.value = Number(inputElement.value) + 1;
+    inputElement.stepUp();
     verifyInput();
   }
 
   function decrement() {
-    if (!isNumber(inputElement.value)) inputElement.value = 0;
-    inputElement.value = Number(inputElement.value) - 1;
+    inputElement.stepDown();
     verifyInput();
   }
 
@@ -44,11 +42,12 @@
     <i>-</i>
   </button>
   <input
-    class:validated
-    on:input="{verifyInput}"
     bind:this="{inputElement}"
+    class:validated
     name="{name}"
+    on:input="{verifyInput}"
     required
+    step="1"
     type="number"
   />
   <button on:click="{increment}" class="input-increment">
@@ -62,6 +61,9 @@
 <style lang="scss">
   $label_height: 24px;
 
+  /**
+    Elements
+  */
   button {
     position: absolute;
     background-color: rgba(255, 255, 255, 0.25);
@@ -113,10 +115,6 @@
     margin: 0;
   }
 
-  .validated {
-    border-bottom: solid rgb(120, 255, 120) 2px;
-  }
-
   label {
     color: white;
     font-size: 20px;
@@ -129,6 +127,9 @@
     margin-left: calc(-#{$label_height} - 6px);
   }
 
+  /**
+    Classes
+  */
   .input-decrement {
     left: 0;
   }
@@ -148,5 +149,9 @@
     top: -30px;
     margin-left: 0;
     padding-left: 0px;
+  }
+
+  .validated {
+    border-bottom: solid rgb(120, 255, 120) 2px;
   }
 </style>

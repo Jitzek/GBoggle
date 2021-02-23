@@ -7,7 +7,7 @@
 
   let validated = false;
 
-  let inputElement;
+  let inputElement: HTMLInputElement;
   function verifyInput() {
     let trimmedInputValue = String(inputElement.value).trim();
     if (
@@ -36,6 +36,9 @@
 <style lang="scss">
   $label_height: 24px;
 
+  /**
+    Elements
+  */
   input {
     background: rgba(255, 255, 255, 0.6);
     border: 0;
@@ -46,10 +49,6 @@
     padding: 10px 10px;
     width: 100%;
     transition: border-color 0.5s;
-  }
-
-  .validated {
-    border-bottom: solid rgb(120, 255, 120) 2px;
   }
 
   label {
@@ -63,6 +62,9 @@
     transition: 0.25s;
   }
 
+  /**
+    Classes
+  */
   .input-field {
     padding-top: $label_height;
     position: relative;
@@ -73,5 +75,9 @@
     font-size: 18px;
     top: -30px;
     padding-left: 0px;
+  }
+
+  .validated {
+    border-bottom: solid rgb(120, 255, 120) 2px;
   }
 </style>
