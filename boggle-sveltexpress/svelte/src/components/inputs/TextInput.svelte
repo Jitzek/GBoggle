@@ -8,7 +8,7 @@
   let validated = false;
 
   let inputElement;
-  function handleInput() {
+  function verifyInput() {
     let trimmedInputValue = String(inputElement.value).trim();
     if (
       trimmedInputValue.length < minLength ||
@@ -22,7 +22,7 @@
 <div class="input-field" style="{style}">
   <input
     class:validated
-    on:input="{handleInput}"
+    on:input="{verifyInput}"
     bind:this="{inputElement}"
     name="{name}"
     required
