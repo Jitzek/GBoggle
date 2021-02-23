@@ -1,33 +1,23 @@
 <script lang="ts">
   export let label = null;
-  export let maxLength = Infinity;
-  export let minLength = 0;
   export let name = label || "unset";
   export let style = "";
 
   let validated = false;
 
   let inputElement;
-  function handleInput() {
-    let trimmedInputValue = String(inputElement.value).trim();
-    if (
-      trimmedInputValue.length < minLength ||
-      trimmedInputValue.length > maxLength
-    ) {
-      validated = false;
-    } else validated = true;
-  }
 </script>
 
 <div class="input-field" style="{style}">
-  <input
+  <select
     class:validated
-    on:input="{handleInput}"
     bind:this="{inputElement}"
     name="{name}"
     required
     type="text"
-  />
+  >
+    <slot />
+  </select>
   {#if label !== null}
     <label for="{name}">{label}</label>
   {/if}
@@ -36,7 +26,7 @@
 <style lang="scss">
   $label_height: 24px;
 
-  input {
+  select {
     background: rgba(255, 255, 255, 0.6);
     border: 0;
     border-bottom: solid white 2px;
@@ -46,6 +36,23 @@
     padding: 10px 10px;
     width: 100%;
     transition: border-color 0.5s;
+
+    // Resetting arrow style
+    margin: 0;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+
+    // Applying custom arrow style
+    background-image: linear-gradient(45deg, transparent 50%, gray 50%),
+      linear-gradient(135deg, gray 50%, transparent 50%),
+      linear-gradient(to right, #ccc, #ccc);
+    background-position: calc(100% - 20px) calc(1em + 2px),
+      calc(100% - 15px) calc(1em + 2px), calc(100% - 2.5em) 0.5em;
+    background-size: 5px 5px, 5px 5px, 1px 1.5em;
+    background-repeat: no-repeat;
   }
 
   .validated {
@@ -68,8 +75,8 @@
     position: relative;
   }
 
-  .input-field input:focus ~ label,
-  .input-field input:valid ~ label {
+  .input-field select:focus ~ label,
+  .input-field select:valid ~ label {
     font-size: 18px;
     top: -30px;
     padding-left: 0px;
