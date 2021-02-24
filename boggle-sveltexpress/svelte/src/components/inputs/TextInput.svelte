@@ -1,8 +1,8 @@
 <script lang="ts">
-  export let label = null;
-  export let maxLength = Infinity;
-  export let minLength = 0;
-  export let name = label || "unset";
+  export let label: string = null;
+  export let maxLength: number = Infinity;
+  export let minLength: number = 0;
+  export let name: string = label || "unset";
   export let style = "";
 
   let validated = false;

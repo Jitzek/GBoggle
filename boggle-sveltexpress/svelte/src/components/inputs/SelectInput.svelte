@@ -1,21 +1,13 @@
 <script lang="ts">
-  export let label = null;
-  export let name = label || "unset";
+  export let label: string = null;
+  export let name: string = label || "unset";
   export let style = "";
 
-  let validated = false;
-
-  let inputElement: HTMLSelectElement;
+  let validated = true;
 </script>
 
 <div class="input-field" style="{style}">
-  <select
-    class:validated
-    bind:this="{inputElement}"
-    name="{name}"
-    required
-    type="text"
-  >
+  <select class:validated name="{name}" required type="text">
     <slot />
   </select>
   {#if label !== null}
@@ -54,8 +46,15 @@
       linear-gradient(to right, #ccc, #ccc);
     background-position: calc(100% - 20px) calc(1em + 2px),
       calc(100% - 15px) calc(1em + 2px), calc(100% - 2.5em) 0.5em;
-    background-size: 5px 5px, 5px 5px, 1px 1.5em;
+    background-size: 5px 5px, 5px 5px, 1.5px 1.5em;
     background-repeat: no-repeat;
+  }
+
+  select:hover:focus {
+    background-image: linear-gradient(45deg, transparent 50%, white 50%),
+      linear-gradient(135deg, white 50%, transparent 50%),
+      linear-gradient(to right, white, white);
+    background-size: 5px 5px, 5px 5px, 2.5px 1.5em;
   }
 
   label {

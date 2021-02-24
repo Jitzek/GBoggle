@@ -1,8 +1,8 @@
 <script lang="ts">
-  export let label = null;
-  export let max = Infinity;
-  export let min = 0;
-  export let name = label || "unset";
+  export let label: string = null;
+  export let max: number = Infinity;
+  export let min: number = 0;
+  export let name: string = label || "unset";
   export let style = "";
 
   let validated = false;
@@ -81,7 +81,8 @@
 
   button:active {
     color: rgb(0, 0, 0);
-    transition: color 0.25s;
+    background-color: rgba(255, 255, 255, 0.5);
+    transition: 0.1s;
   }
 
   input {
