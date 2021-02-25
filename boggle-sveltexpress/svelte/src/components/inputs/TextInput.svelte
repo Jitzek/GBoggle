@@ -1,11 +1,11 @@
 <script lang="ts">
-  export let label: string = null;
+  export let label: string;
   export let maxLength: number = Infinity;
   export let minLength: number = 0;
   export let name: string = label || "unset";
-  export let style = "";
+  export let style: string = "";
 
-  let validated = false;
+  let validated: boolean = false;
 
   let inputElement: HTMLInputElement;
   function verifyInput() {
@@ -33,7 +33,7 @@
     required
     type="text"
   />
-  {#if label !== null}
+  {#if label}
     <label for="{name}">{label}</label>
   {/if}
 </div>

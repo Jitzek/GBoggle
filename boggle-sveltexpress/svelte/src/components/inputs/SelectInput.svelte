@@ -1,16 +1,16 @@
 <script lang="ts">
-  export let label: string = null;
+  export let label: string;
   export let name: string = label || "unset";
-  export let style = "";
+  export let style: string = "";
 
-  let validated = true;
+  let validated: boolean = true;
 </script>
 
 <div class="input-field" style="{style}">
   <select class:validated name="{name}" required type="text">
     <slot />
   </select>
-  {#if label !== null}
+  {#if label}
     <label for="{name}">{label}</label>
   {/if}
 </div>
