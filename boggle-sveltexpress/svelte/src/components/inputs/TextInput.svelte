@@ -3,7 +3,7 @@
   export let maxLength: number = Infinity;
   export let minLength: number = 0;
   export let name: string = label || "unset";
-  export let style: string = "";
+  export let style: string;
 
   let validated: boolean = false;
 
