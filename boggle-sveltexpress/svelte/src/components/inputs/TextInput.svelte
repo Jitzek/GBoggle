@@ -10,12 +10,17 @@
   let inputElement: HTMLInputElement;
   function verifyInput() {
     let trimmedInputValue = String(inputElement.value).trim();
+    // If the trimmed input (no leading or trailing whitespace) is not within the allowed range
     if (
       trimmedInputValue.length < minLength ||
       trimmedInputValue.length > maxLength
     ) {
+      // Input is invalid
       validated = false;
-    } else validated = true;
+    } else {
+      // Else input is valid
+      validated = true;
+    }
   }
 </script>
 

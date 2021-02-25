@@ -11,13 +11,17 @@
 
   let prevValidValue = min;
   function verifyInput() {
+    // If input is not a number or is out of the allowed range
     if (
       !isNumber(inputElement.value) ||
       Number(inputElement.value) < min ||
       Number(inputElement.value) > max
     ) {
+      // Default to previous valid value
       inputElement.value = prevValidValue.toString();
     }
+    // Given input is allowed or defaulted to previous valid value
+    // Either way the input is valid
     validated = true;
     prevValidValue = Number(inputElement.value);
   }
