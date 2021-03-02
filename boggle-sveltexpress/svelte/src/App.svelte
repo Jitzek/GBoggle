@@ -1,14 +1,11 @@
 <script lang="ts">
   import { Router, Route } from "svelte-routing";
   import { Room, NotFound } from "./routes/";
-  import Text from  "./components/Text.svelte";
 
   export let url = window.location.pathname;
 </script>
 
 <main>
-  <Text value="Test" fontSize="6rem"/>
-  <Text value="Test" fontSize="2rem"/>
   <Router url="{url}">
     <Route path="/" />
     <Route path="room/:id" let:params>
