@@ -1,37 +1,38 @@
 <script lang="ts">
-	import { io } from 'socket.io-client';
+  import { Router, Route } from "svelte-routing";
+  import { Room, NotFound } from "./routes/";
 
-	const socket = io("http://localhost:8000");
-
-	socket.on("connect", (socket: any) => {
-		console.log("Connected");
-	});
+  export let url = window.location.pathname;
 </script>
 
 <main>
-	<h1>Hello World</h1>
+  <Router url="{url}">
+    <Route path="/" />
+    <Route path="room/:id" let:params>
+      <Room id="{params.id}" />
+    </Route>
+    <Route component="{NotFound}" />
+  </Router>
 </main>
 
 <style type="text/scss">
-	$color: red;
+  :global(body) {
+    background: linear-gradient(
+      -45deg,
+      rgba(250, 163, 34, 1) 0%,
+      rgba(239, 59, 57, 1) 70%
+    );
+  }
 
-	main {
-		text-align: center;
-		padding: 1em;
-		max-width: 240px;
-		margin: 0 auto;
-	}
+  main {
+    text-align: center;
+    max-width: 75vw;
+    margin: 0 auto;
+  }
 
-	h1 {
-		color: $color;
-		text-transform: uppercase;
-		font-size: 4em;
-		font-weight: 100;
-	}
-
-	@media (min-width: 640px) {
-		main {
-			max-width: none;
-		}
-	}
+  @media (max-width: 1000px) {
+    main {
+      max-width: none;
+    }
+  }
 </style>
