@@ -18,7 +18,7 @@
 <style type="text/scss">
   :global(body) {
     background: linear-gradient(
-      -45deg,
+      135deg,
       rgba(250, 163, 34, 1) 0%,
       rgba(239, 59, 57, 1) 70%
     );
