@@ -1,7 +1,6 @@
 <script lang="ts">
   import { Router, Route } from "svelte-routing";
   import { Room, NotFound } from "./routes/";
-  import GboggleLogo from "./components/GBoggleLogo.svelte";
 
   export let url = window.location.pathname;
 </script>
