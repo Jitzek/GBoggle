@@ -1,4 +1,5 @@
 <script lang="ts">
+  export let disabled: boolean = false;
   export let label: string;
   export let max: number = Infinity;
   export let min: number = 0;
@@ -41,20 +42,21 @@
   }
 </script>
 
-<div class="input-field" style="{style}">
-  <button on:click="{decrement}" class="input-decrement">
+<div class="input-field" class:disabled style="{style}">
+  <button on:click="{decrement}" class="input-decrement" disabled="{disabled}">
     <i>-</i>
   </button>
   <input
     bind:this="{inputElement}"
     class:validated
+    disabled="{disabled}"
     name="{name}"
     on:input="{verifyInput}"
     required
     step="1"
     type="number"
   />
-  <button on:click="{increment}" class="input-increment">
+  <button on:click="{increment}" class="input-increment" disabled="{disabled}">
     <i>+</i>
   </button>
   {#if label}
@@ -135,6 +137,29 @@
   /**
     Classes
   */
+  .disabled input {
+    color: rgb(140, 140, 140);
+    border-bottom: solid rgba(140, 140, 140, 0.25) 2px;
+    cursor: not-allowed;
+  }
+
+  .disabled button {
+    color: rgb(140, 140, 140);
+    cursor: not-allowed;
+  }
+
+  .disabled button:active {
+    background-color: rgba(255, 255, 255, 0.25);
+    transition: 0.1s;
+  }
+
+  .disabled label {
+    font-size: 18px;
+    top: -30px;
+    margin-left: 0;
+    padding-left: 0px;
+  }
+
   .input-decrement {
     left: 0;
   }

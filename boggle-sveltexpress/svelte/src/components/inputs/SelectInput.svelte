@@ -1,4 +1,5 @@
 <script lang="ts">
+  export let disabled: boolean = false;
   export let label: string;
   export let name: string = label || "unset";
   export let style: string;
@@ -6,8 +7,14 @@
   let validated: boolean = true;
 </script>
 
-<div class="input-field" style="{style}">
-  <select class:validated name="{name}" required type="text">
+<div class="input-field" style="{style}" class:disabled>
+  <select
+    class:validated
+    disabled="{disabled}"
+    name="{name}"
+    required
+    type="text"
+  >
     <slot />
   </select>
   {#if label}
@@ -71,6 +78,18 @@
   /**
     Classes
   */
+  .disabled label {
+    font-size: 18px;
+    top: -30px;
+    padding-left: 0px;
+  }
+
+  .disabled select {
+    color: rgb(140, 140, 140);
+    border-bottom: solid rgba(140, 140, 140, 0.25) 2px;
+    cursor: not-allowed;
+  }
+
   .input-field {
     padding-top: $label_height;
     position: relative;

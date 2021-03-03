@@ -1,4 +1,5 @@
 <script lang="ts">
+  export let disabled: boolean = false;
   export let label: string;
   export let maxLength: number = Infinity;
   export let minLength: number = 0;
@@ -24,9 +25,10 @@
   }
 </script>
 
-<div class="input-field" style="{style}">
+<div class="input-field" class:disabled style="{style}">
   <input
     class:validated
+    disabled="{disabled}"
     on:input="{verifyInput}"
     bind:this="{inputElement}"
     name="{name}"
@@ -70,6 +72,18 @@
   /**
     Classes
   */
+  .disabled label {
+    font-size: 18px;
+    top: -30px;
+    padding-left: 0px;
+  }
+
+  .disabled input {
+    color: rgb(140, 140, 140);
+    border-bottom: solid rgba(140, 140, 140, 0.25) 2px;
+    cursor: not-allowed;
+  }
+
   .input-field {
     padding-top: $label_height;
     position: relative;

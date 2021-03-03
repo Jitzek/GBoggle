@@ -5,13 +5,15 @@
   import { SelectInput } from "../components/inputs";
   import LinkButton from "../components/LinkButton.svelte";
   import Shuttle from "../components/svg/shuttle.svelte";
+  import NumberInput from "../components/inputs/NumberInput.svelte";
+  import TextInput from "../components/inputs/TextInput.svelte";
 
-  export let id: string;
+  export let room_id: string;
 
   let inviteLink: HTMLElement;
 
   /**
-   * 
+   *
    * @param e Element to be copied
    */
   function copyElement(e: HTMLElement) {
@@ -23,13 +25,13 @@
 
     let selection = window.getSelection();
     if (selection.rangeCount > 0) {
-        selection.removeAllRanges();
+      selection.removeAllRanges();
     }
 
     let range = document.createRange();
     range.selectNode(e);
     selection.addRange(range);
-    document.execCommand('copy');
+    document.execCommand("copy");
 
     // Reset display style
     e.style.display = temp;
@@ -79,7 +81,11 @@
       <span id="link" class="hover-me"
         >Hover over here to see the invite link!</span
       >
-      <span bind:this={inviteLink} on:click="{() => copyElement(inviteLink)}" class="invite-link">{`${window.location.host}/room/${id}`}</span>
+      <span
+        bind:this="{inviteLink}"
+        on:click="{() => copyElement(inviteLink)}"
+        class="invite-link">{`${window.location.host}/room/${room_id}`}</span
+      >
     </div>
     <div class="hover-btn-container">
       <button class="hover-btn" on:click="{() => copyElement(inviteLink)}">

@@ -1,4 +1,5 @@
 <script lang="ts">
+  export let disabled: boolean = false;
   export let value: string = "Button";
   export let text_color: string = "#ffffff";
   export let btn_background: string = "#aaaaaa";
@@ -11,7 +12,9 @@
 <button
   on:click="{() => (location.href = href)}"
   class="link-btn"
+  class:disabled
   style="color: {text_color}; background: linear-gradient(-45deg, {btn_background}, {btn_background_hover}); width: {btn_width};"
+  disabled="{disabled}"
 >
   <div class="link-btn-icon-container" style="background: {icon_background};">
     <!-- Icon -->
@@ -23,6 +26,13 @@
 </button>
 
 <style lang="scss">
+  .disabled {
+    color: #8c8c8c !important;
+    background: rgba(255, 255, 255, 0.6) !important;
+    border-bottom: solid rgba(140, 140, 140, 0.25) 2px;
+    cursor: not-allowed !important;
+  }
+
   $icon_size: 35px;
   $btn_background_animation_duration: 0.25s;
   .link-btn {
