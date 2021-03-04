@@ -1,6 +1,5 @@
 <script lang="ts">
   import BasicContainer from "../components/BasicContainer.svelte";
-  import GboggleLogo from "../components/GBoggleLogo.svelte";
   import Text from "../components/Text.svelte";
   import { SelectInput } from "../components/inputs";
   import LinkButton from "../components/LinkButton.svelte";
@@ -39,7 +38,6 @@
 </script>
 
 <div>
-  <GboggleLogo size="20rem" />
   <BasicContainer>
     <Text fontSize="2.5rem" value="Room Settings" />
     <form>
@@ -100,14 +98,7 @@
     max-width: 80%;
     margin: auto;
   }
-
-  .invite-container {
-    margin: auto;
-    text-align: center;
-    vertical-align: middle;
-    display: table;
-  }
-
+  
   .hover-btn {
     background: rgb(255, 136, 0);
     border: none;
@@ -122,6 +113,13 @@
 
   .hover-btn-container {
     display: table-cell;
+  }
+
+  .invite-container {
+    margin: auto;
+    text-align: center;
+    vertical-align: middle;
+    display: table;
   }
 
   .invite-link-container {

@@ -1,13 +1,10 @@
 <script lang="ts">
-  import type SvelteComponentDev from "*.svelte";
-
-  import type { SvelteComponent } from "svelte";
-
   import RoomSettings from "../components/RoomSettings.svelte";
+  import Players from "../components/Players.svelte";
 
   enum ROOM_STATE {
     LOBBY,
-    INGAME
+    INGAME,
   }
 
   export let id: string;
@@ -21,14 +18,38 @@
   room_state = ROOM_STATE.LOBBY;
 </script>
 
-<div>
-  <!-- Dependent on the state of the Game (Lobby or Ingame) load in the correct component -->
-  {#if room_state === ROOM_STATE.LOBBY}
-    <RoomSettings room_id="{id}" />
-  {:else if room_state == ROOM_STATE.INGAME}
-    <div></div>
-  {/if}
+<div class="room-container">
+  <div class="players-component">
+    <Players room_id="{id}" />
+  </div>
+  <div class="main-component">
+    <!-- Dependent on the state of the Game (Lobby or Ingame) load in the correct component -->
+    {#if room_state === ROOM_STATE.LOBBY}
+      <RoomSettings room_id="{id}" />
+    {:else if room_state == ROOM_STATE.INGAME}
+      <div></div>
+    {/if}
+  </div>
+  <div class="chat-component"></div>
 </div>
 
 <style lang="scss">
+  .chat-component {
+    flex: 1;
+    -ms-flex: 1;
+  }
+
+  .main-component {
+    flex: 2;
+    -ms-flex: 2;
+  }
+
+  .players-component {
+    flex: 1;
+    -ms-flex: 1;
+  }
+
+  .room-container {
+    display: flex;
+  }
 </style>
