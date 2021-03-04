@@ -9,7 +9,7 @@
   <Router url="{url}">
     <Route path="/" />
     <Route path="room/:id" let:params>
-      <Room room_id="{params.id}" />
+      <Room id="{params.id}" />
     </Route>
     <Route component="{NotFound}" />
   </Router>
