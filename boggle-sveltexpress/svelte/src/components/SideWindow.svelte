@@ -57,7 +57,7 @@
     position: fixed;
     width: calc(#{$btn_icon_width} + #{$window_size} + #{$btn_extend_width});
 
-    transition: transform $collapse_animation_duration;
+    transition: all $collapse_animation_duration;
   }
 
   .collapse-button:active {
@@ -81,7 +81,7 @@
   }
 
   .collapse-button.collapsed {
-    transition: transform $collapse_animation_duration;
+    transition: all $collapse_animation_duration;
     max-width: calc(#{$btn_icon_width} + #{$window_size} + #{$btn_extend_width});
   }
 
