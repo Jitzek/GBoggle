@@ -34,22 +34,4 @@
 </div>
 
 <style lang="scss">
-  .chat-component {
-    flex: 1;
-    -ms-flex: 1;
-  }
-
-  .main-component {
-    flex: 2;
-    -ms-flex: 2;
-  }
-
-  .players-component {
-    flex: 1;
-    -ms-flex: 1;
-  }
-
-  .room-container {
-    display: flex;
-  }
 </style>

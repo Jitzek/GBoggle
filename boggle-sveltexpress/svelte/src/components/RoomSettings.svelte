@@ -74,23 +74,26 @@
   <div style="margin-top: 2rem"></div>
 
   <Text fontSize="2.5rem" value="Invite Others!" />
-  <div class="invite-container">
-    <div class="invite-link-container">
+  <div class="invite-container" 
+  on:click="{() => copyElement(inviteLink)}"
+  >
+    <div class="invite-link-container"
+    >
       <span id="link" class="hover-me"
         >Hover over here to see the invite link!</span
       >
       <span
         bind:this="{inviteLink}"
-        on:click="{() => copyElement(inviteLink)}"
         class="invite-link">{`${window.location.host}/room/${room_id}`}</span
       >
     </div>
     <div class="hover-btn-container">
-      <button class="hover-btn" on:click="{() => copyElement(inviteLink)}">
+      <button class="hover-btn">
         <Text value="Copy" />
       </button>
     </div>
   </div>
+  <div style="padding-bottom: 4rem;" />
 </div>
 
 <style lang="scss">
@@ -127,6 +130,8 @@
     color: rgb(255, 136, 0);
     width: 100%;
     display: table-cell;
+    white-space: nowrap;
+    max-width: 0px;
   }
 
   .invite-link-container:hover {

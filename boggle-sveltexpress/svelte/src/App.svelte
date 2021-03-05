@@ -31,13 +31,19 @@
 
   main {
     text-align: center;
-    max-width: 100vw;
+    width: 60vw;
     margin: 0 auto;
   }
 
   @media (max-width: 1000px) {
     main {
       max-width: none;
+      width: 90vw;
+    }
+  }
+  @media (max-width: 300px) {
+    main {
+      width: 100vw;
     }
   }
 </style>

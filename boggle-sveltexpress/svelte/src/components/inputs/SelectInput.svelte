@@ -57,13 +57,6 @@
     background-repeat: no-repeat;
   }
 
-  select:hover:focus {
-    background-image: linear-gradient(45deg, transparent 50%, white 50%),
-      linear-gradient(135deg, white 50%, transparent 50%),
-      linear-gradient(to right, white, white);
-    background-size: 5px 5px, 5px 5px, 2.5px 1.5em;
-  }
-
   label {
     color: white;
     font-size: 20px;
