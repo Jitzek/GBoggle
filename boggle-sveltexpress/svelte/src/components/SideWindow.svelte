@@ -45,7 +45,7 @@
   $btn_height: 3.25rem;
   $collapse_animation_duration: 0.5s;
   $btn_icon_width: $btn_height;
-  $btn_extend_width: 1.5rem;
+  $btn_extend_width: 1.5%;
   $window_size: 350px;
 
   .collapse-button {
@@ -139,5 +139,11 @@
 
   .link-btn-icon-container.left {
     right: 0;
+  }
+
+  @media (max-width: $window_size) {
+    .component-container {
+      width: 100%;
+    }
   }
 </style>
