@@ -5,6 +5,8 @@ import { Server as SocketIO } from 'socket.io';
 const PORT = 8000;
 const app = express();
 
+app.use(express.static(path.join(__dirname, "public")));
+
 // Return index.html of svelte
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, "../", "svelte", "public", "index.html"));

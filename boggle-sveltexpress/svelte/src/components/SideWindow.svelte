@@ -1,19 +1,10 @@
 <script lang="ts">
-  // left or right
   export let button_background: string = "#fff";
+  // left or right
   export let position: string = "left";
   export let icon_background: string = "#fff";
 
-  let collapsed: boolean = true;
-
-  // Default
-  let left = "0";
-  let right = "auto";
-  // Change if position is "right"
-  if (position === "right") {
-    left = "auto";
-    right = "0";
-  }
+  export let collapsed: boolean;
 
   function toggleCollapse() {
     collapsed = !collapsed;
@@ -25,17 +16,19 @@
     class="collapse-button {position}"
     class:collapsed
     on:click="{toggleCollapse}"
-    style="left: {left}; right: {right}; background: {button_background}"
+    style="background: {button_background}"
   >
-    <div class="link-btn-icon-container {position}" style="background: {icon_background};">
-        <!-- Icon -->
-        <slot name="icon" />
+    <div
+      class="link-btn-icon-container {position}"
+      style="background: {icon_background};"
+    >
+      <!-- Icon -->
+      <slot name="icon" />
     </div>
   </button>
   <div
     class="component-container {position}"
     class:collapsed
-    style="left: {left}; right: {right};"
   >
     <slot name="window" />
   </div>
@@ -61,16 +54,19 @@
   }
 
   .collapse-button:active {
-      background: initial;
+    background: initial;
   }
 
   .collapse-button.left {
     border-radius: 0 28.5px 28.5px 0;
+    left: 0;
+    right: auto;
   }
 
   .collapse-button.right {
     border-radius: 28.5px 0 0 28.5px;
-
+    left: auto;
+    right: 0;
   }
 
   .collapse-container {
@@ -82,7 +78,9 @@
 
   .collapse-button.collapsed {
     transition: all $collapse_animation_duration;
-    max-width: calc(#{$btn_icon_width} + #{$window_size} + #{$btn_extend_width});
+    max-width: calc(
+      #{$btn_icon_width} + #{$window_size} + #{$btn_extend_width}
+    );
   }
 
   .collapse-button.collapsed.left {
@@ -95,6 +93,16 @@
 
   .collapse-container {
     position: fixed;
+  }
+
+  .component-container.left {
+    left: 0;
+    right: auto;
+  }
+
+  .component-container.right {
+    left: auto;
+    right: 0;
   }
 
   .component-container.collapsed {

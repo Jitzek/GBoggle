@@ -4,8 +4,6 @@
   import { SelectInput } from "../components/inputs";
   import LinkButton from "../components/LinkButton.svelte";
   import Shuttle from "../components/svg/shuttle.svelte";
-  import NumberInput from "../components/inputs/NumberInput.svelte";
-  import TextInput from "../components/inputs/TextInput.svelte";
 
   export let room_id: string;
 
@@ -16,12 +14,6 @@
    * @param e Element to be copied
    */
   function copyElement(e: HTMLElement) {
-    // Remember display style
-    let temp = e.style.display;
-
-    // Make sure display is not 'none'
-    e.style.display = "initial";
-
     let selection = window.getSelection();
     if (selection.rangeCount > 0) {
       selection.removeAllRanges();
@@ -31,9 +23,6 @@
     range.selectNode(e);
     selection.addRange(range);
     document.execCommand("copy");
-
-    // Reset display style
-    e.style.display = temp;
   }
 </script>
 
@@ -74,26 +63,19 @@
   <div style="margin-top: 2rem"></div>
 
   <Text fontSize="2.5rem" value="Invite Others!" />
-  <div class="invite-container" 
-  on:click="{() => copyElement(inviteLink)}"
-  >
-    <div class="invite-link-container"
-    >
-      <span id="link" class="hover-me"
-        >Hover over here to see the invite link!</span
-      >
-      <span
-        bind:this="{inviteLink}"
-        class="invite-link">{`${window.location.host}/room/${room_id}`}</span
+  <div class="invite-container" on:click="{() => copyElement(inviteLink)}">
+    <div class="invite-link-container">
+      <span bind:this={inviteLink} class="invite-link"
+        >{`${window.location.host}/room/${room_id}`}</span
       >
     </div>
-    <div class="hover-btn-container">
-      <button class="hover-btn">
+    <div class="copy-btn-container">
+      <div class="copy-btn">
         <Text value="Copy" />
-      </button>
+      </div>
     </div>
   </div>
-  <div style="padding-bottom: 4rem;" />
+  <div style="padding-bottom: 4rem;"></div>
 </div>
 
 <style lang="scss">
@@ -101,20 +83,19 @@
     max-width: 80%;
     margin: auto;
   }
-  
-  .hover-btn {
+
+  .copy-btn {
     background: rgb(255, 136, 0);
     border: none;
     margin: 0 !important;
     padding: 0.5rem;
-    cursor: pointer;
   }
 
-  .hover-btn:active {
+  .copy-btn:active {
     background: rgb(255, 123, 0);
   }
 
-  .hover-btn-container {
+  .copy-btn-container {
     display: table-cell;
   }
 
@@ -123,6 +104,7 @@
     text-align: center;
     vertical-align: middle;
     display: table;
+    cursor: pointer;
   }
 
   .invite-link-container {
@@ -134,18 +116,7 @@
     max-width: 0px;
   }
 
-  .invite-link-container:hover {
-    .invite-link {
-      display: initial;
-    }
-
-    .hover-me {
-      display: none;
-    }
-  }
-
   .invite-link {
-    display: none;
     color: black;
   }
 </style>

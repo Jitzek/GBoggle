@@ -1,24 +1,42 @@
 <script lang="ts">
-  import Chat from "../components/svg/chat.svelte"
-  import User from "../components/svg/user.svelte"
+  import BitText from "../components/BitText.svelte";
+  import UserIcon from "../components/UserIcon.svelte";
 
-  import SideWindow from "../components/SideWindow.svelte";
   export let room_id: string;
+
+  // TODO: Connect to room and get players
+
+  let icon_size = "2.5rem";
 </script>
 
-<div class="collapse-container">
-  <SideWindow position="left" button_background="#2b6a34">
-    <div class="icon-container" slot="icon">
-      <User color="#2b6a34" width="60%" />
-    </div>
-    <div slot="window">
-      <h1>Players</h1>
-    </div>
-  </SideWindow>
-</div>
+<table class="players">
+  <tr>
+    <!-- User's Image -->
+    <td class="user-icon" style="width: {icon_size}">
+      <UserIcon src="/images/hey.png" size="{icon_size}" background="#2b6a34" border_color="#2b6a34" />
+    </td>
+    <!-- User's Name -->
+    <td class="user-name">
+      <p>Hey</p>
+    </td>
+
+    <!-- User's Points -->
+    <td class="user-points">
+      <BitText color="#2b6a34" fontSize="1.2rem" value="99999" />
+    </td>
+  </tr>
+</table>
 
 <style lang="scss">
-  .icon-container {
-    display: flex;
+  .user-icon {
+    padding: 1rem;
+  }
+
+  .user-name {
+    text-align: left;
+  }
+
+  .players {
+    width: 100%;
   }
 </style>
