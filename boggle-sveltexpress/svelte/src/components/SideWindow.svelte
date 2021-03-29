@@ -138,7 +138,7 @@
 
       position: fixed;
 
-      overflow-y: scroll;
+      overflow-y: auto;
 
       transition: transform $collapse_animation_duration;
     }

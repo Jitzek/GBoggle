@@ -61,12 +61,6 @@
         {/each}
       </MessageBlock>
     {/each}
-
-    <!-- <MessageBlock id="0" userId="0">
-      <Message id="0" message="Hey, Vsauce. Michael here. Where are your fingers? Seriously. 
-      It's a pretty easy question. You should be able to answer it. 
-      But how do you know? How does anyone know anything?" />
-    </MessageBlock> -->
   </div>
   <div class="send-message">
     <input type="text" />
@@ -104,8 +98,13 @@
       }
 
       input {
+        outline: none;
         width: 270px;
         min-width: 0px;
+      }
+
+      input: {
+        border: initial;
       }
 
       button {
