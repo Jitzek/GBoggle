@@ -1,8 +1,10 @@
 <script lang="ts">
-  import RoomSettings from "../components/RoomSettings.svelte";
-  import Players from "../components/Players.svelte";
-  import User from "../components/svg/user.svelte";
-  import SideWindow from "../components/SideWindow.svelte";
+  import RoomSettings from "@components/room/RoomSettings.svelte";
+  import Players from "@components/room/Players.svelte";
+  import Chat from "@components/room/chat/Chat.svelte";
+  import UserIcon from "@components/svg/user.svelte";
+  import ChatIcon from "@components/svg/chat.svelte";
+  import SideWindow from "@components/SideWindow.svelte";
 
   enum ROOM_STATE {
     LOBBY,
@@ -21,29 +23,45 @@
 
   let players_collapsed: boolean = true;
   let chat_collapsed: boolean = true;
+  let players_invisible: boolean = false;
+  let chat_invisible: boolean = false;
 
   $: {
     players_collapsed;
-    console.log(players_collapsed);
+    chat_invisible = !players_collapsed && chat_collapsed;
   }
   $: {
     chat_collapsed;
-    console.log(chat_collapsed);
+    players_invisible = !chat_collapsed && players_collapsed;
   }
 </script>
 
 <div class="room-container">
-  <div class="players-component">
+  <div class="players-component" class:players_invisible>
     <SideWindow
       position="left"
       button_background="#2b6a34"
       bind:collapsed="{players_collapsed}"
     >
       <div class="icon-container" slot="icon">
-        <User color="#2b6a34" width="60%" />
+        <UserIcon color="#2b6a34" width="60%" />
       </div>
       <div slot="window">
         <Players room_id="{id}" />
+      </div>
+    </SideWindow>
+  </div>
+  <div class="chat-component" class:chat_invisible>
+    <SideWindow
+      position="right"
+      button_background="#7f3f98"
+      bind:collapsed="{chat_collapsed}"
+    >
+      <div class="icon-container" slot="icon">
+        <ChatIcon color="#7f3f98" width="60%" />
+      </div>
+      <div slot="window">
+        <Chat room_id="{id}" />
       </div>
     </SideWindow>
   </div>
@@ -61,5 +79,28 @@
 <style lang="scss">
   .icon-container {
     display: flex;
+  }
+
+  $fade_animation_duration: 0.5s;
+  .players-component,
+  .chat-component {
+    -webkit-transition: visibility 0s,
+      opacity $fade_animation_duration ease-in-out;
+    -moz-transition: visibility 0s, opacity $fade_animation_duration ease-in-out;
+    -ms-transition: visibility 0s, opacity $fade_animation_duration ease-in-out;
+    -o-transition: visibility 0s, opacity $fade_animation_duration ease-in-out;
+    transition: visibility 0s, opacity $fade_animation_duration ease-in-out;
+  }
+
+  @media only screen and (max-width: 850px) {
+    .players_invisible {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    .chat_invisible {
+      opacity: 0;
+      visibility: hidden;
+    }
   }
 </style>

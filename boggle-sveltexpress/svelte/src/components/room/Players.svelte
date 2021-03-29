@@ -1,6 +1,6 @@
 <script lang="ts">
-  import BitText from "../components/BitText.svelte";
-  import UserIcon from "../components/UserIcon.svelte";
+  import BitText from "../BitText.svelte";
+  import UserIcon from "../UserIcon.svelte";
 
   export let room_id: string;
 
