@@ -2,7 +2,7 @@
   import BitText from "../BitText.svelte";
   import UserIcon from "../UserIcon.svelte";
 
-  export let room_id: string;
+  export let roomId: string;
 
   // TODO: Connect to room and get players
 

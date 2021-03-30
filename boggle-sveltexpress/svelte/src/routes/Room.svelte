@@ -40,35 +40,37 @@
   <div class="players-component" class:players_invisible>
     <SideWindow
       position="left"
-      button_background="#2b6a34"
+      buttonBackground="#2b6a34"
+      iconBackground="#fff"
       bind:collapsed="{players_collapsed}"
     >
       <div class="icon-container" slot="icon">
         <UserIcon color="#2b6a34" width="60%" />
       </div>
       <div slot="window">
-        <Players room_id="{id}" />
+        <Players roomId="{id}" />
       </div>
     </SideWindow>
   </div>
   <div class="chat-component" class:chat_invisible>
     <SideWindow
       position="right"
-      button_background="#7f3f98"
+      buttonBackground="#7f3f98"
+      iconBackground="#fff"
       bind:collapsed="{chat_collapsed}"
     >
       <div class="icon-container" slot="icon">
         <ChatIcon color="#7f3f98" width="60%" />
       </div>
       <div slot="window">
-        <Chat room_id="{id}" />
+        <Chat roomId="{id}" />
       </div>
     </SideWindow>
   </div>
   <div class="main-component">
     <!-- Dependent on the state of the Game (Lobby or Ingame) load in the correct component -->
     {#if room_state === ROOM_STATE.LOBBY}
-      <RoomSettings room_id="{id}" />
+      <RoomSettings roomId="{id}" />
     {:else if room_state == ROOM_STATE.INGAME}
       <div></div>
     {/if}

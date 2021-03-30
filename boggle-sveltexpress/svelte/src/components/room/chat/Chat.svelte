@@ -2,62 +2,79 @@
   import MessageBlock from "@components/room/chat/MessageBlock.svelte";
   import SendIcon from "@components/svg/send.svelte";
   import Message from "@components/room/chat/Message.svelte";
-  import { afterUpdate } from 'svelte';
+  import { afterUpdate } from "svelte";
 
-
-  export let room_id: string;
+  export let roomId: string;
 
   // TODO: Connect to room and get players
 
   let messagesElement: HTMLElement;
-
   let messageBlocks: Object[] = [];
 
+  let autoScroll: boolean = true;
+
   afterUpdate(() => {
-    // Auto scroll after Lifecycle Update
-    messagesElement.scrollIntoView({behavior: 'smooth', block: 'end'});
+    if (autoScroll) {
+      // Auto scroll after Lifecycle Update
+      messagesElement.scrollIntoView({ behavior: "smooth", block: "end" });
+    }
   });
 
   function onMessage(userId: string, message: string) {
-    // Get current messageblock, if there aren't any messageblocks add one instead
-    let c_m_block = messageBlocks[messageBlocks.length - 1] || addMessageBlock(0, userId);
-    // If a messageblock exists, check if the new message has been send by a new user
-    if (c_m_block && c_m_block["userId"] !== userId) {
-      // Message from new user, Create new Messageblock
-      addMessageBlock(c_m_block["id"] + 1, userId);
+    // Get current messageblock
+    let c_m_block: Object = messageBlocks[messageBlocks.length - 1];
+
+    if (!c_m_block || c_m_block["userId"] !== userId) {
+      // Message from a new user, Create new Messageblock
+      appendMessageBlock(userId);
+      c_m_block = messageBlocks[messageBlocks.length - 1];
     }
+
     // Add message to the newest messageblock
-    addMessage(message, messageBlocks[messageBlocks.length - 1]["id"]);
+    addMessage(message, messageBlocks[messageBlocks.length - 1]);
   }
 
-  function addMessageBlock(id: number, userId: string) {
+  function appendMessageBlock(userId: string) {
+    // TODO, use userId and roomId to get userName and userIcon
+    let userName: string = "VSauce";
+    let userIcon: string = "/images/hey.png";
+
     messageBlocks.push({
-      id: id,
       userId: userId,
-      messages: []
+      userName: userName,
+      userIcon: userIcon,
+      messages: [],
     });
   }
 
-  function addMessage(message: string, messageBlockId: number) {
-    // Find the messageblock with the given ID and add to it the given message
-    messageBlocks.find(m_block => m_block["id"] === messageBlockId)["messages"].push(message);
-    
+  function addMessage(message: string, messageBlock: Object) {
+    messageBlock["messages"].push(message);
+
     // State changed, request UI update
     messageBlocks = messageBlocks;
   }
-
-  let icon_size = "2.5rem";
-
 </script>
 
 <div class="chat">
-  <button on:click="{() => onMessage("user1", "Hello There")}">On Message 1</button>
-  <button on:click="{() => onMessage("user2", "General Kenobi, You are a bold one")}">On Message 2</button>
+  <div class="options">
+    <label for="auto-scroll"
+      >Auto Scroll <input
+        bind:checked="{autoScroll}"
+        id="auto-scroll"
+        type="checkbox"
+      /></label
+    >
+  </div>
   <div class="messages" bind:this="{messagesElement}">
     {#each messageBlocks as messageBlock}
-      <MessageBlock id="{messageBlock["id"]}" userId="{messageBlock["userId"]}">
+      <MessageBlock
+        id="{messageBlock['id']}"
+        userId="{messageBlock['userId']}"
+        userName="{messageBlock['userName']}"
+        userIcon="{messageBlock['userIcon']}"
+      >
         {#each messageBlock["messages"] as message}
-          <Message message="{message}"/>
+          <Message message="{message}" />
         {/each}
       </MessageBlock>
     {/each}
@@ -72,35 +89,73 @@
 
 <style lang="scss">
   .chat {
+    .options {
+      background: #7f3f98;
+      border-radius: 2rem;
+      margin: 0.5rem 1.25rem 0 0;
+      padding: 0.75rem;
+      position: fixed;
+      right: 0;
+      z-index: 1;
+
+      $checkbox_size: 1.35;
+      input[type="checkbox"] {
+        margin-left: 0.15rem;
+      }
+      @supports (zoom: $checkbox_size) {
+        input[type="checkbox"] {
+          zoom: $checkbox_size;
+        }
+      }
+      @supports not (zoom: $checkbox_size) {
+        input[type="checkbox"] {
+          -ms-transform: scale($checkbox_size);
+          -moz-transform: scale($checkbox_size);
+          -webkit-transform: scale($checkbox_size);
+          -o-transform: scale($checkbox_size);
+          transform: scale($checkbox_size);
+          margin-left: 0.15rem;
+        }
+      }
+      label {
+        font-weight: 700;
+        color: white;
+      }
+
+      label:hover {
+        cursor: pointer;
+      }
+    }
+
     .messages {
-      position: relative;
-      // overflow-y: auto;
       padding: 1rem;
+      padding-top: 2rem;
       padding-bottom: 10rem;
+      position: relative;
       text-align: left;
     }
 
     .send-message {
-      position: fixed;
-      bottom: 0;
-      font-size: 1em;
       border-radius: 0px;
+      bottom: 0;
       display: flex;
+      font-size: 1em;
+      position: fixed;
       width: 100%;
 
       input,
       button {
-        height: 2rem;
+        box-sizing: content-box;
         font-size: inherit;
+        height: 2rem;
         -moz-box-sizing: content-box;
         -webkit-box-sizing: content-box;
-        box-sizing: content-box;
       }
 
       input {
+        min-width: 0px;
         outline: none;
         width: 270px;
-        min-width: 0px;
       }
 
       input: {

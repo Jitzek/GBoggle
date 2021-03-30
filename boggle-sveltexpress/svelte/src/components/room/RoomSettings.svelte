@@ -5,7 +5,7 @@
   import LinkButton from "../../components/LinkButton.svelte";
   import Shuttle from "../../components/svg/shuttle.svelte";
 
-  export let room_id: string;
+  export let roomId: string;
 
   let inviteLink: HTMLElement;
 
@@ -66,7 +66,7 @@
   <div class="invite-container" on:click="{() => copyElement(inviteLink)}">
     <div class="invite-link-container">
       <span bind:this={inviteLink} class="invite-link"
-        >{`${window.location.host}/room/${room_id}`}</span
+        >{`${window.location.host}/room/${roomId}`}</span
       >
     </div>
     <div class="copy-btn-container">

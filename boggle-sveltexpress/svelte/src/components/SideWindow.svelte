@@ -1,8 +1,8 @@
 <script lang="ts">
-  export let button_background: string = "#fff";
+  export let buttonBackground: string = "#fff";
   // left or right
   export let position: string = "left";
-  export let icon_background: string = "#fff";
+  export let iconBackground: string = "#fff";
 
   export let collapsed: boolean;
 
@@ -16,11 +16,11 @@
     class="collapse-button {position}"
     class:collapsed
     on:click="{toggleCollapse}"
-    style="background: {button_background}"
+    style="background: {buttonBackground}"
   >
     <div
       class="link-btn-icon-container {position}"
-      style="background: {icon_background};"
+      style="background: {iconBackground};"
     >
       <!-- Icon -->
       <slot name="icon" />
