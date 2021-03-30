@@ -8,15 +8,17 @@
 
   // TODO: Connect to room and get players
 
-  let messagesElement: HTMLElement;
+  let chatContainer: HTMLElement;
   let messageBlocks: Object[] = [];
 
-  let autoScroll: boolean = true;
-
+  let scrollDif = 0;
   afterUpdate(() => {
+    // Only autoscroll if user hasn't manually scrolled up
+    let autoScroll = chatContainer.scrollTop == scrollDif
+    scrollDif = chatContainer.scrollHeight - chatContainer.clientHeight;
+    // Auto scroll after Lifecycle Update
     if (autoScroll) {
-      // Auto scroll after Lifecycle Update
-      messagesElement.scrollIntoView({ behavior: "smooth", block: "end" });
+      chatContainer.scrollTop = chatContainer.scrollHeight - chatContainer.clientHeight;
     }
   });
 
@@ -55,116 +57,77 @@
   }
 </script>
 
-<div class="chat">
-  <div class="options">
-    <label for="auto-scroll"
-      >Auto Scroll <input
-        bind:checked="{autoScroll}"
-        id="auto-scroll"
-        type="checkbox"
-      /></label
-    >
-  </div>
-  <div class="messages" bind:this="{messagesElement}">
-    {#each messageBlocks as messageBlock}
-      <MessageBlock
-        id="{messageBlock['id']}"
-        userId="{messageBlock['userId']}"
-        userName="{messageBlock['userName']}"
-        userIcon="{messageBlock['userIcon']}"
-      >
-        {#each messageBlock["messages"] as message}
-          <Message message="{message}" />
-        {/each}
-      </MessageBlock>
-    {/each}
-  </div>
-  <div class="send-message">
-    <input type="text" />
-    <button>
-      <SendIcon width="1.75rem" />
-    </button>
+<div class="chat-container" bind:this="{chatContainer}">
+  <div class="chat">
+    <div class="messages">
+      {#each messageBlocks as messageBlock}
+        <MessageBlock
+          id="{messageBlock['id']}"
+          userId="{messageBlock['userId']}"
+          userName="{messageBlock['userName']}"
+          userIcon="{messageBlock['userIcon']}"
+        >
+          {#each messageBlock["messages"] as message}
+            <Message message="{message}" />
+          {/each}
+        </MessageBlock>
+      {/each}
+    </div>
+    <div class="send-message">
+      <input type="text" />
+      <button>
+        <SendIcon width="1.75rem" />
+      </button>
+    </div>
   </div>
 </div>
 
 <style lang="scss">
-  .chat {
-    .options {
-      background: #7f3f98;
-      border-radius: 2rem;
-      margin: 0.5rem 1.25rem 0 0;
-      padding: 0.75rem;
-      position: fixed;
-      right: 0;
-      z-index: 1;
+  .chat-container {
+    position: fixed;
+    height: 100%;
+    width: 100%;
+    overflow-y: auto;
 
-      $checkbox_size: 1.35;
-      input[type="checkbox"] {
-        margin-left: 0.15rem;
+    .chat {
+      .messages {
+        padding: 1rem;
+        padding-bottom: 10rem;
+        position: relative;
+        text-align: left;
       }
-      @supports (zoom: $checkbox_size) {
-        input[type="checkbox"] {
-          zoom: $checkbox_size;
+
+      .send-message {
+        border-radius: 0px;
+        bottom: 0;
+        display: flex;
+        font-size: 1em;
+        position: fixed;
+        width: 100%;
+
+        input,
+        button {
+          box-sizing: content-box;
+          font-size: inherit;
+          height: 2rem;
+          -moz-box-sizing: content-box;
+          -webkit-box-sizing: content-box;
         }
-      }
-      @supports not (zoom: $checkbox_size) {
-        input[type="checkbox"] {
-          -ms-transform: scale($checkbox_size);
-          -moz-transform: scale($checkbox_size);
-          -webkit-transform: scale($checkbox_size);
-          -o-transform: scale($checkbox_size);
-          transform: scale($checkbox_size);
-          margin-left: 0.15rem;
+
+        input {
+          min-width: 0px;
+          outline: none;
+          width: 270px;
         }
-      }
-      label {
-        font-weight: 700;
-        color: white;
-      }
 
-      label:hover {
-        cursor: pointer;
-      }
-    }
+        input: {
+          border: initial;
+        }
 
-    .messages {
-      padding: 1rem;
-      padding-top: 2rem;
-      padding-bottom: 10rem;
-      position: relative;
-      text-align: left;
-    }
-
-    .send-message {
-      border-radius: 0px;
-      bottom: 0;
-      display: flex;
-      font-size: 1em;
-      position: fixed;
-      width: 100%;
-
-      input,
-      button {
-        box-sizing: content-box;
-        font-size: inherit;
-        height: 2rem;
-        -moz-box-sizing: content-box;
-        -webkit-box-sizing: content-box;
-      }
-
-      input {
-        min-width: 0px;
-        outline: none;
-        width: 270px;
-      }
-
-      input: {
-        border: initial;
-      }
-
-      button {
-        background: white;
-        width: 50px;
+        button {
+          background: white;
+          width: 50px;
+        }
       }
     }
   }
