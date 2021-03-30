@@ -2,7 +2,7 @@
   import MessageBlock from "@components/room/chat/MessageBlock.svelte";
   import SendIcon from "@components/svg/send.svelte";
   import Message from "@components/room/chat/Message.svelte";
-  import { afterUpdate } from "svelte";
+  import { beforeUpdate, afterUpdate } from "svelte";
 
   export let roomId: string;
 
@@ -11,16 +11,40 @@
   let chatContainer: HTMLElement;
   let messageBlocks: Object[] = [];
 
+  let newMessagesButton: HTMLButtonElement;
+  let newMessagesButtonWidth: string = "8rem";
+
   let scrollDif = 0;
+
+
   afterUpdate(() => {
     // Only autoscroll if user hasn't manually scrolled up
-    let autoScroll = chatContainer.scrollTop == scrollDif
+    let autoScroll = chatContainer.scrollTop == scrollDif;
     scrollDif = chatContainer.scrollHeight - chatContainer.clientHeight;
     // Auto scroll after Lifecycle Update
     if (autoScroll) {
-      chatContainer.scrollTop = chatContainer.scrollHeight - chatContainer.clientHeight;
+      scrollToBottom();
+    } else {
+      // Show "Scroll to Bottom" button
+      showNewMessagesButton();
     }
   });
+
+  function showNewMessagesButton() {
+    newMessagesButton.style.visibility = "visible";
+    newMessagesButton.style.right = "0";
+  }
+
+  function hideNewMessagesButton() {
+    newMessagesButton.style.visibility = "hidden";
+    newMessagesButton.style.right = `-${newMessagesButtonWidth}`;
+  }
+
+  function scrollToBottom() {
+    hideNewMessagesButton();
+    chatContainer.scrollTop = chatContainer.scrollHeight - chatContainer.clientHeight;
+  }
+
 
   function onMessage(userId: string, message: string) {
     // Get current messageblock
@@ -73,6 +97,7 @@
         </MessageBlock>
       {/each}
     </div>
+    <button bind:this="{newMessagesButton}" class="new-messages-btn" on:click="{scrollToBottom}" style="width: {newMessagesButtonWidth}" />
     <div class="send-message">
       <input type="text" />
       <button>
@@ -90,6 +115,31 @@
     overflow-y: auto;
 
     .chat {
+      .new-messages-btn {
+        position: fixed;
+        right: 0;
+        bottom: 4rem;
+
+        visibility: hidden;
+
+        color: white;
+        background: #7f3f98;
+        border: none;
+        border-radius: 6px;
+
+        cursor: pointer;
+
+        transition: all 0.75s;
+      }
+
+      .new-messages-btn::before {
+        content: "New Messages!";
+      }
+
+      .new-messages-btn:hover::before {
+        content: "Scroll to Bottom";
+      }
+
       .messages {
         padding: 1rem;
         padding-bottom: 10rem;
