@@ -2,7 +2,7 @@
   import MessageBlock from "@components/room/chat/MessageBlock.svelte";
   import SendIcon from "@components/svg/send.svelte";
   import Message from "@components/room/chat/Message.svelte";
-  import { beforeUpdate, afterUpdate } from "svelte";
+  import { afterUpdate } from "svelte";
 
   export let roomId: string;
 
@@ -18,14 +18,13 @@
 
 
   afterUpdate(() => {
-    // Only autoscroll if user hasn't manually scrolled up
+    // Only autoscroll if the user is already at bottom of the chat
     let autoScroll = chatContainer.scrollTop == scrollDif;
     scrollDif = chatContainer.scrollHeight - chatContainer.clientHeight;
-    // Auto scroll after Lifecycle Update
     if (autoScroll) {
+      // Auto scroll after Lifecycle Update
       scrollToBottom();
     } else {
-      // Show "Scroll to Bottom" button
       showNewMessagesButton();
     }
   });

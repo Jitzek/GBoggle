@@ -13,7 +13,7 @@
 
   export let id: string;
   // TODO: Connect to the server (socket) of this room using id
-  // Use localstorage to store user token
+  // Use cookie to store user token (for this session)
 
   // TODO: Use server to determine the room state
   let room_state: ROOM_STATE;

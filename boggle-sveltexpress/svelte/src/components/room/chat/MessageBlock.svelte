@@ -1,15 +1,13 @@
 <script type="ts">
   import UserIcon from "@components/UserIcon.svelte";
 
-  export let id;
-  export let userId;
-  export let userIcon;
-  export let userName;
+  export let userIcon: string;
+  export let userName: string;
 
   let icon_size = "2.5rem";
 </script>
 
-<table class="message-block" id="{id}">
+<table class="message-block">
   <tr class="user-info">
     <!-- User's Image -->
     <td class="user-icon" style="width: {icon_size}">
