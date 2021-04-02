@@ -1,5 +1,10 @@
 <script lang="ts">
+    import CameraSvg from "./svg/camera.svelte";
+    import SoundbarsSvg from "./svg/soundbars.svelte";
+
     export let acceptedfiletypes: string;
+    export let id: string;
+    export let labelName: string = "Upload file";
     let avatar, fileinput;
 
     const onFileSelected = (e) => {
@@ -7,17 +12,18 @@
         let reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onload = (e) => {
-            document.getElementById("filename").innerHTML = file.name;
+            document.getElementById(id + id).innerHTML = file.name;
             if (acceptedfiletypes == "audio/*") return;
             avatar = e.target.result;
         };
     };
+    
 </script>
 
-<div>
-    <h1>test</h1>
+<div class="upload-container">
+    <p>{labelName}</p>
     <div class="container">
-        <label for="upload">
+        <label for="{id}">
             {#if avatar}
                 <img
                     src={avatar}
@@ -36,22 +42,27 @@
                 />
             {/if}
             <div class="uploadbutton overlay">
-                <slot />
+                {#if acceptedfiletypes == "image/*"}
+                <CameraSvg color="white"></CameraSvg> 
+                {:else if acceptedfiletypes == "audio/*"}
+                <SoundbarsSvg color="white"></SoundbarsSvg>
+                {/if}
             </div>
         </label>
         <input
             type="file"
-            id="upload"
+            id="{id}"
+            class="upload"
             accept={acceptedfiletypes}
             on:change={(e) => onFileSelected(e)}
             bind:this={fileinput}
         />
     </div>
-    <h2 id="filename">test2</h2>
+    <p id={id+id}>test2</p>
 </div>
 
 <style>
-    #upload {
+    .upload {
         width: 0.1px;
         height: 0.1px;
         opacity: 0;
@@ -63,15 +74,27 @@
     .labelstyle {
         background-color: #3a3838;
     }
-
+    .upload-container {
+        width: 18rem;
+    }
     .uploadbutton {
         border-radius: 50%;
         width: 175px;
         height: 175px;
         position: absolute;
         border: 3px solid #3a3838;
+        object-fit: cover;
     }
-
+    @media only screen and (max-width: 700px) {
+    .uploadbutton {
+        width: 80px;
+        height: 80px;
+    }
+    .overlay{
+        width: 75px;
+        height: 75px;
+    }
+}
     label {
         display: flex;
         justify-content: center;
@@ -91,9 +114,5 @@
     label:hover .overlay {
         opacity: 1;
         z-index: 2;
-    }
-
-    .container {
-        height: 175px;
     }
 </style>

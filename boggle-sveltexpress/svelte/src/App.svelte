@@ -1,13 +1,13 @@
 <script lang="ts">
   import { Router, Route } from "svelte-routing";
-  import { Room, NotFound } from "./routes/";
+  import { Room, NotFound, Home } from "./routes/";
 
   export let url = window.location.pathname;
 </script>
 
 <main>
   <Router url="{url}">
-    <Route path="/" />
+    <Route path="/" component="{Home}"/>
     <Route path="room/:id" let:params>
       <Room id="{params.id}" />
     </Route>
@@ -18,7 +18,7 @@
 <style type="text/scss">
   :global(body) {
     background: linear-gradient(
-      -45deg,
+      135deg,
       rgba(250, 163, 34, 1) 0%,
       rgba(239, 59, 57, 1) 70%
     );
