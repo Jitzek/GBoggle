@@ -7,7 +7,9 @@
 </script>
 
 <div>
-    <BitText ref="leaderboardtitle" value="Leaderboard"></BitText>
+    <div class="leaderboardtitlecontainer">
+        <BitText ref="leaderboardtitle" value="Leaderboard"></BitText>
+    </div>
     <div>
         <BasicContainer borders="{true}">
             <table class="leaderboard">
@@ -34,6 +36,10 @@
 </div>
 
 <style>
+    .leaderboardtitlecontainer{
+        padding: 20px 0 20px 0; 
+        margin-top: 20px
+    }
     :global([ref=leaderboardtitle]){
         font-size: 4vw;
     }
