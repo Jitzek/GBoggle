@@ -1,6 +1,5 @@
 <script lang="ts">
-    import CameraSvg from "./svg/camera.svelte";
-    import SoundbarsSvg from "./svg/soundbars.svelte";
+    import {Soundbars, Camera} from "./svg/index";
     import Text from "./Text.svelte";
 
     export let acceptedfiletypes: string;
@@ -47,9 +46,9 @@
             {/if}
             <div class="uploadbutton overlay">
                 {#if acceptedfiletypes == "image/*"}
-                <CameraSvg color="white" width="60%"></CameraSvg> 
+                <Camera color="white" width="60%"></Camera> 
                 {:else if acceptedfiletypes == "audio/*"}
-                <SoundbarsSvg color="white" width="60%"></SoundbarsSvg>
+                <Soundbars color="white" width="60%"></Soundbars>
                 {/if}
             </div>
             </div>

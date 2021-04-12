@@ -3,7 +3,7 @@
   import Text from "../../components/Text.svelte";
   import { SelectInput } from "../../components/inputs";
   import LinkButton from "../../components/LinkButton.svelte";
-  import Shuttle from "../../components/svg/shuttle.svelte";
+  import {Shuttle} from "../../components/svg/index"
 
   export let roomId: string;
 

@@ -1,6 +1,6 @@
 <script lang="ts">
   import MessageBlock from "@components/room/chat/MessageBlock.svelte";
-  import SendIcon from "@components/svg/send.svelte";
+  import {Send} from "../../svg/index";
   import Message from "@components/room/chat/Message.svelte";
   import { afterUpdate } from "svelte";
 
@@ -100,7 +100,7 @@
     <div class="send-message">
       <input type="text" />
       <button>
-        <SendIcon width="1.75rem" />
+        <Send width="1.75rem" />
       </button>
     </div>
   </div>

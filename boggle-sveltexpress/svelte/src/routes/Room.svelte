@@ -2,8 +2,7 @@
   import RoomSettings from "@components/room/RoomSettings.svelte";
   import Players from "@components/room/Players.svelte";
   import Chat from "@components/room/chat/Chat.svelte";
-  import UserIcon from "@components/svg/user.svelte";
-  import ChatIcon from "@components/svg/chat.svelte";
+  import {Chat_Icon, User} from "../components/svg/index"
   import SideWindow from "@components/SideWindow.svelte";
 
   enum ROOM_STATE {
@@ -45,7 +44,7 @@
       bind:collapsed="{players_collapsed}"
     >
       <div class="icon-container" slot="icon">
-        <UserIcon color="#2b6a34" width="60%" />
+        <User color="#2b6a34" width="60%" />
       </div>
       <div slot="window">
         <Players roomId="{id}" />
@@ -60,7 +59,7 @@
       bind:collapsed="{chat_collapsed}"
     >
       <div class="icon-container" slot="icon">
-        <ChatIcon color="#7f3f98" width="60%" />
+        <Chat_Icon color="#7f3f98" width="60%" />
       </div>
       <div slot="window">
         <Chat roomId="{id}" />

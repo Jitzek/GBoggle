@@ -3,10 +3,8 @@
     import {TextInput} from "../components/inputs/index";
     import UploadButton from "../components/UploadButton.svelte";
     import LinkButton from "../components/LinkButton.svelte";
-    import Users from "../components/svg/users.svelte";
-    import Private from "../components/svg/private.svelte"
     import Leaderboard from "../components/Leaderboard.svelte"
-    import User from "../components/svg/user.svelte"
+    import {Users, User, Private} from "../components/svg/index";
 </script>
     <BasicContainer>
         <div class="start-container">

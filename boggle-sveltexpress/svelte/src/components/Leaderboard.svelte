@@ -2,7 +2,7 @@
     import BasicContainer from "../components/BasicContainer.svelte"
     import BitText from "../components/BitText.svelte"
     import Text from "./Text.svelte";
-    import Medal_First from "../components/svg/medal_first.svelte"
+    import {Medal_First} from "./svg/index";
 
 </script>
 
