@@ -5,14 +5,20 @@
     export let acceptedfiletypes: string;
     export let id: string;
     export let labelName: string = "Upload file";
-    let avatar, fileinput;
+    let avatar: string | ArrayBuffer 
+    let fileinput: any;
 
     const onFileSelected = (e) => {
         let file = e.target.files[0];
         let reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onload = (e) => {
-            document.getElementById(id + id).innerHTML = file.name;
+            let shortname: string = file.name.split('.').shift();
+            if(shortname.length > 10){
+                shortname = shortname.slice(0, 10);
+                shortname += "...";
+            }
+            document.getElementById(id + id).innerHTML = shortname;
             if (acceptedfiletypes == "audio/*") return;
             avatar = e.target.result;
         };
@@ -29,7 +35,7 @@
             <div class="container">
                 {#if avatar}
                 <img
-                    src={avatar}
+                    src={avatar.toString()}
                     alt=""
                     class="uploadbutton"
                     on:click={() => {
@@ -39,7 +45,7 @@
             {:else}
                 <div
                     class="uploadbutton labelstyle"
-                    on:click={() => {
+                    on:click={() => {               
                         fileinput.click();
                     }}
                 />
