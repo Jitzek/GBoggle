@@ -1,6 +1,6 @@
 <script lang="ts">
-    import {Soundbars, Camera} from "./svg/index";
-    import Text from "./Text.svelte";
+    import {Soundbars, Camera} from "@components/svg/index";
+    import Text from "@components/Text.svelte";
 
     export let acceptedfiletypes: string;
     export let id: string;

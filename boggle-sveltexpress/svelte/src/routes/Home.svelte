@@ -1,10 +1,10 @@
 <script>
-    import BasicContainer from "../components/BasicContainer.svelte"
-    import {TextInput} from "../components/inputs/index";
-    import UploadButton from "../components/UploadButton.svelte";
-    import LinkButton from "../components/LinkButton.svelte";
-    import Leaderboard from "../components/Leaderboard.svelte"
-    import {Users, User, Private} from "../components/svg/index";
+    import BasicContainer from "@components/BasicContainer.svelte"
+    import {TextInput} from "@components/inputs/index";
+    import UploadButton from "@components/UploadButton.svelte";
+    import LinkButton from "@components/LinkButton.svelte";
+    import Leaderboard from "@components/Leaderboard.svelte"
+    import {Users, User, Private} from "@components/svg/index";
 </script>
     <BasicContainer>
         <div class="start-container">

@@ -1,9 +1,9 @@
 <script lang="ts">
-  import BasicContainer from "../../components/BasicContainer.svelte";
-  import Text from "../../components/Text.svelte";
-  import { SelectInput } from "../../components/inputs";
-  import LinkButton from "../../components/LinkButton.svelte";
-  import {Shuttle} from "../../components/svg/index"
+  import BasicContainer from "@components/BasicContainer.svelte";
+  import Text from "@components/Text.svelte";
+  import { SelectInput } from "@components/inputs";
+  import LinkButton from "@components/LinkButton.svelte";
+  import {Shuttle} from "@components/svg/index.js";
 
   export let roomId: string;
 

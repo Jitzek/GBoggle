@@ -2,7 +2,7 @@
   import RoomSettings from "@components/room/RoomSettings.svelte";
   import Players from "@components/room/Players.svelte";
   import Chat from "@components/room/chat/Chat.svelte";
-  import {Chat_Icon, User} from "../components/svg/index"
+  import {Chat_Icon, User} from "@components/svg/index"
   import SideWindow from "@components/SideWindow.svelte";
 
   enum ROOM_STATE {

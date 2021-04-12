@@ -1,8 +1,8 @@
 <script lang="typescript">
-    import BasicContainer from "../components/BasicContainer.svelte"
-    import BitText from "../components/BitText.svelte"
-    import Text from "./Text.svelte";
-    import {Medal_First} from "./svg/index";
+    import BasicContainer from "@components/BasicContainer.svelte"
+    import BitText from "@components/BitText.svelte"
+    import Text from "@components/Text.svelte";
+    import {Medal_First} from "@components/svg/index";
 
 </script>
 

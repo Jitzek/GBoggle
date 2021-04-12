@@ -1,6 +1,6 @@
 <script lang="ts">
   import MessageBlock from "@components/room/chat/MessageBlock.svelte";
-  import {Send} from "../../svg/index";
+  import {Send} from "@components/svg/index";
   import Message from "@components/room/chat/Message.svelte";
   import { afterUpdate } from "svelte";
 
