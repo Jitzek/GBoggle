@@ -1,6 +1,7 @@
 <script lang="ts">
     import CameraSvg from "./svg/camera.svelte";
     import SoundbarsSvg from "./svg/soundbars.svelte";
+    import Text from "./Text.svelte";
 
     export let acceptedfiletypes: string;
     export let id: string;
@@ -21,10 +22,13 @@
 </script>
 
 <div class="upload-container">
-    <p>{labelName}</p>
-    <div class="container">
+    <div class="uploadbuttonlabel">
+        <Text value="{labelName}"></Text>
+    </div>
+    <div>
         <label for="{id}">
-            {#if avatar}
+            <div class="container">
+                {#if avatar}
                 <img
                     src={avatar}
                     alt=""
@@ -43,10 +47,11 @@
             {/if}
             <div class="uploadbutton overlay">
                 {#if acceptedfiletypes == "image/*"}
-                <CameraSvg color="white"></CameraSvg> 
+                <CameraSvg color="white" width="60%"></CameraSvg> 
                 {:else if acceptedfiletypes == "audio/*"}
-                <SoundbarsSvg color="white"></SoundbarsSvg>
+                <SoundbarsSvg color="white" width="60%"></SoundbarsSvg>
                 {/if}
+            </div>
             </div>
         </label>
         <input
@@ -58,10 +63,28 @@
             bind:this={fileinput}
         />
     </div>
-    <p id={id+id}>test2</p>
+    <p id={id+id}></p>
 </div>
 
 <style>
+    @media only screen and (max-width: 700px) {
+        .uploadbuttonlabel{
+            font-size: 0.7rem;
+    }
+}
+
+    .uploadbuttonlabel{
+        white-space: nowrap;
+        margin: 20px 0px 20px 0px;
+    }
+
+    .container{
+        margin: 0 auto;
+        display: grid;
+        place-items: center;
+        grid-template-areas: "inners";
+    }
+
     .upload {
         width: 0.1px;
         height: 0.1px;
@@ -81,9 +104,9 @@
         border-radius: 50%;
         width: 175px;
         height: 175px;
-        position: absolute;
         border: 3px solid #3a3838;
         object-fit: cover;
+        grid-area: inners;
     }
     @media only screen and (max-width: 700px) {
     .uploadbutton {

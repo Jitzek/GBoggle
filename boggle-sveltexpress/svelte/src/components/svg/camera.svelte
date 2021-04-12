@@ -1,6 +1,7 @@
 <script lang="ts">
 	export let width: string = "75px";
 	export let color: string = "black";
+	export let ref: string;
 </script>
 
 <svg
