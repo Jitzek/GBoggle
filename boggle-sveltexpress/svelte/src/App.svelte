@@ -2,6 +2,7 @@
   import { Router, Route } from "svelte-routing";
   import { Room, NotFound } from "./routes/";
   import GboggleLogo from "./components/GBoggleLogo.svelte";
+import RoomBrowser from "./routes/RoomBrowser.svelte";
 
   export let url = window.location.pathname;
 </script>
@@ -13,6 +14,7 @@
     <Route path="room/:id" let:params>
       <Room id="{params.id}" />
     </Route>
+    <Route path="/roombrowser" component="{RoomBrowser}"/>
     <Route component="{NotFound}" />
   </Router>
 </main>
