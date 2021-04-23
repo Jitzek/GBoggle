@@ -1,8 +1,8 @@
-<script>
-
+<script lang="ts">
+    export let style: string;
 </script>
 
-<div class="basiccontainer">
+<div class="basiccontainer" style="{style}">
     <slot></slot>
 </div>
 
