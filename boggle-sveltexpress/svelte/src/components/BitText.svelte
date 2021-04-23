@@ -2,9 +2,10 @@
     export let color: string = "white";
     export let fontSize: string;
     export let value: string;
+    export let ref: string;
 </script>
 
-<p style="color: {color}; font-size: {fontSize}">{value}</p>
+<p {ref} style="color: {color}; font-size: {fontSize}">{value}</p>
 
 <style lang="scss">
     @font-face {

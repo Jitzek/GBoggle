@@ -1,45 +1,25 @@
 <script lang="ts">
-	export let width: string = "75px";
-	export let color: string = "black";
+    export let width: string = "75px";
+    export let color: string;
 </script>
 
-<svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	 viewBox="0 0 490.667 490.667" style="enable-background:new 0 0 490.667 490.667;" xml:space="preserve" width="{width}"
-	 fill="{color}">
-<g>
-	<g>
-		<circle cx="245.333" cy="160" r="74.667"/>
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 50 50" style="enable-background:new 0 0 50 50;" xml:space="preserve" width={width} fill={color}>
+<g id="XMLID_60_">
+	<g id="XMLID_65_">
+		<g id="XMLID_66_">
+			<circle id="XMLID_67_" cx="25.5" cy="11.7" r="11.7"/>
+		</g>
 	</g>
-</g>
-<g>
-	<g>
-		<circle cx="394.667" cy="224" r="53.333"/>
-	</g>
-</g>
-<g>
-	<g>
-		<circle cx="97.515" cy="224" r="53.333"/>
-	</g>
-</g>
-<g>
-	<g>
-		<path d="M245.333,256c-76.459,0-138.667,62.208-138.667,138.667c0,5.888,4.779,10.667,10.667,10.667h256
-			c5.888,0,10.667-4.779,10.667-10.667C384,318.208,321.792,256,245.333,256z"/>
-	</g>
-</g>
-<g>
-	<g>
-		<path d="M115.904,300.971c-6.528-1.387-13.163-2.304-19.904-2.304c-52.928,0-96,43.072-96,96c0,5.888,4.779,10.667,10.667,10.667
-			h76.629c-1.195-3.349-1.963-6.912-1.963-10.667C85.333,359.659,96.768,327.339,115.904,300.971z"/>
-	</g>
-</g>
-<g>
-	<g>
-		<path d="M394.667,298.667c-6.741,0-13.376,0.917-19.904,2.304c19.136,26.368,30.571,58.688,30.571,93.696
-			c0,3.755-0.768,7.317-1.963,10.667H480c5.888,0,10.667-4.779,10.667-10.667C490.667,341.739,447.595,298.667,394.667,298.667z"/>
+	<g id="XMLID_56_">
+		<g id="XMLID_57_">
+			<path id="XMLID_58_" d="M25.5,26.7c-11.9,0-21.7,9.7-21.7,21.7c0,0.9,0.7,1.7,1.7,1.7h40c0.9,0,1.7-0.7,1.7-1.7
+				C47.2,36.4,37.5,26.7,25.5,26.7z"/>
+		</g>
 	</g>
 </g>
 </svg>
+
 <style>
 	svg {
 		margin: 0 auto;
