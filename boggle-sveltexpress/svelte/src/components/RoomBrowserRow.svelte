@@ -1,8 +1,6 @@
 <script lang="ts">
     import BasicContainer from "@components/BasicContainer.svelte"
-    import Lock from "@components/svg/lock.svelte"
-    import FlagNL from "@components/svg/flagNL.svelte"
-    import Users from "@components/svg/user.svelte"
+    import {Lock, NL, Users} from "@components/svg/index"
     import Text from "@components/Text.svelte"
 
     export let islocked: Boolean = false;
@@ -26,7 +24,7 @@
             </td>
             <td class="language">
                 {#if lang == "Dutch"}
-                    <FlagNL width="30px"/>
+                    <NL width="30px"/>
                 {:else if lang == "Frisian"}
                     <!-- insert Frisian flag -->
                 {:else if lang == "English"}

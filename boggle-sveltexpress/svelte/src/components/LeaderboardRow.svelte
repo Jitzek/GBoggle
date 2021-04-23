@@ -10,7 +10,7 @@
     export let score: string;
 </script>
 
-<BasicContainer borders="{true}">
+<BasicContainer style="border-top: 1px solid rgba(255, 255, 255, 0.400); border-bottom: 1px solid rgba(255, 255, 255, 0.400);">
     <table class="leaderboard">
         <tr>
             <td class="placement">

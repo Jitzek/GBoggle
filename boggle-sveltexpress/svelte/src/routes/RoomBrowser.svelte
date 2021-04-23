@@ -1,6 +1,6 @@
 <script lang="ts">
     import BasicContainer from "@components/BasicContainer.svelte"
-    import {TextInput, SelectInput, CheckboxInput} from "@components/inputs/index.ts"
+    import {TextInput, SelectInput, CheckboxInput} from "@components/inputs/index"
     import RoomBrowserRow from "@components/RoomBrowserRow.svelte"
 </script>
 
