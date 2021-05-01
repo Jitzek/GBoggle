@@ -4,6 +4,7 @@
   import Chat from "@components/room/chat/Chat.svelte";
   import {Chat_Icon, User} from "@components/svg/index"
   import SideWindow from "@components/SideWindow.svelte";
+  import {GamePage} from "@routes/index";
 
   enum ROOM_STATE {
     LOBBY,
@@ -18,7 +19,7 @@
   let room_state: ROOM_STATE;
 
   // TEMPORARY ASSIGNMENT
-  room_state = ROOM_STATE.LOBBY;
+  room_state = ROOM_STATE.INGAME;
 
   let players_collapsed: boolean = true;
   let chat_collapsed: boolean = true;
@@ -71,7 +72,7 @@
     {#if room_state === ROOM_STATE.LOBBY}
       <RoomSettings roomId="{id}" />
     {:else if room_state == ROOM_STATE.INGAME}
-      <div></div>
+      <div><GamePage/></div>
     {/if}
   </div>
   <div class="chat-component"></div>

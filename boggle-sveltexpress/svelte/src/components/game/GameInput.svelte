@@ -40,6 +40,12 @@
         margin: 0 0 0 0;
         float: right;
         margin-right: 10%;
+        border: none;
+        box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.301);
+        cursor: pointer;
+    }
+    .send_button:hover{
+        background-color: rgb(235, 235, 235);
     }
 
     @media only screen and (max-width: 700px){

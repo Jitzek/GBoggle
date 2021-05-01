@@ -1,5 +1,7 @@
 <script lang="ts">
     import Text from "@components/Text.svelte";
+
+    export let foundWords: string[] = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
 </script>
 
 <div>
@@ -7,30 +9,20 @@
     <div class="flex_container">
         <div class="list">
             <ul>
-                <Text value="test"/>
-                <Text value="dinges"/>
-                <Text value="gurbe"/>
-                <Text value="netgurbe"/>
-                <Text value="gorge"/>
-                <Text value="wolgorge"/>
-                <Text value="beamstronk"/>
-                <Text value="qwertyuiopasdfgh"/>
-                <Text value="mhm"/>
-                <Text value="klopt"/>
+                {#each foundWords as word, i}
+                    {#if i % 2 == 0}
+                        <Text value="{word}"/>
+                    {/if}
+                {/each}
             </ul>
         </div>
         <div>
             <ul>
-                <Text value="test"/>
-                <Text value="dinges"/>
-                <Text value="gurbe"/>
-                <Text value="netgurbe"/>
-                <Text value="gorge"/>
-                <Text value="wolgorge"/>
-                <Text value="beamstronk"/>
-                <Text value="qwertyuiopasdfgh"/>
-                <Text value="mhm"/>
-                <Text value="klopt"/>
+                {#each foundWords as word, i}
+                    {#if i % 2 != 0}
+                        <Text value="{word}"/>
+                    {/if}
+                {/each}
             </ul>
         </div>
     </div>
@@ -44,6 +36,9 @@
     .flex_container{
         display: flex;
         color: white;
+        max-height: 40vh;
+        overflow-x: hidden;
+        overflow-y: auto;
     }
     .flex_container div{
         width: 50%;
