@@ -2,20 +2,18 @@
     import BasicContainer from "@components/BasicContainer.svelte"
     import {Lock, NL, Users} from "@components/svg/index"
     import Text from "@components/Text.svelte"
+    import type {RoomProperties} from "../types/RoomProperties";
 
-    export let islocked: Boolean = false;
-    export let name: string;
-    export let lang: string;
-    export let total_players: number;
-    export let max_players: number;
+    export let roomProperties: RoomProperties;
+    let {isLocked, name, lang, totalPlayers, maxPlayers}: RoomProperties = roomProperties;
 
 </script>
 
-<BasicContainer style="border-radius: 0.6rem;">
+<BasicContainer style="border-radius: 0.6rem; cursor:pointer;">
     <table class="rooms">
         <tr>
             <td class="password_protected">
-                {#if islocked}
+                {#if isLocked}
                     <Lock width="30px"/>
                 {/if}
             </td>
@@ -36,7 +34,7 @@
                 {/if}
             </td>
             <td class="total_players">
-                <Text value="{total_players}/{max_players}"/>
+                <Text value="{totalPlayers}/{maxPlayers}"/>
             </td>
             <td class="players_icon">
                 <Users width="30px" color="white"/>

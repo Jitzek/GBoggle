@@ -2,6 +2,21 @@
     import BasicContainer from "@components/BasicContainer.svelte"
     import {TextInput, SelectInput, CheckboxInput} from "@components/inputs/index"
     import RoomBrowserRow from "@components/RoomBrowserRow.svelte"
+    import type {RoomProperties} from "../types/RoomProperties";
+
+    export let rooms: RoomProperties[] = [
+        {isLocked: true, name: "Gurbe", lang: "Dutch", totalPlayers: 16, maxPlayers: 16},
+        {isLocked: false, name: "Henk", lang: "Dutch", totalPlayers: 3, maxPlayers: 16},
+        {isLocked: true, name: "Boeke", lang: "Dutch", totalPlayers: 5, maxPlayers: 16},
+        {isLocked: false, name: "Durk", lang: "Dutch", totalPlayers: 5, maxPlayers: 16},
+        {isLocked: true, name: "Gerben", lang: "Dutch", totalPlayers: 1, maxPlayers: 16},
+        {isLocked: false, name: "Gorge", lang: "Dutch", totalPlayers: 6, maxPlayers: 16},
+        {isLocked: true, name: "Hans", lang: "Dutch", totalPlayers: 3, maxPlayers: 16},
+        {isLocked: false, name: "Dien mem", lang: "Dutch", totalPlayers: 6, maxPlayers: 16},
+        {isLocked: true, name: "Net dien mem", lang: "Dutch", totalPlayers: 9, maxPlayers: 16},
+    ]
+
+    let roomProperties: RoomProperties = {isLocked: true, name: "Gurbe", lang: "Dutch", totalPlayers: 16, maxPlayers: 16};
 </script>
 
 <BasicContainer>
@@ -24,18 +39,9 @@
         </div>
     </BasicContainer>
     <div class="roomscontainer">
-        <RoomBrowserRow islocked={true} name="Gurbe sien server" lang="Dutch" total_players="16" max_players="16"/>
-        <RoomBrowserRow islocked={false} name="Groezelige hollanders" lang="Dutch" total_players="0" max_players="12"/>
-        <RoomBrowserRow islocked={true} name="Fryslân boppe" lang="Dutch" total_players="12" max_players="16"/>
-        <RoomBrowserRow islocked={true} name="Gurbe sien server" lang="Dutch" total_players="16" max_players="16"/>
-        <RoomBrowserRow islocked={false} name="Groezelige hollanders" lang="Dutch" total_players="0" max_players="12"/>
-        <RoomBrowserRow islocked={true} name="Fryslân boppe" lang="Dutch" total_players="12" max_players="16"/>
-        <RoomBrowserRow islocked={true} name="Gurbe sien server" lang="Dutch" total_players="16" max_players="16"/>
-        <RoomBrowserRow islocked={false} name="Groezelige hollanders" lang="Dutch" total_players="0" max_players="12"/>
-        <RoomBrowserRow islocked={true} name="Fryslân boppe" lang="Dutch" total_players="12" max_players="16"/>
-        <RoomBrowserRow islocked={true} name="Gurbe sien server" lang="Dutch" total_players="16" max_players="16"/>
-        <RoomBrowserRow islocked={false} name="Groezelige hollanders" lang="Dutch" total_players="0" max_players="12"/>
-        <RoomBrowserRow islocked={true} name="Fryslân boppe" lang="Dutch" total_players="12" max_players="16"/>
+        {#each rooms as room}
+            <RoomBrowserRow roomProperties={room}/>
+        {/each}
     </div>
 </BasicContainer>
 

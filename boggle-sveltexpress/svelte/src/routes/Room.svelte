@@ -4,7 +4,7 @@
   import Chat from "@components/room/chat/Chat.svelte";
   import {Chat_Icon, User} from "@components/svg/index"
   import SideWindow from "@components/SideWindow.svelte";
-  import {GamePage} from "@routes/index";
+  import GamePage from "@components/game/GamePage.svelte";
 
   enum ROOM_STATE {
     LOBBY,
