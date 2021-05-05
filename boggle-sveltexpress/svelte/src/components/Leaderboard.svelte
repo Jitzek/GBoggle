@@ -1,6 +1,24 @@
 <script lang="typescript">
+    import * as _ from "lodash";
     import BitText from "@components/BitText.svelte"
     import LeaderboardRow from "@components/LeaderboardRow.svelte";
+    import type { PlayerScores } from "../types/Types";
+
+    let playerScores: PlayerScores[] = [
+        {name: "Gurbe", score: 100},
+        {name: "swrtgb", score: 200},
+        {name: "wrsgndefcv", score: 300},
+        {name: "Guqqwerfbdsrbe", score: 200},
+        {name: "Guwadfbrbe", score: 100},
+        {name: "Guebfrbddxrbe", score: 600},
+        {name: "Guwrberbe", score: 300},
+        {name: "Guqwberfbrbe", score: 500},
+        {name: "Gsdxawaedfrburbe", score: 200},
+        {name: "Gubterwqdrbe", score: 700},
+        {name: "Guqerwdgerbe", score: 600},
+    ]
+
+    playerScores= _.orderBy(playerScores, "score", "desc");
 
 </script>
 
@@ -9,14 +27,9 @@
         <BitText ref="leaderboardtitle" value="Leaderboard"></BitText>
     </div>
     <div class="leaderbordrows">
-        <LeaderboardRow placement="1" name="gurberfdgbpoiubrgoiuhebvf" score="100"></LeaderboardRow>
-        <LeaderboardRow placement="1" name="gurbe" score="100"></LeaderboardRow>
-        <LeaderboardRow placement="1" name="gurbe" score="100"></LeaderboardRow>
-        <LeaderboardRow placement="1" name="gurbe" score="100"></LeaderboardRow>
-        <LeaderboardRow placement="1" name="gurbe" score="100"></LeaderboardRow>
-        <LeaderboardRow placement="1" name="gurbe" score="100"></LeaderboardRow>
-        <LeaderboardRow placement="1" name="gurbe" score="100"></LeaderboardRow>
-        <LeaderboardRow placement="1" name="gurbe" score="100"></LeaderboardRow>
+        {#each playerScores as playerScore, i}
+            <LeaderboardRow placement={i + 1} name="{playerScore.name}" score={playerScore.score}/>
+        {/each}
     </div>
 </div>
 

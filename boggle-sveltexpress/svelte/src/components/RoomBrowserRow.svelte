@@ -2,7 +2,7 @@
     import BasicContainer from "@components/BasicContainer.svelte"
     import {Lock, NL, Users} from "@components/svg/index"
     import Text from "@components/Text.svelte"
-    import type {RoomProperties} from "../types/RoomProperties";
+    import type {RoomProperties} from "../types/Types";
 
     export let roomProperties: RoomProperties;
     let {isLocked, name, lang, totalPlayers, maxPlayers}: RoomProperties = roomProperties;

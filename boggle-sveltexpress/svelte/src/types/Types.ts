@@ -5,3 +5,8 @@ export type RoomProperties = {
     totalPlayers: number;
     maxPlayers: number;
 }
+
+export type PlayerScores = {
+    name: string;
+    score: number;
+}

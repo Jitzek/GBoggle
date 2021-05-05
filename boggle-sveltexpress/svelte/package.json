@@ -14,6 +14,7 @@
     "@rollup/plugin-typescript": "^6.0.0",
     "@tsconfig/svelte": "^1.0.0",
     "@types/socket.io-client": "^1.4.35",
+    "@types/lodash": "^4.14.168",
     "rollup": "^2.3.4",
     "rollup-plugin-css-only": "^3.1.0",
     "rollup-plugin-livereload": "^2.0.0",
@@ -27,6 +28,7 @@
     "typescript": "^3.9.3"
   },
   "dependencies": {
+    "lodash": "^4.17.21",
     "sirv-cli": "^1.0.0",
     "socket.io-client": "^3.1.1",
     "svelte-routing": "^1.5.0"
