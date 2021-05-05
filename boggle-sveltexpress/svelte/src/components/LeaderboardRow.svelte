@@ -2,12 +2,12 @@
     import BasicContainer from "@components/BasicContainer.svelte"
     import BitText from "@components/BitText.svelte"
     import Text from "@components/Text.svelte";
-    import {Medal_First} from "@components/svg/index";
+    import {Medal_First, Medal_Second, Medal_Third, Trash} from "@components/svg/index";
 
-    export let placement: string;
+    export let placement: number;
     export let avatarpath: string;
     export let name: string;
-    export let score: string;
+    export let score: number;
 </script>
 
 <BasicContainer style="border-top: 1px solid rgba(255, 255, 255, 0.400); border-bottom: 1px solid rgba(255, 255, 255, 0.400);">
@@ -20,7 +20,16 @@
                 <div class="container">
                     <img class="leaderboard_avatar" src={avatarpath} alt="">
                     <div class="iconcontainer">
-                        <Medal_First width="20px"></Medal_First>
+                        {#if placement == 1}
+                            <Medal_First width="20px"/>
+                        {:else if placement == 2}
+                            <Medal_Second width="20px"/>
+                        {:else if placement == 3}
+                            <Medal_Third width="20px"/>
+                        {:else if placement == 4}
+                            <Trash width="20px"/>
+                        {/if}
+                        
                     </div>
                     
                 </div>
