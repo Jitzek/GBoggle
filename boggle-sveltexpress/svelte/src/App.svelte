@@ -1,9 +1,20 @@
 <script lang="ts">
+  import { io } from 'socket.io-client';
+
   import { Router, Route } from "svelte-routing";
   import { Room, NotFound, Home, RoomBrowser } from "@routes";
   import GboggleLogo from "@components/GBoggleLogo.svelte";
 
   export let url = window.location.pathname;
+
+  const socket = io("http://localhost:8000");
+
+  socket.on("connect", () => {
+    console.log("connected");
+    socket.emit("create_server", "Henk", "", "");
+  });
+  
+
 </script>
 
 <main>

@@ -19,7 +19,7 @@
   let room_state: ROOM_STATE;
 
   // TEMPORARY ASSIGNMENT
-  room_state = ROOM_STATE.INGAME;
+  room_state = ROOM_STATE.LOBBY;
 
   let players_collapsed: boolean = true;
   let chat_collapsed: boolean = true;

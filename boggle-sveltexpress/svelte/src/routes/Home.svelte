@@ -6,6 +6,8 @@
     import Leaderboard from "@components/Leaderboard.svelte"
     import {Users, User, Private} from "@components/svg/index";
 
+    
+
 </script>
     <BasicContainer>
         <div class="start-container">
