@@ -1,44 +1,44 @@
 <script lang="ts">
-  import BitText from "../BitText.svelte";
-  import UserIcon from "../UserIcon.svelte";
+  import type { Socket } from "socket.io-client";
+  import Player from "@components/room/Player.svelte";
+import Play from "../svg/play.svelte";
 
   export let roomId: string;
+  export let socket: Socket;
 
-  // TODO: Connect to room and get players
+  let players: Object[] = [];
 
-  let icon_size = "2.5rem";
+  socket.on("player_joined", (id: string, name: string, avatar: string, score: number) => {
+    addPlayer(id, name, avatar, score);
+  });
+
+  socket.on("player_removed", (id: string) => {
+    removePlayerByID(id);
+  }); 
+
+  function addPlayer(id: string, name: string, avatar: string, score: number) {
+    players.push({
+      id: id,
+      name: name,
+      avatar: avatar,
+      score: score
+    });
+    players = players;
+  }
+
+  function removePlayerByID (id: string) {
+    players = players.filter(player => player["id"] !== id);
+  }
 </script>
 
 <table class="players">
-  <tr class="player">
-
-    <!-- User's Image -->
-    <td class="user-icon" style="width: {icon_size}">
-      <UserIcon src="/images/hey.png" size="{icon_size}" background="#2b6a34" border_color="#2b6a34" />
-    </td>
-
-    <!-- User's Name -->
-    <td class="user-name">
-      <p>Hey</p>
-    </td>
-
-    <!-- User's Points -->
-    <td class="user-points">
-      <BitText color="#2b6a34" fontSize="1.2rem" value="99999" />
-    </td>
-    
-  </tr>
+  {#each players as player}
+    <Player name="{player["name"]}" avatar="{player["avatar"]}" score="{player["score"]}" />
+    <!-- <svelte:component this="{Player}" objAttributes="{player}" /> -->
+  {/each}
 </table>
 
 <style lang="scss">
-  .user-icon {
-    padding: 1rem;
-  }
-
-  .user-name {
-    text-align: left;
-  }
-
   .players {
     width: 100%;
   }

@@ -4,8 +4,10 @@
   import { SelectInput } from "@components/inputs";
   import LinkButton from "@components/LinkButton.svelte";
   import {Shuttle} from "@components/svg/index.js";
+  import type { Socket } from "socket.io-client";
 
   export let roomId: string;
+  export let socket: Socket;
 
   let inviteLink: HTMLElement;
 
@@ -66,7 +68,7 @@
   <div class="invite-container" on:click="{() => copyElement(inviteLink)}">
     <div class="invite-link-container">
       <span bind:this={inviteLink} class="invite-link"
-        >{`${window.location.host}/room/${roomId}`}</span
+        >{`http://${window.location.host}/?invite-link=${roomId}`}</span
       >
     </div>
     <div class="copy-btn-container">

@@ -101,6 +101,10 @@ export default {
 				{
 					find: '@stores',
 					replacement: path.resolve(projectRootDir, 'src/stores')
+				},
+				{
+					find: '@utils',
+					replacement: path.resolve(projectRootDir, 'src/utils')
 				}
 			]
 		})

@@ -20,11 +20,12 @@
         shortname += "...";
       }
       if (acceptedfiletypes == "audio/*") {
-        if (exceedsSizeInKB(file, 1500)) {
+        const max_audio_size_in_kb = 500;
+        if (exceedsSizeInKB(file, max_audio_size_in_kb)) {
           console.error(
-            "Coudn't save file to localstorage, item exceeded the maximum allowed size of 1.5 MB"
+            `Coudn't save file to localstorage, item exceeded the maximum allowed size of ${max_audio_size_in_kb}KB`
           );
-          alert("The uploaded audio file exceeded the maximum allowed size of 1.0 MB");
+          alert(`The uploaded audio file exceeded the maximum allowed size of ${max_audio_size_in_kb}KB`);
           return;
         }
         // Save to local storage as audio
@@ -32,11 +33,12 @@
         saveToLocalStorage(file, "victory_audio");
         return;
       }
-      if (exceedsSizeInKB(file, 1000)) {
+      const max_image_size_in_kb = 200;
+      if (exceedsSizeInKB(file, max_image_size_in_kb)) {
         console.error(
-          "Coudn't save file to localstorage, item exceeded the maximum allowed size of 1.0 MB"
+          `Coudn't save file to localstorage, item exceeded the maximum allowed size of ${max_image_size_in_kb}KB`
         );
-        alert("The uploaded image file exceeded the maximum allowed size of 1.0 MB");
+        alert(`The uploaded image file exceeded the maximum allowed size of ${max_image_size_in_kb}KB`);
         return;
       }
       document.getElementById(id + id).innerHTML = shortname;
