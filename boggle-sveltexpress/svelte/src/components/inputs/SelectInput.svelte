@@ -1,12 +1,10 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
-  const dispatch = createEventDispatcher();
-
   export let disabled: boolean = false;
   export let label: string;
   export let name: string = label || "unset";
   export let style: string;
-  export let selected;
+
+  export let value;
 
   let validated: boolean = true;
 </script>
@@ -18,12 +16,7 @@
     name="{name}"
     required
     type="text"
-    bind:value={selected}
-    on:change={() => {
-      dispatch(
-          'message',
-      )
-  }}
+    bind:value={value}
   >
     <slot />
   </select>

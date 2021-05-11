@@ -2,10 +2,9 @@ import express from 'express';
 import path from 'path';
 import { Socket, Server, Namespace } from 'socket.io';
 import { Player } from './src/player';
-import { Game } from './src/game';
-import { v4 as uuidv4 } from 'uuid';
+import { Room } from './src/room';
 
-const games: Game[] = [];
+const rooms: Room[] = [];
 
 const PORT = 8000;
 const app = express();
@@ -27,10 +26,29 @@ const io = new Server(server);
 io.on("connection", (socket: Socket) => {
   console.log(`📡 [socket]: Client connected`);
 
-  socket.on("create_server", (host_name: string, host_avatar: string, host_victory_audio: string) => {
-    const namespace: Namespace = io.of(uuidv4());
+  socket.on("create_room", (host_name: string, host_avatar: string, host_victory_audio: string) => {
     const host = new Player(socket.id, host_name, host_avatar, host_victory_audio);
-    games.push(new Game(namespace, host));
-    console.log(`📡 Created new server with host: "${host.name}" (ID: ${host.id})`);
+    const room = new Room(io, host);
+    rooms.push(room);
+    console.log(`📡 [socket]: ${host.name} (ID: ${host.id}) created a new room with uuid ${room.uuid}`);
+  });
+
+  socket.on("join_room", (room_id: string, name: string, avatar: string, victory_audio: string) => {
+    const room = rooms.find(_room => {
+      return _room.uuid == room_id;
+    });
+    if (!room) {
+      // No room with requested ID found
+      // TODO: inform user
+      console.log("❗📡 [socket]: No room with requested uuid found");
+      return;
+    }
+    room.join(socket, new Player(socket.id, name, avatar, victory_audio));
+    console.log(`📡 [socket]: ${name} (ID: ${socket.id}) joined the room with uuid ${room.uuid}`);
+    room.emit("message", "Hello from server!");
+  });
+
+  socket.on("disconnect", (reason) => {
+    console.log(`📡 [socket]: Client with ID "${socket.id}" disconnected with reason: ${reason}`);
   });
 });

@@ -6,11 +6,13 @@
   export let name: string = label || "unset";
   export let style: string;
 
+  export let value = "";
+
   let validated: boolean = false;
 
   let inputElement: HTMLInputElement;
-  function verifyInput() {
-    let trimmedInputValue = String(inputElement.value).trim();
+  function verifyInput(input: string) {
+    let trimmedInputValue = input.trim();
     // If the trimmed input (no leading or trailing whitespace) is not within the allowed range
     if (
       trimmedInputValue.length < minLength ||
@@ -23,14 +25,18 @@
       validated = true;
     }
   }
+
+  // Initial verification
+  verifyInput(value);
 </script>
 
 <div class="input-field" class:disabled style="{style}">
   <input
     class:validated
     disabled="{disabled}"
-    on:input="{verifyInput}"
+    on:input="{() => verifyInput(String(inputElement.value))}"
     bind:this="{inputElement}"
+    bind:value="{value}"
     name="{name}"
     required
     type="text"

@@ -7,12 +7,20 @@
 
   export let url = window.location.pathname;
 
-  const socket = io("http://localhost:8000");
+  // const socket = io("http://localhost:8000");
 
-  socket.on("connect", () => {
-    console.log("connected");
-    socket.emit("create_server", "Henk", "", "");
-  });
+  // socket.on("connect", () => {
+  //   console.log("connected");
+  //   socket.emit("create_room", "Henk", "", "");
+  //   socket.emit("join_room", "test", "Henk2", "", "");
+  // });
+
+  // socket.on("message", (message) => {
+  //   console.log(`received message: ${message}`);
+  //   socket.emit("message", "thank you for the message!");
+  // });
+
+
   
 
 </script>
