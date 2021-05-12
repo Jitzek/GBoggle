@@ -16,6 +16,7 @@ import Trophy from "./trophy.svelte";
 import User from "./user.svelte";
 import Users from "./users.svelte";
 import Play from "./play.svelte";
+import Public from "./public.svelte";
 
 export{
     Camera,
@@ -35,5 +36,6 @@ export{
     Trophy,
     User,
     Users,
-    Play
+    Play,
+    Public
 };

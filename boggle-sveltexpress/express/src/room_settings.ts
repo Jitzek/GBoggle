@@ -16,7 +16,7 @@ export class RoomSettings {
     }
 
     public on_settings_changed(socket: Socket, setting: string, value: string) {
-        if (this.room.host.id !== socket.id) {
+        if (this.room.host_id !== socket.id) {
             return;
         }
         switch (setting.toLowerCase()) {

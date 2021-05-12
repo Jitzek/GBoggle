@@ -6,20 +6,20 @@ import { Language, RoomSettings } from './room_settings';
 export class Room {
     uuid: string;
     server: Server;
-    host: Player;
+    host_id: string;
     players: Player[];
     password: string = "";
     room_settings: RoomSettings;
 
-    constructor(server: Server, host: Player, password: string) {
+    constructor(server: Server, host_id: string, password: string) {
         this.server = server;
         this.uuid = uuidv4();
 
         // TEMPORARY ASSIGNMENT
-        this.uuid = 'test';
+        // this.uuid = 'test';
 
-        this.host = host;
-        this.players = [host];
+        this.host_id = host_id;
+        this.players = [];
         this.password = password;
 
         this.room_settings = new RoomSettings(this);
@@ -58,8 +58,8 @@ export class Room {
         this.players = this.players.filter(_player => _player !== player);
     }
 
-    private get_player_by_id(id: string) {
-        return this.players.find(player => player.id == id);
+    public get_player_by_id(id: string) {
+        return this.players.find(player => player.id === id);
     }
 
     public join(socket: Socket, player: Player) {
@@ -72,13 +72,15 @@ export class Room {
         socket.on("settings_changed", (setting: string, value: string) => this.room_settings.on_settings_changed(socket, setting, value));
         socket.on("disconnect", (reason: string) => this.on_disconnect(socket, reason));
 
-        this.emit("player_joined", player.id, player.name, player.avatar, player.score);
+        this.emit("player_joined", player.id, player.name, player.avatar, player.score, player.id === this.host_id);
 
         // Send all players to newly joined player
         for (player of this.players) {
             if (player.id == socket.id) continue;
-            socket.emit("player_joined", player.id, player.name, player.avatar, player.score);
+            socket.emit("player_joined", player.id, player.name, player.avatar, player.score, player.id === this.host_id);
         }
+
+        console.log(`🏚️  [room]: ${player.name} (ID: ${player.id}) joined`);
     }
 
     public on_disconnect(socket: Socket, reason: string) {

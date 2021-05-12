@@ -1,11 +1,19 @@
 <script lang="ts">
-  import { io } from 'socket.io-client';
+  import { io } from "socket.io-client";
 
   import { Router, Route } from "svelte-routing";
   import { Room, NotFound, Home, RoomBrowser } from "@routes";
   import GboggleLogo from "@components/GBoggleLogo.svelte";
+  import { setCookie } from "./utils/cookies";
+  import type { Socket } from "socket.io-client";
 
   export let url = window.location.pathname;
+
+  const socket = io("http://localhost:8000");
+
+  socket.on("connect", () => {
+    console.log("connected");
+  });
 
   // const socket = io("http://localhost:8000");
 
@@ -19,20 +27,18 @@
   //   console.log(`received message: ${message}`);
   //   socket.emit("message", "thank you for the message!");
   // });
-
-
-  
-
 </script>
 
 <main>
   <GboggleLogo size="20rem" />
   <Router url="{url}">
-    <Route path="/" component="{Home}"/>
-    <Route path="room/:id" let:params>
-      <Room id="{params.id}" />
+    <Route path="/">
+      <Home socket="{socket}" />
     </Route>
-    <Route path="/roombrowser" component="{RoomBrowser}"/>
+    <Route path="room/:id" let:params>
+      <Room id="{params.id}" socket="{socket}" />
+    </Route>
+    <Route path="/roombrowser" component="{RoomBrowser}" />
     <Route component="{NotFound}" />
   </Router>
 </main>

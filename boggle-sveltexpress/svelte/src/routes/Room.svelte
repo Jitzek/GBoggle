@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { io } from "socket.io-client";
+  import type { Socket } from "socket.io-client";
 
   import RoomSettings from "@components/room/RoomSettings.svelte";
   import Players from "@components/room/Players.svelte";
@@ -14,7 +14,15 @@
     INGAME,
   }
 
+  export let socket: Socket;
+
+  socket.on("connect", () => {
+    console.log(`Room: ${socket.id}`);
+  });
+
   export let id: string;
+
+  let is_host = false;
 
   if (getCookie("room_id") != id) {
     deleteCookie("room_id");
@@ -25,21 +33,16 @@
   let avatar = localStorage.getItem("avatar");
   let victory_audio = localStorage.getItem("victory_audio");
 
-  // TODO: Connect to the server (socket) of this room using id
-  const socket = io("http://localhost:8000");
-
-  socket.on("connect", () => {
-    console.log("connected");
-
-    // Check if room exists
-    socket.emit("room_information", id);
-    socket.on("room_information", (room_exists: boolean, room_is_password_protected: boolean) => {
+  // Check if room exists
+  socket.emit("room_information", id);
+  socket.on("room_information", (room_exists: boolean, room_is_password_protected: boolean, user_is_host: boolean) => {
+      console.log(`${room_exists}  ${room_is_password_protected}  ${user_is_host}`);
       if (!room_exists) {
         // Room doesn't exist
         // TODO: notify user
         window.location.href = `http://${window.location.host}/`;
       }
-      if (room_is_password_protected) {
+      if (room_is_password_protected && !user_is_host) {
         // Request password
         console.log("password required");
         return;
@@ -47,20 +50,20 @@
       // Request connection to room
       socket.emit("join_room", id, nickname, avatar, victory_audio, "");
       return;
-    });
+    }
+  );
 
-    socket.on("kick", (player_id: string, reason: string) => {
-      console.log(`${player_id} kicked from room with reason: ${reason}`);
-      if (player_id == socket.id) {
-        deleteCookie("room_id");
-        window.location.href = `http://${window.location.host}/`;
-      }
-    });
+  socket.on("kick", (player_id: string, reason: string) => {
+    console.log(`${player_id} kicked from room with reason: ${reason}`);
+    if (player_id == socket.id) {
+      deleteCookie("room_id");
+      window.location.href = `http://${window.location.host}/`;
+    }
+  });
 
-    socket.on("incorrect_password", () => {
-      // Retry password
-      console.log("password was incorrect");
-    });
+  socket.on("incorrect_password", () => {
+    // Retry password
+    console.log("password was incorrect");
   });
 
   socket.on("disconnected", (reason: string) => {
