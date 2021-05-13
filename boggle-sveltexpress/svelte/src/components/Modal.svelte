@@ -1,22 +1,27 @@
-<script lang="ts" context="module">
-  let modal;
+<script lang="ts">
+  export let id: string;
+  export let z_index: string;
+  export let show: boolean;
 
-  export function show() {
+  let modal: HTMLDivElement;
+
+  $: {
+    show;
+    if (modal) {
+      show ? show_modal() : hide_modal();
+    }
+  }
+
+  function show_modal() {
     modal.style.display = "block";
   }
 
-  export function hide() {
+  function hide_modal() {
     modal.style.display = "none";
   }
-
-  window.onclick = function (event) {
-    if (event.target == modal) {
-      modal.style.display = "none";
-    }
-  };
 </script>
 
-<div class="modal" bind:this="{modal}">
+<div id="{id}" class="modal" bind:this="{modal}" style="z-index: {z_index};">
   <div class="modal-content">
     <!-- <span class="close" on:click="{hide}">&times;</span> -->
     <div style="padding-bottom: 3.5rem;"></div>
@@ -28,7 +33,6 @@
   .modal {
     display: none;
     position: fixed;
-    z-index: 999;
     padding-top: 25vh;
     left: 0;
     top: 0;

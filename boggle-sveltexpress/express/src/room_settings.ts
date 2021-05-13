@@ -1,43 +1,34 @@
 import { Socket } from "socket.io";
 import { Room } from "./room";
 
-export enum Language {
-    DUTCH
-}
-
 export class RoomSettings {
     room: Room;
     rounds: number = 1;
     round_time: number = 30;
-    language: Language = Language.DUTCH;
+    language: string = "Dutch";
 
     constructor(room: Room) {
         this.room = room;
     }
 
-    public on_settings_changed(socket: Socket, setting: string, value: string) {
-        if (this.room.host_id !== socket.id) {
-            return;
-        }
-        switch (setting.toLowerCase()) {
-            case "rounds":
-                if (!isNaN(Number(value))) this.rounds = Number(value);
-                break;
-            case "round_time":
-                if (!isNaN(Number(value))) this.round_time = Number(value);
-                break;
-            case "language":
-                this.language = this.string_to_language(value);
-                break;
-        }
+    public setHandlers(socket: Socket) {
+        socket.on("rounds_setting_changed", (new_rounds: number) => this.on_rounds_changed(socket, new_rounds));
+        socket.on("round_time_setting_changed", (new_round_time: number) => this.on_round_time_changed(socket, new_round_time));
+        socket.on("language_setting_changed", (new_language: string) => this.on_language_changed(socket, new_language));
+    }
+
+    private on_rounds_changed(socket: Socket, new_rounds: number) {
+        this.rounds = new_rounds;
         this.room.emit("settings_changed", this.rounds, this.round_time, this.language);
     }
 
-    private string_to_language(language_string: string) {
-        switch(language_string.toUpperCase()) {
-            case "DUTCH":
-            default:
-                return Language.DUTCH;
-        }
+    private on_round_time_changed(socket: Socket, new_round_time: number) {
+        this.round_time = new_round_time;
+        this.room.emit("settings_changed", this.rounds, this.round_time, this.language);
+    }
+
+    private on_language_changed(socket: Socket, new_language: string) {
+        this.language = new_language;
+        this.room.emit("settings_changed", this.rounds, this.round_time, this.language);
     }
 }

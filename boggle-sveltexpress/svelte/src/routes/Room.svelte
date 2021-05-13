@@ -4,10 +4,13 @@
   import RoomSettings from "@components/room/RoomSettings.svelte";
   import Players from "@components/room/Players.svelte";
   import Chat from "@components/room/chat/Chat.svelte";
-  import { Chat_Icon, User } from "@components/svg/index";
+  import { Chat_Icon, User, Send } from "@components/svg/index";
   import SideWindow from "@components/SideWindow.svelte";
   import GamePage from "@components/game/GamePage.svelte";
   import { getCookie, deleteCookie } from "@utils/cookies";
+  import Modal from "@components/Modal.svelte";
+  import { TextInput } from "@components/inputs/index";
+  import LinkButton from "@components/LinkButton.svelte";
 
   enum ROOM_STATE {
     LOBBY,
@@ -15,40 +18,48 @@
   }
 
   export let socket: Socket;
-
-  socket.on("connect", () => {
-    console.log(`Room: ${socket.id}`);
-  });
-
   export let id: string;
 
-  let is_host = false;
+  let isHost = false;
+  let is_connected = false;
 
   if (getCookie("room_id") != id) {
     deleteCookie("room_id");
     location.href = `http://${window.location.host}/`;
   }
 
+  let passwordValue: string;
+
   let nickname = localStorage.getItem("nickname");
   let avatar = localStorage.getItem("avatar");
   let victory_audio = localStorage.getItem("victory_audio");
+  let room_state: ROOM_STATE;
+
+  let showPasswordModal = false;
 
   // Check if room exists
   socket.emit("room_information", id);
-  socket.on("room_information", (room_exists: boolean, room_is_password_protected: boolean, user_is_host: boolean) => {
-      console.log(`${room_exists}  ${room_is_password_protected}  ${user_is_host}`);
+  socket.on(
+    "room_information",
+    (
+      room_exists: boolean,
+      room_is_password_protected: boolean,
+      user_is_host: boolean
+    ) => {
       if (!room_exists) {
         // Room doesn't exist
         // TODO: notify user
         window.location.href = `http://${window.location.host}/`;
       }
+      isHost = user_is_host;
       if (room_is_password_protected && !user_is_host) {
         // Request password
         console.log("password required");
+        showPasswordModal = true;
         return;
       }
       // Request connection to room
-      socket.emit("join_room", id, nickname, avatar, victory_audio, "");
+      join_room("");
       return;
     }
   );
@@ -64,6 +75,7 @@
   socket.on("incorrect_password", () => {
     // Retry password
     console.log("password was incorrect");
+    passwordValue = "";
   });
 
   socket.on("disconnected", (reason: string) => {
@@ -74,13 +86,12 @@
     console.log(`received message: ${message}`);
   });
 
-  // Use cookie to store user token (for this session)
-
-  // TODO: Use server to determine the room state
-  let room_state: ROOM_STATE;
-
-  // TEMPORARY ASSIGNMENT
-  room_state = ROOM_STATE.LOBBY;
+  socket.on("joined", (current_room_state: string) => {
+    room_state = stringToRoomState(current_room_state);
+    is_connected = true;
+    console.log("succesfully joined");
+    showPasswordModal = false;
+  });
 
   let players_collapsed: boolean = true;
   let chat_collapsed: boolean = true;
@@ -95,49 +106,86 @@
     chat_collapsed;
     players_invisible = !chat_collapsed && players_collapsed;
   }
+
+  function stringToRoomState(state: string): ROOM_STATE {
+    switch (state) {
+      case "INGAME":
+        return ROOM_STATE.INGAME;
+      case "LOBBY":
+      default:
+        return ROOM_STATE.LOBBY;
+    }
+  }
+
+  function join_room(password: string) {
+    console.log(password);
+    socket.emit("join_room", id, nickname, avatar, victory_audio, password);
+  }
 </script>
 
-<div class="room-container">
-  <div class="players-component" class:players_invisible>
-    <SideWindow
-      position="left"
-      buttonBackground="#2b6a34"
-      iconBackground="#fff"
-      bind:collapsed="{players_collapsed}"
+<Modal id="password_modal" show="{showPasswordModal}">
+  <div class="password-modal-content">
+    <TextInput
+      label="Password: "
+      bind:value="{passwordValue}"
+      minLength="1"
+      type="password"
+    />
+    <LinkButton
+      btn_width="80%"
+      value="Join"
+      btn_background="#46a350"
+      on:click="{() => join_room(passwordValue)}"
+      ><Send width="20px" color="#46a350" /></LinkButton
     >
-      <div class="icon-container" slot="icon">
-        <User color="#2b6a34" width="60%" />
-      </div>
-      <div slot="window">
-        <Players roomId="{id}" socket="{socket}" />
-      </div>
-    </SideWindow>
   </div>
-  <div class="chat-component" class:chat_invisible>
-    <SideWindow
-      position="right"
-      buttonBackground="#7f3f98"
-      iconBackground="#fff"
-      bind:collapsed="{chat_collapsed}"
-    >
-      <div class="icon-container" slot="icon">
-        <Chat_Icon color="#7f3f98" width="60%" />
-      </div>
-      <div slot="window">
-        <Chat roomId="{id}" />
-      </div>
-    </SideWindow>
+</Modal>
+{#if is_connected}
+  <div class="room-container">
+    <div class="players-component" class:players_invisible>
+      <SideWindow
+        position="left"
+        buttonBackground="#2b6a34"
+        iconBackground="#fff"
+        bind:collapsed="{players_collapsed}"
+      >
+        <div class="icon-container" slot="icon">
+          <User color="#2b6a34" width="60%" />
+        </div>
+        <div slot="window">
+          <Players roomId="{id}" socket="{socket}" />
+        </div>
+      </SideWindow>
+    </div>
+    <div class="chat-component" class:chat_invisible>
+      <SideWindow
+        position="right"
+        buttonBackground="#7f3f98"
+        iconBackground="#fff"
+        bind:collapsed="{chat_collapsed}"
+      >
+        <div class="icon-container" slot="icon">
+          <Chat_Icon color="#7f3f98" width="60%" />
+        </div>
+        <div slot="window">
+          <Chat roomId="{id}" />
+        </div>
+      </SideWindow>
+    </div>
+    <div class="main-component">
+      <!-- Dependent on the state of the Game (Lobby or Ingame) load in the correct component -->
+      {#if room_state === ROOM_STATE.LOBBY}
+        <RoomSettings roomId="{id}" isHost="{isHost}" socket="{socket}" />
+      {:else if room_state == ROOM_STATE.INGAME}
+        <div><GamePage /></div>
+      {/if}
+    </div>
+    <div class="chat-component"></div>
   </div>
-  <div class="main-component">
-    <!-- Dependent on the state of the Game (Lobby or Ingame) load in the correct component -->
-    {#if room_state === ROOM_STATE.LOBBY}
-      <RoomSettings roomId="{id}" />
-    {:else if room_state == ROOM_STATE.INGAME}
-      <div><GamePage /></div>
-    {/if}
-  </div>
-  <div class="chat-component"></div>
-</div>
+{:else}
+  <!-- Not connected -->
+  <h1>Not connected to room</h1>
+{/if}
 
 <style lang="scss">
   .icon-container {
@@ -164,6 +212,18 @@
     .chat_invisible {
       opacity: 0;
       visibility: hidden;
+    }
+  }
+
+  .password-modal-content {
+    margin: auto;
+    width: 50%;
+    height: 100vh;
+  }
+
+  @media screen and (max-width: 500px) {
+    .password-modal-content {
+      width: 90%;
     }
   }
 </style>

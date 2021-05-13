@@ -16,8 +16,9 @@
     Play,
     Logout,
     Public,
+    Send,
   } from "@components/svg/index";
-  import Modal, { show, hide } from "@components/Modal.svelte";
+  import Modal from "@components/Modal.svelte";
 
   export let socket: Socket;
 
@@ -31,9 +32,12 @@
   let nickname = localStorage.getItem("nickname");
   let nickname_min_length = 3;
   let nickname_max_length = 20;
-
   let avatar = localStorage.getItem("avatar");
   let victory_audio = localStorage.getItem("victory_audio");
+
+  let passwordValue: string;
+  let showPlayModal: boolean = false;
+  let showPasswordModal: boolean = false;
 
   function play() {
     deleteCookie("io");
@@ -65,34 +69,59 @@
 
     if (invite_link) {
       setCookie("room_id", invite_link);
-      location.href = `http://${window.location.host}/room/${invite_link}`;
+      navigate(`/room/${invite_link}`, { replace: true });
       return;
     }
-    show();
+
+    showPlayModal = true;
   }
 
   function createPublicRoom() {
     // play() should have already validated data
 
     // Request a room from the socket
-    socket.emit("create_room", nickname, avatar, victory_audio, "");
+    socket.emit("create_room", "");
   }
 
   function createPrivateRoom() {
     // play() should have already validated data
     // Request a room from the socket
+
+    showPasswordModal = true;
   }
 
   socket.on("room_created", (room_id: string, user_id: string) => {
     setCookie("room_id", room_id);
-    setCookie("io", user_id);
-    // location.href = `http://${window.location.host}/room/${room_id}`;
     navigate(`/room/${room_id}`, { replace: true });
   });
 </script>
 
 <BasicContainer>
-  <Modal>
+  <Modal id="password_modal" z_index="9999" show="{showPasswordModal}">
+    <div class="password-modal-content">
+      <TextInput
+        label="Password: "
+        bind:value="{passwordValue}"
+        minLength="1"
+        type="password"
+      />
+      <LinkButton
+        btn_width="80%"
+        value="Create"
+        btn_background="#46a350"
+        on:click="{() => socket.emit("create_room", passwordValue)}"><Send width="20px" color="#46a350" /></LinkButton
+      >
+      <div style="margin-bottom: 2rem"></div>
+      <LinkButton
+        on:click="{() => (showPasswordModal = false)}"
+        btn_width="60%"
+        value="Close"
+        btn_background="#f55a42"
+        ><Logout width="20px" color="#f55a42" /></LinkButton
+      >
+    </div>
+  </Modal>
+  <Modal id="play_modal" z_index="9998" show="{showPlayModal}">
     <div class="play-modal-content">
       <LinkButton
         btn_width="90%"
@@ -114,6 +143,7 @@
         ><Public width="20px" color="#0080ff" /></LinkButton
       >
       <LinkButton
+        on:click="{createPrivateRoom}"
         btn_width="90%"
         value="Create private room"
         btn_background="#13a8e0"
@@ -122,7 +152,7 @@
 
       <div style="margin-bottom: 2rem"></div>
       <LinkButton
-        on:click="{hide}"
+        on:click="{() => (showPlayModal = false)}"
         btn_width="60%"
         value="Close"
         btn_background="#f55a42"
@@ -200,6 +230,18 @@
   @media screen and (max-width: 500px) {
     .play-modal-content {
       width: 100%;
+    }
+  }
+
+  .password-modal-content {
+    margin: auto;
+    width: 50%;
+    height: 100vh;
+  }
+
+  @media screen and (max-width: 500px) {
+    .password-modal-content {
+      width: 90%;
     }
   }
 </style>

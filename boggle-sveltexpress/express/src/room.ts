@@ -1,11 +1,13 @@
 import { Server, Socket } from 'socket.io';
 import { Player } from './player';
+import { Game } from "./game";
 import { v4 as uuidv4 } from 'uuid';
-import { Language, RoomSettings } from './room_settings';
+import { RoomSettings } from './room_settings';
 
 export class Room {
     uuid: string;
     server: Server;
+    game!: Game;
     host_id: string;
     players: Player[];
     password: string = "";
@@ -14,9 +16,6 @@ export class Room {
     constructor(server: Server, host_id: string, password: string) {
         this.server = server;
         this.uuid = uuidv4();
-
-        // TEMPORARY ASSIGNMENT
-        // this.uuid = 'test';
 
         this.host_id = host_id;
         this.players = [];
@@ -69,9 +68,12 @@ export class Room {
         // Set handlers
         socket.on("message", (message: string) => this.on_message(socket, message));
         socket.on("kick_player", (player_id: string) => this.on_kick(player_id));
-        socket.on("settings_changed", (setting: string, value: string) => this.room_settings.on_settings_changed(socket, setting, value));
         socket.on("disconnect", (reason: string) => this.on_disconnect(socket, reason));
-
+        socket.on("start", () => this.on_start(socket));
+        // Set RoomSettings handlers
+        this.room_settings.setHandlers(socket);
+        
+        socket.emit("joined", this.game && this.game.started ? "INGAME" : "LOBBY");
         this.emit("player_joined", player.id, player.name, player.avatar, player.score, player.id === this.host_id);
 
         // Send all players to newly joined player
@@ -79,6 +81,9 @@ export class Room {
             if (player.id == socket.id) continue;
             socket.emit("player_joined", player.id, player.name, player.avatar, player.score, player.id === this.host_id);
         }
+
+        // Send up to date settings to the newly joined player
+        socket.emit("settings_changed", this.room_settings.rounds, this.room_settings.round_time, this.room_settings.language);
 
         console.log(`🏚️  [room]: ${player.name} (ID: ${player.id}) joined`);
     }
@@ -91,6 +96,11 @@ export class Room {
         }
         this.remove_player(player);
         this.emit("player_removed", player.id);
+    }
+
+    private on_start(socket: Socket) {
+        this.game = new Game(this, this.room_settings);
+        this.game.start();
     }
 
     public emit(event: string, ...args: any[]): boolean {

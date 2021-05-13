@@ -4,10 +4,13 @@
   import { Router, Route } from "svelte-routing";
   import { Room, NotFound, Home, RoomBrowser } from "@routes";
   import GboggleLogo from "@components/GBoggleLogo.svelte";
-  import { setCookie } from "./utils/cookies";
-  import type { Socket } from "socket.io-client";
+  import { navigate } from "svelte-routing";
+  import { deleteCookie } from "./utils/cookies";
 
   export let url = window.location.pathname;
+  
+  // Socket connection is reset, leave current room
+  deleteCookie("room_id");
 
   const socket = io("http://localhost:8000");
 

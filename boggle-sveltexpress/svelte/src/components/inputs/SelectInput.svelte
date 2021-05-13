@@ -4,12 +4,13 @@
   export let name: string = label || "unset";
   export let style: string;
 
-  export let value;
+  export let value: string;
 
   let validated: boolean = true;
 </script>
 
 <div class="input-field" style="{style}" class:disabled>
+  <!-- svelte-ignore a11y-no-onchange -->
   <select
     class:validated
     disabled="{disabled}"
@@ -17,6 +18,7 @@
     required
     type="text"
     bind:value={value}
+    on:change
   >
     <slot />
   </select>

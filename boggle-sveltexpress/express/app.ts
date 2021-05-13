@@ -4,7 +4,7 @@ import { Socket, Server, Namespace } from 'socket.io';
 import { Player } from './src/player';
 import { Room } from './src/room';
 
-const rooms: Room[] = [];
+let rooms: Room[] = [];
 
 const PORT = 8000;
 const app = express();
@@ -37,10 +37,10 @@ rooms.push(test_room_2);
 io.on("connection", (socket: Socket) => {
   console.log(`📡 [socket]: Client connected`);
 
-  socket.on("create_room", (host_name: string, host_avatar: string, host_victory_audio: string, password: string) => {
+  socket.on("create_room", (password: string) => {
     const room = new Room(io, socket.id, password);
     rooms.push(room);
-    console.log(`📡 [socket]: ${host_name} (ID: ${socket.id}) created a new room with uuid ${room.uuid}`);
+    console.log(`📡 [socket]: ${socket.id} created a new room with uuid ${room.uuid}`);
     socket.emit("room_created", room.uuid, socket.id);
   });
 
@@ -80,8 +80,20 @@ io.on("connection", (socket: Socket) => {
     console.log(`📡 [socket]: ${name} (ID: ${socket.id}) joined the room with uuid ${room.uuid}`);
     room.emit("joined_room", socket.id);
   });
+  
+  socket.on("disconnect", (reason) => {
+    console.log(`📡 [socket]: Client with ID "${socket.id}" disconnected with reason: ${reason}`);
 
-  // socket.on("disconnect", (reason) => {
-  //   console.log(`📡 [socket]: Client with ID "${socket.id}" disconnected with reason: ${reason}`);
-  // });
+    // Called before room removes player
+
+    let room = rooms.find(_room => _room.players.some(e => e.id === socket.id));
+    // Remove room if it contains no more players (after the player leaves)
+    if (room && room.players.length <= 1) {
+      rooms = rooms.filter(_room => room && _room.uuid === room.uuid);
+      console.log(`📡 [socket]: Removed room ${room.uuid} because it contained no more players`);
+    }
+
+    // Check if host left
+    // TODO: what to do when host leaves? random assignment?
+  });
 });
