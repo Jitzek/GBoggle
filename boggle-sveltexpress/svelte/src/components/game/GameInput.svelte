@@ -10,11 +10,10 @@
         <Text value="{value}"/>
     </div>
     <div class="button">
-        <button class="send_button">
+        <button class="send_button" on:click>
             <Send width="30px"/>
         </button>
     </div>
-
 </div>
 
 <style>

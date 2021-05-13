@@ -3,10 +3,9 @@
   import {Send} from "@components/svg/index";
   import Message from "@components/room/chat/Message.svelte";
   import { afterUpdate } from "svelte";
+  import type { Socket } from "socket.io-client";
 
-  export let roomId: string;
-
-  // TODO: Connect to room and get players
+  export let socket: Socket;
 
   let chatContainer: HTMLElement;
   let messageBlocks: Object[] = [];

@@ -46,6 +46,8 @@
     on:input="{() => verifyInput(String(inputElement.value))}"
     bind:this="{inputElement}"
     bind:value="{value}"
+    on:keypress
+    on:blur
     name="{name}"
     required
     type="text"

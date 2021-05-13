@@ -11,6 +11,7 @@
   import Modal from "@components/Modal.svelte";
   import { TextInput } from "@components/inputs/index";
   import LinkButton from "@components/LinkButton.svelte";
+import { setCookie } from "../utils/cookies";
 
   enum ROOM_STATE {
     LOBBY,
@@ -20,9 +21,12 @@
   export let socket: Socket;
   export let id: string;
 
+  let user_uuid: string;
+
   let isHost = false;
   let is_connected = false;
 
+  // Don't allow users to join without invite link (forces selection/confirmation of nickname, avatar and victory audio)
   if (getCookie("room_id") != id) {
     deleteCookie("room_id");
     location.href = `http://${window.location.host}/`;
@@ -33,7 +37,7 @@
   let nickname = localStorage.getItem("nickname");
   let avatar = localStorage.getItem("avatar");
   let victory_audio = localStorage.getItem("victory_audio");
-  let room_state: ROOM_STATE;
+  let room_state = ROOM_STATE.LOBBY;
 
   let showPasswordModal = false;
 
@@ -86,11 +90,19 @@
     console.log(`received message: ${message}`);
   });
 
-  socket.on("joined", (current_room_state: string) => {
-    room_state = stringToRoomState(current_room_state);
-    is_connected = true;
+  socket.on("joined", (uuid: string) => {
     console.log("succesfully joined");
+    is_connected = true;
     showPasswordModal = false;
+    user_uuid = uuid;
+  });
+
+  socket.on("game_started", () => {
+    room_state = ROOM_STATE.INGAME;
+  });
+
+  socket.on("game_ended", (victory_audio: string) => {
+    console.log("Game ended");
   });
 
   let players_collapsed: boolean = true;
@@ -107,14 +119,9 @@
     players_invisible = !chat_collapsed && players_collapsed;
   }
 
-  function stringToRoomState(state: string): ROOM_STATE {
-    switch (state) {
-      case "INGAME":
-        return ROOM_STATE.INGAME;
-      case "LOBBY":
-      default:
-        return ROOM_STATE.LOBBY;
-    }
+  const passwordModalInputOnKeyPress = e => {
+    // If enter was pressed
+    if (e.charCode === 13) join_room(passwordValue);
   }
 
   function join_room(password: string) {
@@ -130,6 +137,7 @@
       bind:value="{passwordValue}"
       minLength="1"
       type="password"
+      on:keypress="{passwordModalInputOnKeyPress}"
     />
     <LinkButton
       btn_width="80%"
@@ -177,7 +185,7 @@
       {#if room_state === ROOM_STATE.LOBBY}
         <RoomSettings roomId="{id}" isHost="{isHost}" socket="{socket}" />
       {:else if room_state == ROOM_STATE.INGAME}
-        <div><GamePage /></div>
+        <div><GamePage socket="{socket}" uuid="{user_uuid}" /></div>
       {/if}
     </div>
     <div class="chat-component"></div>

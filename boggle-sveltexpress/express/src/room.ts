@@ -22,6 +22,8 @@ export class Room {
         this.password = password;
 
         this.room_settings = new RoomSettings(this);
+
+        this.game = new Game(this, this.room_settings);
     }
 
     public check_password(password: string) {
@@ -69,11 +71,13 @@ export class Room {
         socket.on("message", (message: string) => this.on_message(socket, message));
         socket.on("kick_player", (player_id: string) => this.on_kick(player_id));
         socket.on("disconnect", (reason: string) => this.on_disconnect(socket, reason));
-        socket.on("start", () => this.on_start(socket));
+        socket.on("start_game", () => this.on_start_game(socket));
         // Set RoomSettings handlers
         this.room_settings.setHandlers(socket);
+        // Set Game handlers
+        this.game.setHandlers(socket);
         
-        socket.emit("joined", this.game && this.game.started ? "INGAME" : "LOBBY");
+        socket.emit("joined", socket.id);
         this.emit("player_joined", player.id, player.name, player.avatar, player.score, player.id === this.host_id);
 
         // Send all players to newly joined player
@@ -84,6 +88,13 @@ export class Room {
 
         // Send up to date settings to the newly joined player
         socket.emit("settings_changed", this.room_settings.rounds, this.room_settings.round_time, this.room_settings.language);
+        if (this.game && this.game.started) {
+            socket.emit("game_started");
+            socket.emit("round_started", this.game.current_round, this.game.board.layout);
+            if (this.game.round_timer == 0 && this.game.next_round_timer > 0) {
+                socket.emit("round_ended");
+            }
+        }
 
         console.log(`🏚️  [room]: ${player.name} (ID: ${player.id}) joined`);
     }
@@ -98,7 +109,8 @@ export class Room {
         this.emit("player_removed", player.id);
     }
 
-    private on_start(socket: Socket) {
+    private on_start_game(socket: Socket) {
+        if (socket.id !== this.host_id) return;
         this.game = new Game(this, this.room_settings);
         this.game.start();
     }

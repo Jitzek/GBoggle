@@ -41,15 +41,23 @@
     }
   );
 
-  const rounds_setting_changed = () => socket.emit("rounds_setting_changed", rounds_value);
-  const round_time_setting_changed = () => socket.emit("round_time_setting_changed", round_time_value);
-  const language_setting_changed = () => socket.emit("language_setting_changed", language_value);
+  const rounds_setting_changed = () =>
+    socket.emit("rounds_setting_changed", rounds_value);
+  const round_time_setting_changed = () =>
+    socket.emit("round_time_setting_changed", round_time_value);
+  const language_setting_changed = () =>
+    socket.emit("language_setting_changed", language_value);
+
+  function start_game() {
+    if (!isHost) return;
+    socket.emit("start_game");
+  }
 </script>
 
 <div>
   <BasicContainer>
     <Text fontSize="2.5rem" value="Room Settings" />
-    <form>
+    <div class="room-settings-container">
       <SelectInput
         bind:value="{rounds_value}"
         on:change="{rounds_setting_changed}"
@@ -93,34 +101,35 @@
         text_color="white"
         value="Start Game"
         disabled="{!isHost}"
+        on:click="{start_game}"
       >
         <Shuttle color="#13a8e0" width="60%" />
       </LinkButton>
       <div style="padding-bottom: 4rem;"></div>
-    </form>
+    </div>
   </BasicContainer>
 
   <div style="margin-top: 2rem"></div>
 
   <!-- TODO: Move to Room so it can also be accessed ingame (make this a component aswell) -->
   <Text fontSize="2.5rem" value="Invite Others!" />
-  <div class="invite-container" on:click="{() => copyElement(inviteLink)}">
-    <div class="invite-link-container">
+  <table class="invite-container" on:click="{() => copyElement(inviteLink)}">
+    <td class="invite-link-container">
       <span bind:this="{inviteLink}" class="invite-link"
         >{`http://${window.location.host}/?invite-link=${roomId}`}</span
       >
-    </div>
-    <div class="copy-btn-container">
+    </td>
+    <td class="copy-btn-container">
       <div class="copy-btn">
         <Text value="Copy" />
       </div>
-    </div>
-  </div>
+    </td>
+  </table>
   <div style="padding-bottom: 4rem;"></div>
 </div>
 
 <style lang="scss">
-  form {
+  .room-settings-container {
     max-width: 80%;
     margin: auto;
   }
@@ -144,17 +153,18 @@
     margin: auto;
     text-align: center;
     vertical-align: middle;
-    display: table;
     cursor: pointer;
+    width: 100%;
   }
 
   .invite-link-container {
     background: white;
     color: rgb(255, 136, 0);
-    width: 100%;
-    display: table-cell;
     white-space: nowrap;
-    max-width: 0px;
+    width: 100%;
+    max-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .invite-link {

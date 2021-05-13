@@ -30,6 +30,7 @@
 
   // Nickname
   let nickname = localStorage.getItem("nickname");
+  if (!nickname) nickname = "";
   let nickname_min_length = 3;
   let nickname_max_length = 20;
   let avatar = localStorage.getItem("avatar");
@@ -64,9 +65,6 @@
       // Keep empty (for now)
     }
 
-    // Save data to localstorage
-    localStorage.setItem("nickname", nickname);
-
     if (invite_link) {
       setCookie("room_id", invite_link);
       navigate(`/room/${invite_link}`, { replace: true });
@@ -80,7 +78,7 @@
     // play() should have already validated data
 
     // Request a room from the socket
-    socket.emit("create_room", "");
+    requestPublicRoom();
   }
 
   function createPrivateRoom() {
@@ -88,6 +86,19 @@
     // Request a room from the socket
 
     showPasswordModal = true;
+  }
+
+  function requestPublicRoom() {
+    socket.emit("create_room", "");
+  }
+
+  function requestPrivateRoom() {
+    socket.emit("create_room", passwordValue);
+  }
+
+  const passwordModalInputOnKeyPress = e => {
+    // If enter was pressed
+    if (e.charCode === 13) requestPrivateRoom();
   }
 
   socket.on("room_created", (room_id: string, user_id: string) => {
@@ -104,12 +115,13 @@
         bind:value="{passwordValue}"
         minLength="1"
         type="password"
+        on:keypress="{passwordModalInputOnKeyPress}"
       />
       <LinkButton
         btn_width="80%"
         value="Create"
         btn_background="#46a350"
-        on:click="{() => socket.emit("create_room", passwordValue)}"><Send width="20px" color="#46a350" /></LinkButton
+        on:click="{requestPrivateRoom}"><Send width="20px" color="#46a350" /></LinkButton
       >
       <div style="margin-bottom: 2rem"></div>
       <LinkButton
@@ -166,6 +178,7 @@
       bind:value="{nickname}"
       minLength="3"
       maxLength="20"
+      on:blur="{() => {localStorage.setItem("nickname", nickname)}}"
     />
     <div class="flexthis">
       <UploadButton

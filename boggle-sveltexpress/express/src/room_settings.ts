@@ -18,16 +18,19 @@ export class RoomSettings {
     }
 
     private on_rounds_changed(socket: Socket, new_rounds: number) {
+        if (socket.id !== this.room.host_id) return;
         this.rounds = new_rounds;
         this.room.emit("settings_changed", this.rounds, this.round_time, this.language);
     }
 
     private on_round_time_changed(socket: Socket, new_round_time: number) {
+        if (socket.id !== this.room.host_id) return;
         this.round_time = new_round_time;
         this.room.emit("settings_changed", this.rounds, this.round_time, this.language);
     }
 
     private on_language_changed(socket: Socket, new_language: string) {
+        if (socket.id !== this.room.host_id) return;
         this.language = new_language;
         this.room.emit("settings_changed", this.rounds, this.round_time, this.language);
     }

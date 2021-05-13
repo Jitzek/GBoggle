@@ -89,7 +89,7 @@ io.on("connection", (socket: Socket) => {
     let room = rooms.find(_room => _room.players.some(e => e.id === socket.id));
     // Remove room if it contains no more players (after the player leaves)
     if (room && room.players.length <= 1) {
-      rooms = rooms.filter(_room => room && _room.uuid === room.uuid);
+      rooms = rooms.filter(_room => room && _room.uuid !== room.uuid);
       console.log(`📡 [socket]: Removed room ${room.uuid} because it contained no more players`);
     }
 

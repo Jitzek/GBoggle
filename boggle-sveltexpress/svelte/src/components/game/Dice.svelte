@@ -1,8 +1,9 @@
 <script lang=ts>
     export let value: string;
+    export let selected = false;
 </script>
 
-    <div class="dice">
+    <div class="dice" on:click class:selected>
         <div class="round">
             <p class="letter">{value}</p>
         </div>
@@ -11,7 +12,11 @@
 
 
 <style>
+    .dice.selected {
+        background-color: #f9af72;
+    }
     .dice{
+        transition: background-color 0.15s;
         border-radius: 10%;
         background-color: #e7e8e9;
         display: flex;
@@ -22,6 +27,8 @@
         height: 100px;
         padding: 7px;
         box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.5);
+        cursor: pointer;
+        
     }
     .round{
         border-radius: 50%;
@@ -32,8 +39,8 @@
         justify-content: center;
         align-items: center;
     }
-    .round:hover{
-        background-color: #f9af72;
+    .dice:hover .round{
+        background-color: #ffc89a;
     }
     .letter{
         font-size: 3em;
