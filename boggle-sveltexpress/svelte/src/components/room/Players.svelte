@@ -35,7 +35,6 @@
     updatePlayers(players.filter(player => player["id"] !== id));
   }
 
-
   function changeScoreOfPlayerByID(id: string, score: number) {
     console.log("changing score");
     const player = players.find(_player => _player["id"] === id);
@@ -47,10 +46,13 @@
 
   function updatePlayers(new_players: Object[]) {
     // Order alphabetically
-    new_players.sort((_p1, _p2) => (_p1["name"] > _p2["name"] ? 1 : -1));
+    new_players.sort((_p1, _p2) => (_p1["name"] as string).localeCompare(_p2["name"] as string));
 
     // Order by score
-    new_players.sort((_p1, _p2) => (_p1["score"] < _p2["score"] ? 1 : -1));
+    new_players.sort((_p1, _p2) => {
+      if (_p1["score"] == _p2["score"]) return 0;
+      return _p1["score"] < _p2["score"] ? 1 : -1;
+    });
 
     players = new_players;
   }

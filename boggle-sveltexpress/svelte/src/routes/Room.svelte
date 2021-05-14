@@ -11,7 +11,6 @@
   import Modal from "@components/Modal.svelte";
   import { TextInput } from "@components/inputs/index";
   import LinkButton from "@components/LinkButton.svelte";
-import { setCookie } from "../utils/cookies";
 
   enum ROOM_STATE {
     LOBBY,
@@ -226,7 +225,7 @@ import { setCookie } from "../utils/cookies";
   .password-modal-content {
     margin: auto;
     width: 50%;
-    height: 100vh;
+    height: 100%;
   }
 
   @media screen and (max-width: 500px) {

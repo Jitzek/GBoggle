@@ -72,10 +72,9 @@ export class Room {
         socket.on("kick_player", (player_id: string) => this.on_kick(player_id));
         socket.on("disconnect", (reason: string) => this.on_disconnect(socket, reason));
         socket.on("start_game", () => this.on_start_game(socket));
+        socket.on("submit_word", (positions: number[]) => this.game.on_submit(socket, positions));
         // Set RoomSettings handlers
         this.room_settings.setHandlers(socket);
-        // Set Game handlers
-        this.game.setHandlers(socket);
         
         socket.emit("joined", socket.id);
         this.emit("player_joined", player.id, player.name, player.avatar, player.score, player.id === this.host_id);
@@ -91,7 +90,7 @@ export class Room {
         if (this.game && this.game.started) {
             socket.emit("game_started");
             socket.emit("round_started", this.game.current_round, this.game.board.layout);
-            if (this.game.round_timer == 0 && this.game.next_round_timer > 0) {
+            if (!this.game.round_in_progress) {
                 socket.emit("round_ended");
             }
         }

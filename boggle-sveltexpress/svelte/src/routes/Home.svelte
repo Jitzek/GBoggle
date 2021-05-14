@@ -249,7 +249,7 @@
   .password-modal-content {
     margin: auto;
     width: 50%;
-    height: 100vh;
+    height: 100%;
   }
 
   @media screen and (max-width: 500px) {
