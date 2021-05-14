@@ -2,6 +2,8 @@ import { Room } from "./room";
 import { Board } from "./board";
 import { RoomSettings } from "./room_settings";
 import { Socket } from "socket.io";
+import { get } from "http";
+import { response } from "express";
 
 export class Game {
     started = false;
@@ -9,7 +11,7 @@ export class Game {
     board!: Board;
     room_settings: RoomSettings;
     round_timer: number = 0;
-    next_round_time: number = 1;
+    next_round_time: number = 10;
     next_round_timer: number = 0;
     current_round: number = 1;
     round_in_progress = false;
@@ -34,11 +36,11 @@ export class Game {
         this.room.emit("game_ended");
     }
 
-    public on_submit(socket: Socket, positions: number[]) {
+    public async on_submit(socket: Socket, positions: number[]) {
         if (!this.round_in_progress) return;
         const player = this.room.get_player_by_id(socket.id);
         if (!player) return;
-        /** Validate input */ 
+        /** Validate input */
         if (positions.length < 1) {
             return this.emitWordStatus(socket, "", false, "Submitted word was empty");
         }
@@ -50,6 +52,9 @@ export class Game {
             word_arr.push(this.board.layout[position]);
         }
         const word: string = word_arr.join("");
+        if (player.found_words.includes(word)) {
+            return this.emitWordStatus(socket, "", false, "Submitted word already found");
+        }
 
         /** Determine whether word was possible with the current board */
         if (positions.length > this.board.layout.length) {
@@ -61,22 +66,38 @@ export class Game {
                 // First position is always valid
                 continue;
             }
-            const position_dif = Math.abs(positions[i] - positions[i-1]);
+            const position_dif = Math.abs(positions[i] - positions[i - 1]);
             if (!allowed_position_difs.includes(position_dif)) {
                 return this.emitWordStatus(socket, "", false, "Submitted order of positions were not allowed");
             }
         }
 
-        player.score += this.determineScore(word_arr);
-
-        return this.emitWordStatus(socket, word, true, "Submitted word was valid");
+        /** Check if word exists */
+        get(`http://localhost:3000/wordchecker/${this.room_settings.language}/${word}`, (response) => {
+            if (response.statusCode !== 200) {
+                return this.emitWordStatus(socket, word, false, "An error occured while checking if the submitted word exists, please try again");
+            }
+            response.setEncoding("utf-8");
+            response.on("data", (chunk: string) => {
+                console.log(JSON.parse(chunk)["exists"]);
+                const exists: boolean = JSON.parse(chunk)["exists"];
+                if (!exists) {
+                    return this.emitWordStatus(socket, word, false, "Word doesn't exist in our dictionary");
+                }
+                player.score += this.determineScore(word_arr);
+                player.found_words.push(word);
+                return this.emitWordStatus(socket, word, true, "Submitted word was valid");
+            });
+        });
     }
 
     private emitWordStatus(socket: Socket, word: string, valid: boolean, reason?: string) {
         socket.emit("word_validated", word, valid, reason);
         const player = this.room.get_player_by_id(socket.id);
         if (!player) return;
-        this.room.emit("player_score_changed", player.id, player.score);
+        if (valid) {
+            this.room.emit("player_score_changed", player.id, player.score);
+        }
     }
 
     private determineScore(word_arr: string[]): number {
@@ -84,6 +105,7 @@ export class Game {
     }
 
     public async startRound() {
+        this.room.players.forEach((player) => player.found_words = []);
         // Announce round ended
         this.nextRoundTimer(() => {
             // Second passed

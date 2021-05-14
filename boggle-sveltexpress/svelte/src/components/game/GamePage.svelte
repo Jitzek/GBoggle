@@ -75,6 +75,7 @@
 
   socket.on("round_started", (round: number, layout: string[]) => {
     console.log(`Starting round ${round}`);
+    reset_dice_selection();
     showNextRoundModal = false;
     current_round = round;
     letters = layout;
@@ -110,20 +111,31 @@
 
   socket.on("round_ended", () => {
     console.log("round ended");
+    reset_dice_selection();
   });
 
-  socket.on("word_validated", (word: string, valid: boolean, reason?: string) => {
-    if (!valid) {
-      console.error(`Word: ${word} was not valid, reason: ${reason}`);
-      return;
+  socket.on(
+    "word_validated",
+    (word: string, valid: boolean, reason?: string) => {
+      if (!valid) {
+        console.log(`Word: ${word} was not valid, reason: ${reason}`);
+        return;
+      }
+      console.log(`Word: ${word} was valid, reason: ${reason}`);
     }
-    console.log(`Word: ${word} was valid, reason: ${reason}`);
-  });
+  );
 
   function on_submit() {
     if (selected_dice.length < 1) return;
     let selected_dice_positions = selected_dice.map((e) => e.position);
     socket.emit("submit_word", selected_dice_positions);
+    reset_dice_selection();
+  }
+
+  function reset_dice_selection() {
+    dice.forEach((_dice) => (_dice.selected = false));
+    dice = dice;
+    selected_dice = [];
   }
 </script>
 
