@@ -79,6 +79,9 @@
                                 fileinput.click();
                             }}
                         />
+                        <div class="uploadbutton overlay">
+                            <Camera color="white" width="60%" />
+                        </div>
                     {:else}
                         <div
                             class="uploadbutton labelstyle"
@@ -86,45 +89,44 @@
                                 fileinput.click();
                             }}
                         />
-                        
+                        <div class="uploadbutton overlay_no_hover">
+                            <Camera color="white" width="60%" />
+                        </div>
                     {/if}
-                    <div class="uploadbutton overlay">
-                        <Camera color="white" width="60%" />
-                    </div>
                 </div>
             </label>
             <input
-            type="file"
-            {id}
-            class="upload"
-            accept={acceptedfiletypes}
-            on:change={(e) => onFileSelected(e)}
-            bind:this={fileinput}
-            bind:value={avatar}
-        />
+                type="file"
+                {id}
+                class="upload"
+                accept={acceptedfiletypes}
+                on:change={(e) => onFileSelected(e)}
+                bind:this={fileinput}
+                bind:value={avatar}
+            />
         {:else if acceptedfiletypes == "audio/*"}
             <label for={id}>
                 <div class="container">
-                        <div class="uploadbutton overlay">
-                            <Soundbars color="white" width="60%" />
-                        </div>
-                        <div
-                            class="uploadbutton labelstyle"
-                            on:click={() => {
-                                fileinput.click();
-                            }}
-                        />
+                    <div class="uploadbutton overlay_no_hover">
+                        <Soundbars color="white" width="60%" />
+                    </div>
+                    <div
+                        class="uploadbutton labelstyle"
+                        on:click={() => {
+                            fileinput.click();
+                        }}
+                    />
                 </div>
             </label>
             <input
-            type="file"
-            {id}
-            class="upload"
-            accept={acceptedfiletypes}
-            on:change={(e) => onFileSelected(e)}
-            bind:this={fileinput}
-            bind:value={victory_audio}
-        />
+                type="file"
+                {id}
+                class="upload"
+                accept={acceptedfiletypes}
+                on:change={(e) => onFileSelected(e)}
+                bind:this={fileinput}
+                bind:value={victory_audio}
+            />
         {/if}
     </div>
     <p>{filename}</p>
@@ -196,6 +198,17 @@
         opacity: 0;
         transition: 0.3s ease;
         z-index: -1;
+    }
+
+    .overlay_no_hover {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10;
+        transition: 0.3s ease;
+    }
+    .overlay_no_hover:hover {
+        background-color: rgba(102, 102, 102, 0.699);
     }
 
     label:hover .overlay {
