@@ -67,54 +67,64 @@
         <Text value={labelName} />
     </div>
     <div>
-        <label for={id}>
-            <div class="container">
-                {#if avatar && acceptedfiletypes == "image/*"}
-                    <img
-                        src={avatar}
-                        alt=""
-                        class="uploadbutton"
-                        on:click={() => {
-                            fileinput.click();
-                        }}
-                    />
-                {:else}
-                    <div
-                        class="uploadbutton labelstyle"
-                        on:click={() => {
-                            fileinput.click();
-                        }}
-                    />
-                {/if}
-                <div class="uploadbutton overlay">
-                    {#if acceptedfiletypes == "image/*"}
-                        <Camera color="white" width="60%" />
-                    {:else if acceptedfiletypes == "audio/*"}
-                        <Soundbars color="white" width="60%" />
-                    {/if}
-                </div>
-            </div>
-        </label>
         {#if acceptedfiletypes == "image/*"}
+            <label for={id}>
+                <div class="container">
+                    {#if avatar}
+                        <img
+                            src={avatar}
+                            alt="avatar"
+                            class="uploadbutton"
+                            on:click={() => {
+                                fileinput.click();
+                            }}
+                        />
+                    {:else}
+                        <div
+                            class="uploadbutton labelstyle"
+                            on:click={() => {
+                                fileinput.click();
+                            }}
+                        />
+                        
+                    {/if}
+                    <div class="uploadbutton overlay">
+                        <Camera color="white" width="60%" />
+                    </div>
+                </div>
+            </label>
             <input
-                type="file"
-                {id}
-                class="upload"
-                accept={acceptedfiletypes}
-                on:change={(e) => onFileSelected(e)}
-                bind:this={fileinput}
-                bind:value={avatar}
-            />
+            type="file"
+            {id}
+            class="upload"
+            accept={acceptedfiletypes}
+            on:change={(e) => onFileSelected(e)}
+            bind:this={fileinput}
+            bind:value={avatar}
+        />
         {:else if acceptedfiletypes == "audio/*"}
+            <label for={id}>
+                <div class="container">
+                        <div class="uploadbutton overlay">
+                            <Soundbars color="white" width="60%" />
+                        </div>
+                        <div
+                            class="uploadbutton labelstyle"
+                            on:click={() => {
+                                fileinput.click();
+                            }}
+                        />
+                </div>
+            </label>
             <input
-                type="file"
-                {id}
-                class="upload"
-                accept={acceptedfiletypes}
-                on:change={(e) => onFileSelected(e)}
-                bind:this={fileinput}
-                bind:value={victory_audio}
-            />
+            type="file"
+            {id}
+            class="upload"
+            accept={acceptedfiletypes}
+            on:change={(e) => onFileSelected(e)}
+            bind:this={fileinput}
+            bind:value={victory_audio}
+        />
         {/if}
     </div>
     <p>{filename}</p>
