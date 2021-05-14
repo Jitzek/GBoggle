@@ -6,7 +6,11 @@
   export let avatar: string;
   export let score: number;
 
-  let icon_size = "2.5rem";
+  export let icon_size = "2.5rem";
+  export let name_color = "#000";
+  export let score_color = "#2b6a34";
+  export let text_size = "1.2rem";
+  export let background_color = "#2b6a34";
 </script>
 
 <tr class="player">
@@ -15,19 +19,19 @@
     <UserIcon
       src="{avatar}"
       size="{icon_size}"
-      background="#2b6a34"
-      border_color="#2b6a34"
+      background="{background_color}"
+      border_color="{background_color}"
     />
   </td>
 
   <!-- User's Name -->
   <td class="user-name">
-    <p>{name}</p>
+    <p style="color: {name_color}">{name}</p>
   </td>
 
   <!-- User's Points -->
   <td class="user-points">
-    <BitText color="#2b6a34" fontSize="1.2rem" value="{score.toString()}" />
+    <BitText color="{score_color}" fontSize="{text_size}" value="{score.toString()}" />
   </td>
 </tr>
 

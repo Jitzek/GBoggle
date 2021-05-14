@@ -3,6 +3,8 @@
   export let z_index: string;
   export let show: boolean;
 
+  export let padding_top = "25vh"
+
   let modal: HTMLDivElement;
 
   $: {
@@ -21,7 +23,7 @@
   }
 </script>
 
-<div id="{id}" class="modal" bind:this="{modal}" style="z-index: {z_index};">
+<div id="{id}" class="modal" bind:this="{modal}" style="z-index: {z_index}; padding-top: {padding_top}">
   <div class="modal-content">
     <!-- <span class="close" on:click="{hide}">&times;</span> -->
     <div style="padding-bottom: 3.5rem;"></div>
@@ -33,7 +35,6 @@
   .modal {
     display: none;
     position: fixed;
-    padding-top: 25vh;
     left: 0;
     top: 0;
     width: 100%;

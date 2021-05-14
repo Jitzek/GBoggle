@@ -4,7 +4,7 @@ import readline from 'readline'
 export function wordExists(word: string, language: string, callback: (foundWord: boolean) => void) {
   if (word.length <= 1)  {
     callback(false)
-    return false;
+    return;
   }
   let found = false;
 
@@ -32,6 +32,6 @@ export function wordExists(word: string, language: string, callback: (foundWord:
 
   rl.on('close', () => {
     callback(found);
-    return found;
+    return;
   });
 }

@@ -3,7 +3,6 @@ import { Board } from "./board";
 import { RoomSettings } from "./room_settings";
 import { Socket } from "socket.io";
 import { get } from "http";
-import { response } from "express";
 
 export class Game {
     started = false;
@@ -11,7 +10,7 @@ export class Game {
     board!: Board;
     room_settings: RoomSettings;
     round_timer: number = 0;
-    next_round_time: number = 10;
+    next_round_time: number = 1;
     next_round_timer: number = 0;
     current_round: number = 1;
     round_in_progress = false;
@@ -19,7 +18,7 @@ export class Game {
     constructor(room: Room, room_settings: RoomSettings) {
         this.room = room;
         this.room_settings = room_settings;
-        // this.room_settings.round_time = 10;
+        this.room_settings.round_time = 10;
     }
 
     public async start() {
@@ -32,8 +31,11 @@ export class Game {
     public stop() {
         console.log("🎮 [game]: Game ended");
         this.started = false;
-        // TODO: send victory audio
-        this.room.emit("game_ended");
+        const winner = this.room.players.reduce((prev, current) => {
+            return (prev.score > current.score) ? prev : current;
+        });
+        console.log(this.room.players.length);
+        this.room.emit("game_ended", winner ? winner.victory_audio : "");
     }
 
     public async on_submit(socket: Socket, positions: number[]) {

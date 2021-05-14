@@ -141,7 +141,11 @@
 
 <Modal id="next-round-modal" z_index="99" show="{showNextRoundModal}">
   <div class="next-round-modal-content">
+    {#if next_round_time != 1}
     <h1>Round {current_round} starts in {next_round_time} seconds</h1>
+    {:else}
+    <h1>Round {current_round} starts in {next_round_time} second</h1>
+    {/if}
   </div>
 </Modal>
 <BasicContainer style="margin: 10px">

@@ -11,6 +11,8 @@
   import Modal from "@components/Modal.svelte";
   import { TextInput } from "@components/inputs/index";
   import LinkButton from "@components/LinkButton.svelte";
+  import EndScreen from "@components/game/EndScreen.svelte";
+  import { PlayersObject } from "@components/room/PlayersObject";
 
   enum ROOM_STATE {
     LOBBY,
@@ -97,11 +99,19 @@
   });
 
   socket.on("game_started", () => {
+    showEndscreenModal = false;
     room_state = ROOM_STATE.INGAME;
   });
 
+  let showEndscreenModal = false;
   socket.on("game_ended", (victory_audio: string) => {
     console.log("Game ended");
+    const audio = new Audio(victory_audio);
+    audio.volume = 0.5;
+    showEndscreenModal = true;
+    setTimeout(() => {
+      audio.play();
+    }, 1000);
   });
 
   let players_collapsed: boolean = true;
@@ -118,14 +128,35 @@
     players_invisible = !chat_collapsed && players_collapsed;
   }
 
-  const passwordModalInputOnKeyPress = e => {
+  const passwordModalInputOnKeyPress = (e) => {
     // If enter was pressed
     if (e.charCode === 13) join_room(passwordValue);
-  }
+  };
 
   function join_room(password: string) {
     console.log(password);
     socket.emit("join_room", id, nickname, avatar, victory_audio, password);
+  }
+
+  let players = new PlayersObject();
+  socket.on("player_joined", (id: string, name: string, avatar: string, score: number, is_host: boolean) => {
+    players.addPlayer(id, name, avatar, score, is_host);
+    players = players;
+  });
+
+  socket.on("player_removed", (id: string) => {
+    players.removePlayerByID(id);
+    players = players;
+  }); 
+
+  socket.on("player_score_changed", (id: string, score: number) => {
+    players.changeScoreOfPlayerByID(id, score);
+    players = players;
+  });
+
+  function backToMenu() {
+    showEndscreenModal = false;
+    room_state = ROOM_STATE.LOBBY;
   }
 </script>
 
@@ -147,6 +178,11 @@
     >
   </div>
 </Modal>
+<Modal id="endscreen_modal" show="{showEndscreenModal}" padding_top="10vh">
+  <div class="endscreen-modal-content">
+    <EndScreen players="{players}" backToMenu="{backToMenu}" />
+  </div>
+</Modal>
 {#if is_connected}
   <div class="room-container">
     <div class="players-component" class:players_invisible>
@@ -160,7 +196,7 @@
           <User color="#2b6a34" width="60%" />
         </div>
         <div slot="window">
-          <Players roomId="{id}" socket="{socket}" />
+          <Players players="{players}" />
         </div>
       </SideWindow>
     </div>
@@ -228,8 +264,17 @@
     height: 100%;
   }
 
+  .endscreen-modal-content {
+    margin: auto;
+    width: 50%;
+    height: 100%;
+  }
+
   @media screen and (max-width: 500px) {
     .password-modal-content {
+      width: 90%;
+    }
+    .endscreen-modal-content {
       width: 90%;
     }
   }
