@@ -1,89 +1,138 @@
 <script lang="ts">
-    import {Soundbars, Camera} from "@components/svg/index";
+    import { Soundbars, Camera } from "@components/svg/index";
     import Text from "@components/Text.svelte";
 
     export let acceptedfiletypes: string;
     export let id: string;
     export let labelName: string = "Upload file";
-    let avatar: string | ArrayBuffer 
+    let filename: string = "";
+    let localstorage = window.localStorage;
+    let avatar: string = setFromLocalStorage("avatar");
+    let filename_avatar: string = setFromLocalStorage("filename_avatar");
+    let filename_victory_audio: string = setFromLocalStorage(
+        "filename_victory_audio"
+    );
+    let victory_audio: string = setFromLocalStorage("victory_audio");
     let fileinput: any;
+    acceptedfiletypes == "image/*"
+        ? (filename = filename_avatar)
+        : (filename = filename_victory_audio);
 
     const onFileSelected = (e) => {
-        let file = e.target.files[0];
+        let file: File = e.target.files[0];
+        if (file.size > 2000000) {
+            alert("file too big!");
+            return;
+        }
+
         let reader = new FileReader();
         reader.readAsDataURL(file);
+
         reader.onload = (e) => {
-            let shortname: string = file.name.split('.').shift();
-            if(shortname.length > 10){
-                shortname = shortname.slice(0, 10);
-                shortname += "...";
+            let shortname: string = file.name.split(".").shift();
+            filename = shortenText(shortname, 15);
+            if (acceptedfiletypes == "audio/*") {
+                localstorage.setItem(
+                    "victory_audio",
+                    e.target.result.toString()
+                );
+                localstorage.setItem("filename_victory_audio", shortname);
+            } else {
+                avatar = e.target.result.toString();
+                localstorage.setItem("avatar", avatar);
+                localstorage.setItem("filename_avatar", shortname);
             }
-            document.getElementById(id + id).innerHTML = shortname;
-            if (acceptedfiletypes == "audio/*") return;
-            avatar = e.target.result;
         };
     };
-    
+
+    function setFromLocalStorage(key: string): string {
+        if (key in localstorage) {
+            return localstorage.getItem(key).toString();
+        } else {
+            return "";
+        }
+    }
+
+    function shortenText(text: string, length: number): string {
+        if (text.length > length) {
+            text = text.slice(0, length);
+            text += "...";
+        }
+        return text;
+    }
 </script>
 
 <div class="upload-container">
     <div class="uploadbuttonlabel">
-        <Text value="{labelName}"></Text>
+        <Text value={labelName} />
     </div>
     <div>
-        <label for="{id}">
+        <label for={id}>
             <div class="container">
-                {#if avatar}
-                <img
-                    src={avatar.toString()}
-                    alt=""
-                    class="uploadbutton"
-                    on:click={() => {
-                        fileinput.click();
-                    }}
-                />
-            {:else}
-                <div
-                    class="uploadbutton labelstyle"
-                    on:click={() => {               
-                        fileinput.click();
-                    }}
-                />
-            {/if}
-            <div class="uploadbutton overlay">
-                {#if acceptedfiletypes == "image/*"}
-                <Camera color="white" width="60%"></Camera> 
-                {:else if acceptedfiletypes == "audio/*"}
-                <Soundbars color="white" width="60%"></Soundbars>
+                {#if avatar && acceptedfiletypes == "image/*"}
+                    <img
+                        src={avatar}
+                        alt=""
+                        class="uploadbutton"
+                        on:click={() => {
+                            fileinput.click();
+                        }}
+                    />
+                {:else}
+                    <div
+                        class="uploadbutton labelstyle"
+                        on:click={() => {
+                            fileinput.click();
+                        }}
+                    />
                 {/if}
-            </div>
+                <div class="uploadbutton overlay">
+                    {#if acceptedfiletypes == "image/*"}
+                        <Camera color="white" width="60%" />
+                    {:else if acceptedfiletypes == "audio/*"}
+                        <Soundbars color="white" width="60%" />
+                    {/if}
+                </div>
             </div>
         </label>
-        <input
-            type="file"
-            id="{id}"
-            class="upload"
-            accept={acceptedfiletypes}
-            on:change={(e) => onFileSelected(e)}
-            bind:this={fileinput}
-        />
+        {#if acceptedfiletypes == "image/*"}
+            <input
+                type="file"
+                {id}
+                class="upload"
+                accept={acceptedfiletypes}
+                on:change={(e) => onFileSelected(e)}
+                bind:this={fileinput}
+                bind:value={avatar}
+            />
+        {:else if acceptedfiletypes == "audio/*"}
+            <input
+                type="file"
+                {id}
+                class="upload"
+                accept={acceptedfiletypes}
+                on:change={(e) => onFileSelected(e)}
+                bind:this={fileinput}
+                bind:value={victory_audio}
+            />
+        {/if}
     </div>
-    <p id={id+id}></p>
+    <p>{filename}</p>
 </div>
 
 <style>
     @media only screen and (max-width: 700px) {
-        .uploadbuttonlabel{
+        .uploadbuttonlabel {
             font-size: 0.7rem;
+        }
     }
-}
 
-    .uploadbuttonlabel{
+    .uploadbuttonlabel {
         white-space: nowrap;
         margin: 20px 0px 20px 0px;
     }
 
-    .container{
+    .container {
         margin: 0 auto;
         display: grid;
         place-items: center;
@@ -114,15 +163,15 @@
         grid-area: inners;
     }
     @media only screen and (max-width: 700px) {
-    .uploadbutton {
-        width: 80px;
-        height: 80px;
+        .uploadbutton {
+            width: 80px;
+            height: 80px;
+        }
+        .overlay {
+            width: 75px;
+            height: 75px;
+        }
     }
-    .overlay{
-        width: 75px;
-        height: 75px;
-    }
-}
     label {
         display: flex;
         justify-content: center;
