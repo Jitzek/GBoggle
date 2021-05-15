@@ -139,15 +139,24 @@
   }
 
   let players = new PlayersObject();
-  socket.on("player_joined", (id: string, name: string, avatar: string, score: number, is_host: boolean) => {
-    players.addPlayer(id, name, avatar, score, is_host);
-    players = players;
-  });
+  socket.on(
+    "player_joined",
+    (
+      id: string,
+      name: string,
+      avatar: string,
+      score: number,
+      is_host: boolean
+    ) => {
+      players.addPlayer(id, name, avatar, score, is_host);
+      players = players;
+    }
+  );
 
   socket.on("player_removed", (id: string) => {
     players.removePlayerByID(id);
     players = players;
-  }); 
+  });
 
   socket.on("player_score_changed", (id: string, score: number) => {
     players.changeScoreOfPlayerByID(id, score);
@@ -178,11 +187,13 @@
     >
   </div>
 </Modal>
-<Modal id="endscreen_modal" show="{showEndscreenModal}" padding_top="10vh">
-  <div class="endscreen-modal-content">
-    <EndScreen players="{players}" backToMenu="{backToMenu}" />
-  </div>
-</Modal>
+{#if showEndscreenModal}
+  <Modal id="endscreen_modal" show="{showEndscreenModal}" padding_top="10vh">
+    <div class="endscreen-modal-content">
+      <EndScreen players="{players}" backToMenu="{backToMenu}" />
+    </div>
+  </Modal>
+{/if}
 {#if is_connected}
   <div class="room-container">
     <div class="players-component" class:players_invisible>
@@ -211,7 +222,7 @@
           <Chat_Icon color="#7f3f98" width="60%" />
         </div>
         <div slot="window">
-          <Chat roomId="{id}" />
+          <Chat socket="{socket}" players="{players}"/>
         </div>
       </SideWindow>
     </div>

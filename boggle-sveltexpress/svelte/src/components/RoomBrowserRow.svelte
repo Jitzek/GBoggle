@@ -3,14 +3,22 @@
     import {Lock, NL, Users} from "@components/svg/index"
     import Text from "@components/Text.svelte"
     import type {RoomProperties} from "../types/Types";
+    import { setCookie } from "../utils/cookies";
+    import { navigate } from "svelte-routing";
 
     export let roomProperties: RoomProperties;
-    let {isLocked, name, lang, totalPlayers, maxPlayers}: RoomProperties = roomProperties;
+    let {id, isLocked, name, lang, totalPlayers, maxPlayers}: RoomProperties = roomProperties;
+
+    function onRowClick() {
+        // Join Room
+        setCookie("room_id", id);
+        navigate(`/room/${id}`, { replace: true });
+    }
 
 </script>
 
 <BasicContainer style="border-radius: 0.6rem; cursor:pointer;">
-    <table class="rooms">
+    <table class="rooms" on:click="{onRowClick}">
         <tr>
             <td class="password_protected">
                 {#if isLocked}

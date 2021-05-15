@@ -10,7 +10,7 @@ export class Game {
     board!: Board;
     room_settings: RoomSettings;
     round_timer: number = 0;
-    next_round_time: number = 1;
+    next_round_time: number = 10;
     next_round_timer: number = 0;
     current_round: number = 1;
     round_in_progress = false;
@@ -18,10 +18,15 @@ export class Game {
     constructor(room: Room, room_settings: RoomSettings) {
         this.room = room;
         this.room_settings = room_settings;
-        this.room_settings.round_time = 10;
     }
 
     public async start() {
+        // Set each player's scores to 0
+        this.room.players.forEach((player) => {
+            player.score = 0;
+            this.room.emit("player_score_changed", player.id, player.score);
+        });
+        this.current_round = 1;
         this.started = true;
         this.room.emit("game_started");
 
@@ -34,7 +39,6 @@ export class Game {
         const winner = this.room.players.reduce((prev, current) => {
             return (prev.score > current.score) ? prev : current;
         });
-        console.log(this.room.players.length);
         this.room.emit("game_ended", winner ? winner.victory_audio : "");
     }
 
@@ -54,6 +58,9 @@ export class Game {
             word_arr.push(this.board.layout[position]);
         }
         const word: string = word_arr.join("");
+        if (word.length < 3) {
+            return this.emitWordStatus(socket, "", false, `Submitted word (${word}) needs to be at least 3 characters long`);
+        }
         if (player.found_words.includes(word)) {
             return this.emitWordStatus(socket, "", false, "Submitted word already found");
         }
@@ -81,7 +88,6 @@ export class Game {
             }
             response.setEncoding("utf-8");
             response.on("data", (chunk: string) => {
-                console.log(JSON.parse(chunk)["exists"]);
                 const exists: boolean = JSON.parse(chunk)["exists"];
                 if (!exists) {
                     return this.emitWordStatus(socket, word, false, "Word doesn't exist in our dictionary");

@@ -25,14 +25,14 @@ const server = app.listen(PORT, () => {
 // Create socket (listening on the same address as server)
 const io = new Server(server);
 
-const test_room_1 = new Room(io, "host_1", "");
-const test_room_2 = new Room(io, "host_2", "password");
+// const test_room_1 = new Room(io, "host_1", "");
+// const test_room_2 = new Room(io, "host_2", "password");
 
-test_room_1.uuid = "test_room_1";
-test_room_2.uuid = "test_room_2";
+// test_room_1.uuid = "test_room_1";
+// test_room_2.uuid = "test_room_2";
 
-rooms.push(test_room_1);
-rooms.push(test_room_2);
+// rooms.push(test_room_1);
+// rooms.push(test_room_2);
 
 io.on("connection", (socket: Socket) => {
   console.log(`📡 [socket]: Client connected`);
@@ -67,6 +67,12 @@ io.on("connection", (socket: Socket) => {
       return;
     }
 
+    if (room.players.length >= room.max_players) {
+      console.log(`❗📡 [socket]: Room is full ${room.players.length}/${room.max_players}`);
+      socket.emit("room_full");
+      return;
+    }
+
     if (room.is_password_protected() && room.host_id != socket.id) {
       if (!room.check_password(password)) {
         // Invalid password
@@ -95,5 +101,17 @@ io.on("connection", (socket: Socket) => {
 
     // Check if host left
     // TODO: what to do when host leaves? random assignment?
+  });
+  
+  socket.on("get_rooms", () => {
+    // isLocked, name, lang, totalPlayers, maxPlayers
+    socket.emit("get_rooms", rooms.map(room => ({
+      id: room.uuid,
+      isLocked: room.is_password_protected(), 
+      name: room.get_player_by_id(room.host_id)?.name,
+      lang: room.room_settings.language,
+      totalPlayers: room.players.length,
+      maxPlayers: room.max_players
+    })));
   });
 });

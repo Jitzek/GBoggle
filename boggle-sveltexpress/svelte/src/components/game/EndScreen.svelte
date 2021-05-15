@@ -11,12 +11,9 @@
   import UserIcon from "@components/UserIcon.svelte";
 
   // players should already be sorted
-  let winner: PlayerObject;
-
-  $: {
-    players;
-    winner = players.players[0];
-  }
+  let winner: PlayerObject = players.players[0];
+  let players_copy: PlayerObject[] = [];
+  players.players.forEach(player => { players_copy.push(player) });
 </script>
 
 <div class="endscreen-container">
@@ -37,7 +34,7 @@
     {/if}
   </div>
   <table class="players-table">
-    {#each players.players as player, i}
+    {#each players_copy as player}
       {#if player.id !== winner.id}
         <Player
           name="{player.name}"
@@ -51,7 +48,7 @@
   </table>
   <div style="margin-bottom: 2rem"></div>
   <LinkButton
-    on:click="{() => (backToMenu())}"
+    on:click="{() => backToMenu()}"
     btn_width="90%"
     value="Back To Menu"
     btn_background="#13a8e0"><Logout width="20px" color="#13a8e0" /></LinkButton

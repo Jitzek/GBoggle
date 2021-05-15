@@ -3,6 +3,7 @@ import { Player } from './player';
 import { Game } from "./game";
 import { v4 as uuidv4 } from 'uuid';
 import { RoomSettings } from './room_settings';
+import { Chat } from './chat';
 
 export class Room {
     uuid: string;
@@ -12,6 +13,8 @@ export class Room {
     players: Player[];
     password: string = "";
     room_settings: RoomSettings;
+    chat: Chat;
+    max_players: number;
 
     constructor(server: Server, host_id: string, password: string) {
         this.server = server;
@@ -24,6 +27,10 @@ export class Room {
         this.room_settings = new RoomSettings(this);
 
         this.game = new Game(this, this.room_settings);
+
+        this.chat = new Chat(this);
+
+        this.max_players = 16;
     }
 
     public check_password(password: string) {
@@ -75,6 +82,8 @@ export class Room {
         socket.on("submit_word", (positions: number[]) => this.game.on_submit(socket, positions));
         // Set RoomSettings handlers
         this.room_settings.setHandlers(socket);
+        // Set Chat handlers
+        this.chat.setHandlers(socket);
         
         socket.emit("joined", socket.id);
         this.emit("player_joined", player.id, player.name, player.avatar, player.score, player.id === this.host_id);

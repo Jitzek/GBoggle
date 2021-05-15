@@ -2,10 +2,6 @@ import fs from 'fs';
 import readline from 'readline'
 
 export function wordExists(word: string, language: string, callback: (foundWord: boolean) => void) {
-  if (word.length <= 1)  {
-    callback(false)
-    return;
-  }
   let found = false;
 
   let wordlist = "src/wordlist/nl.txt"

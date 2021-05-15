@@ -4,8 +4,11 @@
   import Message from "@components/room/chat/Message.svelte";
   import { afterUpdate } from "svelte";
   import type { Socket } from "socket.io-client";
+  import type { PlayersObject } from "../PlayersObject";
+  import type { PlayerObject } from "../PlayerObject";
 
   export let socket: Socket;
+  export let players: PlayersObject;
 
   let chatContainer: HTMLElement;
   let messageBlocks: Object[] = [];
@@ -15,6 +18,7 @@
 
   let scrollDif = 0;
 
+  let chatInputValue: string;
 
   afterUpdate(() => {
     // Only autoscroll if the user is already at bottom of the chat
@@ -43,8 +47,10 @@
     chatContainer.scrollTop = chatContainer.scrollHeight - chatContainer.clientHeight;
   }
 
+  socket.on("message_send", (userId: string, message: string) => onMessage(userId, message));
 
   function onMessage(userId: string, message: string) {
+    console.log(`onMessage: ${userId}: ${message}`);
     // Get current messageblock
     let c_m_block: Object = messageBlocks[messageBlocks.length - 1];
 
@@ -59,14 +65,13 @@
   }
 
   function appendMessageBlock(userId: string) {
-    // TODO, use userId and roomId to get userName and userIcon
-    let userName: string = "VSauce";
-    let userIcon: string = "/images/hey.png";
+    const player: PlayerObject = players.players.find((player) => player.id === userId);
+    if (!player) return;
 
     messageBlocks.push({
-      userId: userId,
-      userName: userName,
-      userIcon: userIcon,
+      userId: player.id,
+      userName: player.name,
+      userIcon: player.avatar,
       messages: [],
     });
   }
@@ -76,6 +81,17 @@
 
     // State changed, request UI update
     messageBlocks = messageBlocks;
+  }
+
+  function sendMessage() {
+    if (chatInputValue.length < 1) return;
+    socket.emit("send_message", chatInputValue);
+    chatInputValue = ""; 
+  }
+
+  const chatInputOnKeyPress = e => {
+    // If enter was pressed
+    if (e.charCode === 13) sendMessage();
   }
 </script>
 
@@ -97,8 +113,8 @@
     </div>
     <button bind:this="{newMessagesButton}" class="new-messages-btn" on:click="{scrollToBottom}" style="width: {newMessagesButtonWidth}" />
     <div class="send-message">
-      <input type="text" />
-      <button>
+      <input type="text" bind:value="{chatInputValue}" on:keypress="{chatInputOnKeyPress}" />
+      <button on:click="{sendMessage}">
         <Send width="1.75rem" />
       </button>
     </div>

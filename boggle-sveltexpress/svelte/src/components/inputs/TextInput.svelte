@@ -31,8 +31,10 @@
     }
   }
 
-  // Initial verification
-  verifyInput(value);
+  $: {
+    value;
+    verifyInput(value);
+  }
 
   onMount(() => {
     inputElement.type = type;

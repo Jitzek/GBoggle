@@ -4,8 +4,8 @@
   import { Router, Route } from "svelte-routing";
   import { Room, NotFound, Home, RoomBrowser } from "@routes";
   import GboggleLogo from "@components/GBoggleLogo.svelte";
-  import { navigate } from "svelte-routing";
   import { deleteCookie } from "./utils/cookies";
+  import { navigate } from "svelte-routing";
 
   export let url = window.location.pathname;
   
@@ -18,22 +18,13 @@
     console.log("connected");
   });
 
-  // const socket = io("http://localhost:8000");
-
-  // socket.on("connect", () => {
-  //   console.log("connected");
-  //   socket.emit("create_room", "Henk", "", "");
-  //   socket.emit("join_room", "test", "Henk2", "", "");
-  // });
-
-  // socket.on("message", (message) => {
-  //   console.log(`received message: ${message}`);
-  //   socket.emit("message", "thank you for the message!");
-  // });
+  function onLogoClick() {
+    location.href = `http://${location.host}/`;
+  }
 </script>
 
 <main>
-  <GboggleLogo size="20rem" />
+  <GboggleLogo size="20rem" on:click="{onLogoClick}" clickable={true} />
   <Router url="{url}">
     <Route path="/">
       <Home socket="{socket}" />
@@ -41,7 +32,9 @@
     <Route path="room/:id" let:params>
       <Room id="{params.id}" socket="{socket}" />
     </Route>
-    <Route path="/roombrowser" component="{RoomBrowser}" />
+    <Route path="/roombrowser">
+      <RoomBrowser socket="{socket}" />
+    </Route>
     <Route component="{NotFound}" />
   </Router>
 </main>

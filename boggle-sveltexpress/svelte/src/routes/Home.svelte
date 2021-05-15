@@ -201,17 +201,6 @@
         ><Play width="20px" color="#46a350" /></LinkButton
       >
     </div>
-    <!--
-            <div class="buttons">
-                <div class="topbuttons">
-                    <LinkButton btn_width="45%" value="Singleplayer" btn_background="#46a350" href="game"><User width="20px" color="#46a350" /></LinkButton>
-                    <LinkButton btn_width="45%" value="Multiplayer" btn_background="#2b6a34" href="roombrowser"><Users width="25px" color="#2b6a34" /></LinkButton>
-                </div>
-                <div class="bottombutton">
-                    <LinkButton btn_width="80%" value="Create private room"btn_background="#13a8e0"><Private width="25px" color="#13a8e0"/></LinkButton>
-                </div>
-            </div>
-            -->
   </div>
 </BasicContainer>
 <BasicContainer>

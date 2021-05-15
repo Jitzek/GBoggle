@@ -41,13 +41,5 @@
     height: 100%;
     overflow: auto;
     background-color: rgba(0, 0, 0, 0.8);
-
-    .close {
-      color: #aaaaaa;
-      float: left;
-      font-size: 2rem;
-      font-weight: bold;
-      cursor: pointer;
-    }
   }
 </style>
