@@ -1,6 +1,6 @@
 <script lang="ts">
     export let color: string = "white";
-    export let fontSize: string;
+    export let fontSize: string = "none";
     export let value: string;
 </script>
 

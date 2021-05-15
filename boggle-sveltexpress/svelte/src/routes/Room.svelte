@@ -104,6 +104,7 @@
   });
 
   socket.on("game_started", () => {
+    console.log("game started");
     showEndscreenModal = false;
     room_state = ROOM_STATE.INGAME;
   });
@@ -140,7 +141,6 @@
   };
 
   function join_room(password: string) {
-    console.log(password);
     socket.emit("join_room", id, nickname, avatar, victory_audio, password);
   }
 
@@ -154,7 +154,6 @@
       _score: number,
       _is_host: boolean
     ) => {
-      console.log(avatar);
       players.addPlayer(_id, _name, _avatar, _score, _is_host);
       players = players;
     }
@@ -179,7 +178,7 @@
   }
 </script>
 
-<Modal id="password_modal" show="{showPasswordModal}">
+<Modal id="password_modal" show="{showPasswordModal}" z_index={9}>
   <div class="password-modal-content">
     <TextInput
       label="Password: "
@@ -198,7 +197,7 @@
   </div>
 </Modal>
 {#if showEndscreenModal}
-  <Modal id="endscreen_modal" show="{showEndscreenModal}" padding_top="10vh">
+  <Modal id="endscreen_modal" show="{showEndscreenModal}" padding_top="10vh" z_index={9}>
     <div class="endscreen-modal-content">
       <EndScreen players="{players}" backToMenu="{backToMenu}" />
     </div>

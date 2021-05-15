@@ -49,7 +49,7 @@
                     <CheckboxInput value="Room not full" bind:checked={notFull} on:message={filterRooms}/>
                     <CheckboxInput value="Room not empty" bind:checked={notEmpty} on:message={filterRooms}/>
                 </div>
-                <SelectInput label="Language" on:message={filterRooms} bind:selected={language}>
+                <SelectInput label="Language" on:message={filterRooms} bind:value={language}>
                     <option value="Any">Any</option>
                     <option value="English">English</option>
                     <option value="Dutch">Dutch</option>

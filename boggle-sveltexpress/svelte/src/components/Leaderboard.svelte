@@ -24,7 +24,7 @@
 
 <div>
     <div class="leaderboardtitlecontainer">
-        <BitText ref="leaderboardtitle" value="Leaderboard"></BitText>
+        <BitText ref="leaderboardtitle" fontSize="none" value="Leaderboard"></BitText>
     </div>
     <div class="leaderbordrows">
         {#each playerScores as playerScore, i}
@@ -36,7 +36,7 @@
 <style>
     .leaderboardtitlecontainer{
         padding: 20px 0 20px 0; 
-        margin-top: 20px
+        margin-top: 20px;
     }
     .leaderbordrows{
         overflow-y: auto;

@@ -50,7 +50,6 @@
   socket.on("message_send", (userId: string, message: string) => onMessage(userId, message));
 
   function onMessage(userId: string, message: string) {
-    console.log(`onMessage: ${userId}: ${message}`);
     if (message.length < 1) {
       console.log("Message length was smaller than 0, not displaying");
       return;
@@ -104,8 +103,6 @@
     <div class="messages">
       {#each messageBlocks as messageBlock}
         <MessageBlock
-          id="{messageBlock['id']}"
-          userId="{messageBlock['userId']}"
           userName="{messageBlock['userName']}"
           userIcon="{messageBlock['userIcon']}"
         >
@@ -119,7 +116,7 @@
     <div class="send-message">
       <input type="text" bind:value="{chatInputValue}" on:keypress="{chatInputOnKeyPress}" />
       <button on:click="{sendMessage}">
-        <Send width="1.75rem" />
+        <Send width="27px" />
       </button>
     </div>
   </div>

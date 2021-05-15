@@ -29,6 +29,13 @@
   <div class="component-container {position}" class:collapsed>
     <slot name="window" />
   </div>
+  <!-- 
+    A component (with slots) will throw a warning if a default slot is not provided.
+    This is a bug in the compiler which can be negated by the following line 
+    (having no whitespace between named slots will also remove the warning)
+    see https://github.com/sveltejs/svelte/issues/4546
+   -->
+  {#if false}<slot></slot>{/if}
 </div>
 
 <style lang="scss">

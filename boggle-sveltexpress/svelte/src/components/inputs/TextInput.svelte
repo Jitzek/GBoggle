@@ -2,11 +2,11 @@
   import { onMount } from "svelte";
 
   export let disabled: boolean = false;
-  export let label: string;
+  export let label: string = "";
   export let maxLength: number = Infinity;
   export let minLength: number = 0;
   export let name: string = label || "unset";
-  export let style: string;
+  export let style: string = "";
 
   // TODO: If type === password, allow user to see password as plain text
   export let type: string = "text";

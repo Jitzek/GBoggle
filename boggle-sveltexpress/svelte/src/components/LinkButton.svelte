@@ -6,7 +6,7 @@
   export let btn_background_hover: string = btn_background;
   export let icon_background: string = "#ffffff";
   export let btn_width: string;
-  export let href: string;
+  export let href: string = undefined;
 </script>
 
 <button

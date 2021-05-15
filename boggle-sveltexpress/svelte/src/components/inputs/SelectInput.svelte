@@ -2,9 +2,8 @@
   export let disabled: boolean = false;
   export let label: string;
   export let name: string = label || "unset";
-  export let style: string;
-
-  export let value: string;
+  export let style: string = "";
+  export let value: string = "";
 
   let validated: boolean = true;
 </script>

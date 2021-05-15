@@ -1,6 +1,6 @@
 <script lang="ts">
   export let id: string;
-  export let z_index: string;
+  export let z_index: number = 9;
   export let show: boolean;
 
   export let padding_top = "25vh"
