@@ -50,7 +50,7 @@
     }
     // Verify avatar
     avatar = localStorage.getItem("avatar");
-    if (!avatar || avatar.length <= 0) {
+    if (!avatar) {
       localStorage.setItem("avatar", "");
     }
     victory_audio = localStorage.getItem("victory_audio");
