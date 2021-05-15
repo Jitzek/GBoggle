@@ -41,14 +41,10 @@
   let showPasswordModal: boolean = false;
 
   function play() {
-    deleteCookie("io");
     // Verify nickname
-    if (
-      nickname.trim().length < nickname_min_length ||
-      nickname.trim().length > nickname_max_length
-    ) {
+    if (!nicknameIsValid()) {
       alert(
-        "Nickname needs to be between 3-20 characters long (white space does not count)"
+        `Nickname needs to be between ${nickname_min_length}-${nickname_max_length} characters long (white space does not count for minimal length)`
       );
       return;
     }
@@ -96,9 +92,19 @@
     socket.emit("create_room", passwordValue);
   }
 
-  const passwordModalInputOnKeyPress = e => {
+  const passwordModalInputOnKeyPress = (e) => {
     // If enter was pressed
     if (e.charCode === 13) requestPrivateRoom();
+  };
+
+  function onNicknameBlur() {
+    if (nicknameIsValid()) {
+      localStorage.setItem("nickname", nickname);
+    }
+  }
+
+  function nicknameIsValid(): boolean {
+    return (nickname.trim().length >= nickname_min_length && nickname.length <= nickname_max_length);
   }
 
   socket.on("room_created", (room_id: string, user_id: string) => {
@@ -121,7 +127,8 @@
         btn_width="80%"
         value="Create"
         btn_background="#46a350"
-        on:click="{requestPrivateRoom}"><Send width="20px" color="#46a350" /></LinkButton
+        on:click="{requestPrivateRoom}"
+        ><Send width="20px" color="#46a350" /></LinkButton
       >
       <div style="margin-bottom: 2rem"></div>
       <LinkButton
@@ -178,7 +185,7 @@
       bind:value="{nickname}"
       minLength="3"
       maxLength="20"
-      on:blur="{() => {localStorage.setItem("nickname", nickname)}}"
+      on:blur="{onNicknameBlur}"
     />
     <div class="flexthis">
       <UploadButton

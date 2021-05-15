@@ -83,6 +83,11 @@
     passwordValue = "";
   });
 
+  socket.on("invalid_name", (reason: string) => {
+    alert(`Invalid name, reason: ${reason}`);
+    location.href = `http://${location.host}/`;
+  });
+
   socket.on("disconnected", (reason: string) => {
     console.log(`disconnected with reason: ${reason}`);
   });

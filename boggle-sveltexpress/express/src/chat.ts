@@ -17,7 +17,9 @@ export class Chat {
     public addMessage(socket: Socket, message: string) {
         // No need to safe messages for now
         // this.messages.push(new Message(socket.id, message));
-        this.room.emit("message_send", socket.id, message);
+        if (message.trim().length > 0) {
+            this.room.emit("message_send", socket.id, message);
+        }
     }
 }
 

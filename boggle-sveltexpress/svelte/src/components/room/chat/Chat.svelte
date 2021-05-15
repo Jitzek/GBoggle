@@ -51,6 +51,10 @@
 
   function onMessage(userId: string, message: string) {
     console.log(`onMessage: ${userId}: ${message}`);
+    if (message.length < 1) {
+      console.log("Message length was smaller than 0, not displaying");
+      return;
+    }
     // Get current messageblock
     let c_m_block: Object = messageBlocks[messageBlocks.length - 1];
 

@@ -82,6 +82,12 @@ io.on("connection", (socket: Socket) => {
       }
     }
 
+    if (name.trim().length < 3 || name.length > 20) {
+      console.log("❗📡 [socket]: Name wasn't valid");
+      socket.emit("invalid_name", "Length of name exceeded allowed range of 3-20 characters");
+      return;
+    }
+
     room.join(socket, new Player(socket.id, name, avatar, victory_audio));
     console.log(`📡 [socket]: ${name} (ID: ${socket.id}) joined the room with uuid ${room.uuid}`);
     room.emit("joined_room", socket.id);

@@ -6,6 +6,10 @@
     import { onMount } from "svelte";
     import type { Socket } from "socket.io-client";
 
+    if (!localStorage.getItem("nickname")) {
+        location.href = `http://${location.host}/`;
+    }
+
     export let socket: Socket;
     let rooms: RoomProperties[] = [];
 
@@ -56,9 +60,13 @@
             </div>
         </BasicContainer>
         <div class="roomscontainer">
-            {#each showRooms as room, i (room)}
-                <RoomBrowserRow roomProperties={room}/>
-            {/each}
+            {#if showRooms.length < 1}
+                <p>No rooms available</p>
+            {:else}
+                {#each showRooms as room, i (room)}
+                    <RoomBrowserRow roomProperties={room}/>
+                {/each}
+            {/if}
         </div>
     </BasicContainer>
 
