@@ -1,136 +1,155 @@
 <script lang="ts">
-  import { Soundbars, Camera } from "@components/svg/index";
-  import Text from "@components/Text.svelte";
+    import { Soundbars, Camera } from "@components/svg/index";
+    import Text from "@components/Text.svelte";
 
-  export let acceptedfiletypes: string;
-  export let id: string;
-  export let labelName: string = "Upload file";
+    export let acceptedfiletypes: string;
+    export let id: string;
+    export let labelName: string = "Upload file";
+    let filename: string = "";
+    let localstorage = window.localStorage;
+    let avatar: string = setFromLocalStorage("avatar");
+    let filename_avatar: string = setFromLocalStorage("filename_avatar");
+    let filename_victory_audio: string = setFromLocalStorage(
+        "filename_victory_audio"
+    );
+    let victory_audio: string = setFromLocalStorage("victory_audio");
+    let fileinput: any;
+    acceptedfiletypes == "image/*"
+        ? (filename = filename_avatar)
+        : (filename = filename_victory_audio);
 
-  let avatar: string | ArrayBuffer;
-  let fileinput: any;
-
-  const onFileSelected = (e) => {
-    let file = e.target.files[0];
-    let reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = (e) => {
-      let shortname: string = file.name.split(".").shift();
-      if (shortname.length > 10) {
-        shortname = shortname.slice(0, 10);
-        shortname += "...";
-      }
-      if (acceptedfiletypes == "audio/*") {
-        const max_audio_size_in_kb = 500;
-        if (exceedsSizeInKB(file, max_audio_size_in_kb)) {
-          console.error(
-            `Coudn't save file to localstorage, item exceeded the maximum allowed size of ${max_audio_size_in_kb}KB`
-          );
-          alert(`The uploaded audio file exceeded the maximum allowed size of ${max_audio_size_in_kb}KB`);
-          return;
+    const onFileSelected = (e) => {
+        let file: File = e.target.files[0];
+        if (file.size > 2000000) {
+            alert("file too big!");
+            return;
         }
-        // Save to local storage as audio
-        document.getElementById(id + id).innerHTML = shortname;
-        saveToLocalStorage(file, "victory_audio");
-        return;
-      }
-      const max_image_size_in_kb = 200;
-      if (exceedsSizeInKB(file, max_image_size_in_kb)) {
-        console.error(
-          `Coudn't save file to localstorage, item exceeded the maximum allowed size of ${max_image_size_in_kb}KB`
-        );
-        alert(`The uploaded image file exceeded the maximum allowed size of ${max_image_size_in_kb}KB`);
-        return;
-      }
-      document.getElementById(id + id).innerHTML = shortname;
-      saveToLocalStorage(file, "avatar");
-      avatar = e.target.result;
-    };
-  };
 
-  function exceedsSizeInKB(item, size) {
-    if ((new Blob([item]).size / 1000) > size) {
-      return true;
+        let reader = new FileReader();
+        reader.readAsDataURL(file);
+
+        reader.onload = (e) => {
+            let shortname: string = file.name.split(".").shift();
+            filename = shortenText(shortname, 15);
+            if (acceptedfiletypes == "audio/*") {
+                localstorage.setItem(
+                    "victory_audio",
+                    e.target.result.toString()
+                );
+                localstorage.setItem("filename_victory_audio", shortname);
+            } else {
+                avatar = e.target.result.toString();
+                localstorage.setItem("avatar", avatar);
+                localstorage.setItem("filename_avatar", shortname);
+            }
+        };
+    };
+
+    function setFromLocalStorage(key: string): string {
+        if (key in localstorage) {
+            return localstorage.getItem(key).toString();
+        } else {
+            return "";
+        }
     }
-    return false;
-  }
 
-  function saveToLocalStorage(file, key) {
-    if (!file) return;
-    let reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        localStorage.setItem(key, String(e.target.result));
-      } catch (error) {
-        console.error(`Couldn't store data in localstorage: ${error}`);
-      }
-    };
-    reader.readAsDataURL(file);
-  }
+    function shortenText(text: string, length: number): string {
+        if (text.length > length) {
+            text = text.slice(0, length);
+            text += "...";
+        }
+        return text;
+    }
 </script>
 
 <div class="upload-container">
-  <div class="uploadbuttonlabel">
-    <Text value="{labelName}" />
-  </div>
-  <div>
-    <label for="{id}">
-      <div class="container">
-        {#if avatar}
-          <img
-            src="{avatar.toString()}"
-            alt=""
-            class="uploadbutton"
-            on:click="{() => {
-              fileinput.click();
-            }}"
-          />
-        {:else}
-          <div
-            class="uploadbutton labelstyle"
-            on:click="{() => {
-              fileinput.click();
-            }}"
-          ></div>
+    <div class="uploadbuttonlabel">
+        <Text value={labelName} />
+    </div>
+    <div>
+        {#if acceptedfiletypes == "image/*"}
+            <label for={id}>
+                <div class="container">
+                    {#if avatar}
+                        <img
+                            src={avatar}
+                            alt="avatar"
+                            class="uploadbutton"
+                            on:click={() => {
+                                fileinput.click();
+                            }}
+                        />
+                        <div class="uploadbutton overlay">
+                            <Camera color="white" width="60%" />
+                        </div>
+                    {:else}
+                        <div
+                            class="uploadbutton labelstyle"
+                            on:click={() => {
+                                fileinput.click();
+                            }}
+                        />
+                        <div class="uploadbutton overlay_no_hover">
+                            <Camera color="white" width="60%" />
+                        </div>
+                    {/if}
+                </div>
+            </label>
+            <input
+                type="file"
+                {id}
+                class="upload"
+                accept={acceptedfiletypes}
+                on:change={(e) => onFileSelected(e)}
+                bind:this={fileinput}
+                bind:value={avatar}
+            />
+        {:else if acceptedfiletypes == "audio/*"}
+            <label for={id}>
+                <div class="container">
+                    <div class="uploadbutton overlay_no_hover">
+                        <Soundbars color="white" width="60%" />
+                    </div>
+                    <div
+                        class="uploadbutton labelstyle"
+                        on:click={() => {
+                            fileinput.click();
+                        }}
+                    />
+                </div>
+            </label>
+            <input
+                type="file"
+                {id}
+                class="upload"
+                accept={acceptedfiletypes}
+                on:change={(e) => onFileSelected(e)}
+                bind:this={fileinput}
+                bind:value={victory_audio}
+            />
         {/if}
-        <div class="uploadbutton overlay">
-          {#if acceptedfiletypes == "image/*"}
-            <Camera color="white" width="60%" />
-          {:else if acceptedfiletypes == "audio/*"}
-            <Soundbars color="white" width="60%" />
-          {/if}
-        </div>
-      </div>
-    </label>
-    <input
-      type="file"
-      id="{id}"
-      class="upload"
-      accept="{acceptedfiletypes}"
-      on:change="{(e) => onFileSelected(e)}"
-      bind:this="{fileinput}"
-    />
-  </div>
-  <p id="{id + id}"></p>
+    </div>
+    <p>{filename}</p>
 </div>
 
 <style>
-  @media only screen and (max-width: 700px) {
-    .uploadbuttonlabel {
-      font-size: 0.7rem;
+    @media only screen and (max-width: 700px) {
+        .uploadbuttonlabel {
+            font-size: 0.7rem;
+        }
     }
-  }
 
-  .uploadbuttonlabel {
-    white-space: nowrap;
-    margin: 20px 0px 20px 0px;
-  }
+    .uploadbuttonlabel {
+        white-space: nowrap;
+        margin: 20px 0px 20px 0px;
+    }
 
-  .container {
-    margin: 0 auto;
-    display: grid;
-    place-items: center;
-    grid-template-areas: "inners";
-  }
+    .container {
+        margin: 0 auto;
+        display: grid;
+        place-items: center;
+        grid-template-areas: "inners";
+    }
 
   .upload {
     width: 0.1px;
@@ -160,6 +179,22 @@
       width: 80px;
       height: 80px;
     }
+    @media only screen and (max-width: 700px) {
+        .uploadbutton {
+            width: 80px;
+            height: 80px;
+        }
+        .overlay {
+            width: 75px;
+            height: 75px;
+        }
+    }
+    label {
+        display: flex;
+        justify-content: center;
+        cursor: pointer;
+    }
+
     .overlay {
       width: 75px;
       height: 75px;
@@ -171,18 +206,19 @@
     cursor: pointer;
   }
 
-  .overlay {
-    background-color: rgba(102, 102, 102, 0.699);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    opacity: 0;
-    transition: 0.3s ease;
-    z-index: -1;
-  }
+    .overlay_no_hover {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10;
+        transition: 0.3s ease;
+    }
+    .overlay_no_hover:hover {
+        background-color: rgba(102, 102, 102, 0.699);
+    }
 
-  label:hover .overlay {
-    opacity: 1;
-    z-index: 2;
-  }
+    label:hover .overlay {
+        opacity: 1;
+        z-index: 2;
+    }
 </style>

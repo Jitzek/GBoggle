@@ -108,14 +108,15 @@
     room_state = ROOM_STATE.INGAME;
   });
 
+  let playing_victory_audio = new Audio();
   let showEndscreenModal = false;
   socket.on("game_ended", (victory_audio: string) => {
     console.log("Game ended");
-    const audio = new Audio(victory_audio);
-    audio.volume = 0.5;
+    playing_victory_audio = new Audio(victory_audio);
+    playing_victory_audio.volume = 0.5;
     showEndscreenModal = true;
     setTimeout(() => {
-      audio.play();
+      playing_victory_audio.play();
     }, 1000);
   });
 
@@ -147,13 +148,14 @@
   socket.on(
     "player_joined",
     (
-      id: string,
-      name: string,
-      avatar: string,
-      score: number,
-      is_host: boolean
+      _id: string,
+      _name: string,
+      _avatar: string,
+      _score: number,
+      _is_host: boolean
     ) => {
-      players.addPlayer(id, name, avatar, score, is_host);
+      console.log(avatar);
+      players.addPlayer(_id, _name, _avatar, _score, _is_host);
       players = players;
     }
   );
@@ -169,6 +171,9 @@
   });
 
   function backToMenu() {
+    // Stop victory audio from playing
+    playing_victory_audio.pause();
+    playing_victory_audio = new Audio();
     showEndscreenModal = false;
     room_state = ROOM_STATE.LOBBY;
   }

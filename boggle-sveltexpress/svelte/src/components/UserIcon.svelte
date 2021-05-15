@@ -4,13 +4,14 @@
 
   export let src: string;
   export let size: string = "2.5rem";
+  export let alt: string = "User Icon";
 </script>
 
 <div
   class="user-icon"
   style="height: {size}; width: {size}; background: {background}; border: 1px solid {border_color};"
 >
-  <img src="{src}" alt="User Icon" style="height: auto; width: {size};" />
+  <img src="{src}" alt="{alt}" style="height: auto; width: {size};" />
 </div>
 
 <style lang="scss">
