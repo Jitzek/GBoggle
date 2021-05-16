@@ -80,10 +80,10 @@ export class Room {
         socket.on("disconnect", (reason: string) => this.on_disconnect(socket, reason));
         socket.on("start_game", () => this.on_start_game(socket));
         socket.on("submit_word", (positions: number[]) => this.game.on_submit(socket, positions));
-        // Set RoomSettings handlers
-        this.room_settings.setHandlers(socket);
-        // Set Chat handlers
-        this.chat.setHandlers(socket);
+        socket.on("rounds_setting_changed", (new_rounds: number) => this.on_rounds_changed(socket, new_rounds));
+        socket.on("round_time_setting_changed", (new_round_time: number) => this.on_round_time_changed(socket, new_round_time));
+        socket.on("language_setting_changed", (new_language: string) => this.on_language_changed(socket, new_language));
+        socket.on("send_message", (message: string) => this.on_chat_message(socket, message));
         
         socket.emit("joined", socket.id);
         this.emit("player_joined", player.id, player.name, player.avatar, player.score, player.id === this.host_id);
@@ -107,6 +107,25 @@ export class Room {
         console.log(`🏚️  [room]: ${player.name} (ID: ${player.id}) joined`);
     }
 
+    protected on_rounds_changed(socket: Socket, new_rounds: number) {
+        if (socket.id !== this.host_id) return;
+        this.room_settings.change_rounds(socket, new_rounds);
+    }
+
+    protected on_round_time_changed(socket: Socket, new_round_time: number) {
+        if (socket.id !== this.host_id) return;
+        this.room_settings.change_round_time(socket, new_round_time);
+    }
+
+    protected on_language_changed(socket: Socket, new_language: string) {
+        if (socket.id !== this.host_id) return;
+        this.room_settings.change_language(socket, new_language);
+    }
+
+    protected on_chat_message(socket: Socket, message: string) {
+        this.chat.send_message(socket, message);
+    }
+
     public on_disconnect(socket: Socket, reason: string) {
         console.log(`🏚️  [room]: User ${socket.id} disconnected, reason: ${reason}`);
         const player = this.get_player_by_id(socket.id);
@@ -117,7 +136,7 @@ export class Room {
         this.emit("player_removed", player.id);
     }
 
-    private on_start_game(socket: Socket) {
+    protected on_start_game(socket: Socket) {
         if (socket.id !== this.host_id) return;
         this.game = new Game(this, this.room_settings);
         this.game.start();

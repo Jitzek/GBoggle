@@ -77,17 +77,28 @@
 
   function createPrivateRoom() {
     // play() should have already validated data
-    // Request a room from the socket
 
+    // Request a room from the socket
     showPasswordModal = true;
   }
 
+  function createSingleplayerRoom() {
+    // play() should have already validated data
+
+    // Request a room from the socket
+    requestSingleplayerRoom();
+  }
+
   function requestPublicRoom() {
-    socket.emit("create_room", "");
+    socket.emit("create_multiplayer_room", "");
   }
 
   function requestPrivateRoom() {
-    socket.emit("create_room", passwordValue);
+    socket.emit("create_multiplayer_room", passwordValue);
+  }
+
+  function requestSingleplayerRoom() {
+    socket.emit("create_singleplayer_room");
   }
 
   const passwordModalInputOnKeyPress = (e) => {
@@ -105,7 +116,7 @@
     return (nickname.trim().length >= nickname_min_length && nickname.length <= nickname_max_length);
   }
 
-  socket.on("room_created", (room_id: string, user_id: string) => {
+  socket.on("room_created", (room_id: string) => {
     setCookie("room_id", room_id);
     navigate(`/room/${room_id}`, { replace: true });
   });
@@ -141,10 +152,11 @@
   <Modal id="play_modal" z_index="9998" show="{showPlayModal}">
     <div class="play-modal-content">
       <LinkButton
+        on:click="{createSingleplayerRoom}"
         btn_width="90%"
         value="Singleplayer"
         btn_background="#46a350"
-        href="game"><User width="20px" color="#46a350" /></LinkButton
+        ><User width="20px" color="#46a350" /></LinkButton
       >
       <LinkButton
         btn_width="90%"

@@ -10,11 +10,7 @@ export class Chat {
         this.messages = [];
     }
 
-    public setHandlers(socket: Socket) {
-        socket.on("send_message", (message: string) => this.addMessage(socket, message));
-    }
-
-    public addMessage(socket: Socket, message: string) {
+    public send_message(socket: Socket, message: string) {
         // No need to safe messages for now
         // this.messages.push(new Message(socket.id, message));
         if (message.trim().length > 0) {

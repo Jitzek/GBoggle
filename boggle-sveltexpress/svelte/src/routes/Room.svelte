@@ -39,6 +39,7 @@
   let avatar = localStorage.getItem("avatar");
   let victory_audio = localStorage.getItem("victory_audio");
   let room_state = ROOM_STATE.LOBBY;
+  let is_singleplayer = false;
 
   let showPasswordModal = false;
 
@@ -49,13 +50,15 @@
     (
       room_exists: boolean,
       room_is_password_protected: boolean,
-      user_is_host: boolean
+      user_is_host: boolean,
+      room_is_singleplayer: boolean
     ) => {
       if (!room_exists) {
         // Room doesn't exist
         // TODO: notify user
         window.location.href = `http://${window.location.host}/`;
       }
+      is_singleplayer = room_is_singleplayer;
       isHost = user_is_host;
       if (room_is_password_protected && !user_is_host) {
         // Request password
@@ -238,7 +241,7 @@
     <div class="main-component">
       <!-- Dependent on the state of the Game (Lobby or Ingame) load in the correct component -->
       {#if room_state === ROOM_STATE.LOBBY}
-        <RoomSettings roomId="{id}" isHost="{isHost}" socket="{socket}" />
+        <RoomSettings roomId="{id}" isHost="{isHost}" socket="{socket}" singleplayer="{is_singleplayer}" />
       {:else if room_state == ROOM_STATE.INGAME}
         <div><GamePage socket="{socket}" uuid="{user_uuid}" /></div>
       {/if}

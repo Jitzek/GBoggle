@@ -9,6 +9,7 @@
   export let roomId: string;
   export let isHost = false;
   export let socket: Socket;
+  export let singleplayer = false;
 
   let rounds_value: number;
   let round_time_value: number;
@@ -49,7 +50,7 @@
     socket.emit("language_setting_changed", language_value);
 
   function start_game() {
-    if (!isHost) return;
+    if (!isHost && !singleplayer) return;
     socket.emit("start_game");
   }
 </script>
@@ -87,7 +88,7 @@
         on:change="{language_setting_changed}"
         label="Language"
         name="language"
-        disabled="{!isHost}"
+        disabled="{!isHost && !singleplayer}"
       >
         {#each ["Dutch"] as language}
           <option value="{language}">{language}</option>
@@ -100,7 +101,7 @@
         btn_width="100%"
         text_color="white"
         value="Start Game"
-        disabled="{!isHost}"
+        disabled="{!isHost && !singleplayer}"
         on:click="{start_game}"
       >
         <Shuttle color="#13a8e0" width="60%" />
@@ -111,20 +112,22 @@
 
   <div style="margin-top: 2rem"></div>
 
-  <!-- TODO: Move to Room so it can also be accessed ingame (make this a component aswell) -->
-  <Text fontSize="2.5rem" value="Invite Others!" />
-  <table class="invite-container" on:click="{() => copyElement(inviteLink)}">
-    <td class="invite-link-container">
-      <span bind:this="{inviteLink}" class="invite-link"
-        >{`http://${window.location.host}/?invite-link=${roomId}`}</span
-      >
-    </td>
-    <td class="copy-btn-container">
-      <div class="copy-btn">
-        <Text value="Copy" />
-      </div>
-    </td>
-  </table>
+  {#if !singleplayer}
+    <!-- TODO: Move to Room so it can also be accessed ingame (make this a component aswell) -->
+    <Text fontSize="2.5rem" value="Invite Others!" />
+    <table class="invite-container" on:click="{() => copyElement(inviteLink)}">
+      <td class="invite-link-container">
+        <span bind:this="{inviteLink}" class="invite-link"
+          >{`http://${window.location.host}/?invite-link=${roomId}`}</span
+        >
+      </td>
+      <td class="copy-btn-container">
+        <div class="copy-btn">
+          <Text value="Copy" />
+        </div>
+      </td>
+    </table>
+  {/if}
   <div style="padding-bottom: 4rem;"></div>
 </div>
 

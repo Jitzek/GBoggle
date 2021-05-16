@@ -4,7 +4,7 @@
 
   export let src: string;
   export let size: string = "2.5rem";
-  export let alt: string = "User Icon";
+  export let alt: string = "";
 </script>
 
 <div

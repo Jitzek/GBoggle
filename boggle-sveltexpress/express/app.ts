@@ -2,9 +2,12 @@ import express from 'express';
 import path from 'path';
 import { Socket, Server, Namespace } from 'socket.io';
 import { Player } from './src/player';
-import { Room } from './src/room';
+import { SingleplayerRoom } from './src/singleplayer_room';
+import { MultiplayerRoom } from './src/multiplayer_room';
 
-let rooms: Room[] = [];
+
+let multiplayer_rooms: MultiplayerRoom[] = [];
+let singleplayer_rooms: SingleplayerRoom[] = [];
 
 const PORT = 8000;
 const app = express();
@@ -37,31 +40,38 @@ const io = new Server(server);
 io.on("connection", (socket: Socket) => {
   console.log(`📡 [socket]: Client connected`);
 
-  socket.on("create_room", (password: string) => {
-    const room = new Room(io, socket.id, password);
-    rooms.push(room);
-    console.log(`📡 [socket]: ${socket.id} created a new room with uuid ${room.uuid}`);
-    socket.emit("room_created", room.uuid, socket.id);
+  socket.on("create_multiplayer_room", (password: string) => {
+    const room = new MultiplayerRoom(io, socket.id, password);
+    multiplayer_rooms.push(room);
+    console.log(`📡 [socket]: ${socket.id} created a new multiplayer room with uuid ${room.uuid}`);
+    socket.emit("room_created", room.uuid);
+  });
+
+  socket.on("create_singleplayer_room", () => {
+    const room = new SingleplayerRoom(io, "", "");
+    singleplayer_rooms.push(room);
+    console.log(`📡 [socket]: ${socket.id} created a new singleplayer room with uuid ${room.uuid}`);
+    socket.emit("room_created", room.uuid);
   });
 
   socket.on("room_information", (room_uuid: string) => {
-    const room = rooms.find(room => room.uuid === room_uuid);
+    let room = getRoomByUUID(room_uuid);
     let exists = false;
     let password_protected = false;
     let is_host = false;
+    let is_singleplayer = false;
     if (room) {
       exists = true;
       password_protected = room.is_password_protected();
       is_host = room.host_id === socket.id;
+      is_singleplayer = (room instanceof SingleplayerRoom);
     }
-    socket.emit("room_information", exists, password_protected, is_host);
+    socket.emit("room_information", exists, password_protected, is_host, is_singleplayer);
   });
 
   socket.on("join_room", (room_uuid: string, name: string, avatar: string, victory_audio: string, password: string) => {
     console.log(`📡 [socket]: Client ${name} requests to join room ${room_uuid}`);
-    const room = rooms.find(_room => {
-      return _room.uuid == room_uuid;
-    });
+    const room = getRoomByUUID(room_uuid);
     if (!room) {
       console.log("❗📡 [socket]: No room with requested uuid found");
       return;
@@ -98,11 +108,18 @@ io.on("connection", (socket: Socket) => {
 
     // Called before room removes player
 
-    let room = rooms.find(_room => _room.players.some(e => e.id === socket.id));
+    let room = multiplayer_rooms.find(_room => _room.players.some(e => e.id === socket.id));
     // Remove room if it contains no more players (after the player leaves)
     if (room && room.players.length <= 1) {
-      rooms = rooms.filter(_room => room && _room.uuid !== room.uuid);
+      multiplayer_rooms = multiplayer_rooms.filter(_room => room && _room.uuid !== room.uuid);
       console.log(`📡 [socket]: Removed room ${room.uuid} because it contained no more players`);
+    }
+    else {
+      room = singleplayer_rooms.find(_room => _room.players.some(e => e.id === socket.id));
+      if (room && room.players.length <= 1) {
+        singleplayer_rooms = singleplayer_rooms.filter(_room => room && _room.uuid !== room.uuid);
+        console.log(`📡 [socket]: Removed room ${room.uuid} because it contained no more players`);
+      }
     }
 
     // Check if host left
@@ -111,7 +128,7 @@ io.on("connection", (socket: Socket) => {
   
   socket.on("get_rooms", () => {
     // isLocked, name, lang, totalPlayers, maxPlayers
-    socket.emit("get_rooms", rooms.map(room => ({
+    socket.emit("get_rooms", multiplayer_rooms.map(room => ({
       id: room.uuid,
       isLocked: room.is_password_protected(), 
       name: room.get_player_by_id(room.host_id)?.name,
@@ -120,4 +137,9 @@ io.on("connection", (socket: Socket) => {
       maxPlayers: room.max_players
     })));
   });
+
+  function getRoomByUUID(uuid: string) {
+    const all_rooms = multiplayer_rooms.concat(singleplayer_rooms);
+    return all_rooms.find((room) => room.uuid === uuid);
+  }
 });

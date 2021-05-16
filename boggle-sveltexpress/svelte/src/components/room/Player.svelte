@@ -21,7 +21,6 @@
       size="{icon_size}"
       background="{background_color}"
       border_color="{background_color}"
-      alt=""
     />
   </td>
 
