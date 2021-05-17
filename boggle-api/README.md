@@ -8,3 +8,8 @@ A password for Redis can be set in the command line using the following lines:
 `redis-cli`
 ### Set a password
 `CONFIG SET requirepass "password"`
+
+
+## API Key
+The only use case for an API key is to be able to post highscore data (since these values should be server validated first).
+For now a file name ".api_key" will store the authentication key necessary for these actions.

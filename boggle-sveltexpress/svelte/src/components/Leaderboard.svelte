@@ -13,19 +13,7 @@
     await requestHighScores();
   });
 
-  let playerScores: PlayerScores[] = [
-    { name: "Gurbe", score: 100 },
-    { name: "swrtgb", score: 200 },
-    { name: "wrsgndefcv", score: 300 },
-    { name: "Guqqwerfbdsrbe", score: 200 },
-    { name: "Guwadfbrbe", score: 100 },
-    { name: "Guebfrbddxrbe", score: 600 },
-    { name: "Guwrberbe", score: 300 },
-    { name: "Guqwberfbrbe", score: 500 },
-    { name: "Gsdxawaedfrburbe", score: 200 },
-    { name: "Gubterwqdrbe", score: 700 },
-    { name: "Guqerwdgerbe", score: 600 },
-  ];
+  let playerScores: PlayerScores[] = [];
 
   async function requestHighScores() {
     const response = await fetch(

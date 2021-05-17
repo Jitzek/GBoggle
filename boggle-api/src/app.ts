@@ -8,6 +8,7 @@ import redis from "redis";
 const app = express();
 const port = 3000;
 const redis_port = 6379;
+const api_key = readFileSync("./.api_key", "utf-8");
 
 app.use(cors());
 
@@ -60,14 +61,14 @@ app.use(express.json())
 app.get('/', (req, res) => {
   res.json({
     data: 'value'
-  })
+  });
 });
 
 // POST Endpoint example
 app.post('/', (req, res) => {
   res.json({
     data: req.body
-  })
+  });
 });
 
 app.get('/wordchecker/:language/:word', (req, res) => {
@@ -79,6 +80,13 @@ app.get('/wordchecker/:language/:word', (req, res) => {
 });
 
 app.get('/highscores', (req, res) => {
+  if (!DATABASE_CONNECTED) {
+    res.json({
+      succes: false,
+      reason: "Database is not connected"
+    });
+    return;
+  }
   const start = req.query["start"];
   const end = req.query["end"];
 
@@ -89,7 +97,7 @@ app.get('/highscores', (req, res) => {
     if (isNaN(Number(start)) || isNaN(Number(end))) {
       res.json({
         success: false,
-        reason: "Start or End were not valid numbers"
+        reason: "start or end were not valid numbers"
       });
       return;
     }
@@ -137,21 +145,31 @@ app.get('/highscores', (req, res) => {
 app.post('/highscores/:uuid/:name/:score/:avatar/:layout', (req, res) => {
   // TODO: Add authentication
   if (!DATABASE_CONNECTED) {
-    res.json({
+    return res.json({
       succes: false,
       reason: "Database is not connected"
     });
-    return;
+  }
+  if (!req.headers.authorization) {
+    return res.status(403).json({
+      success: false,
+      reason: "No credentials set"
+    });
+  }
+  if (req.headers.authorization !== api_key) {
+    return res.status(403).json({
+      success: false,
+      reason: "Invalid credentials"
+    });
   }
   try {
     const highscore_key = `highscore:${req.params.uuid}`;
     const name: string = req.params.name;
     if (isNaN(Number(req.params.score))) {
-      res.json({
+      return res.json({
         success: false,
         reason: "Score was not a valid number"
       });
-      return;
     }
     const score: number = Number(req.params.score);
     const avatar: string = req.params.avatar;
@@ -165,12 +183,12 @@ app.post('/highscores/:uuid/:name/:score/:avatar/:layout', (req, res) => {
 
     // Set indice (used for sorting)
     redis_client.sadd('highscore_indices', highscore_key);
-    res.json({
+    return res.json({
       succes: true
     });
   } catch (e) {
     console.log(e);
-    res.json({
+    return res.json({
       succes: false,
       reason: "Error while retrieving requested data"
     });

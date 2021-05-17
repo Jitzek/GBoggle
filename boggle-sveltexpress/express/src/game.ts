@@ -2,7 +2,7 @@ import { Room } from "./room";
 import { Board } from "./board";
 import { RoomSettings } from "./room_settings";
 import { Socket } from "socket.io";
-import { get } from "http";
+import * as http from "http";
 
 export class Game {
     started = false;
@@ -10,7 +10,7 @@ export class Game {
     board!: Board;
     room_settings: RoomSettings;
     round_timer: number = 0;
-    next_round_time: number = 10;
+    next_round_time: number = 6;
     next_round_timer: number = 0;
     current_round: number = 1;
     round_in_progress = false;
@@ -82,13 +82,18 @@ export class Game {
         }
 
         /** Check if word exists */
-        get(`http://localhost:3000/wordchecker/${this.room_settings.language}/${word}`, (response) => {
-            if (response.statusCode !== 200) {
-                return this.emitWordStatus(socket, word, false, "An error occured while checking if the submitted word exists, please try again");
-            }
+        const options = {
+            hostname: "127.0.0.1",
+            port: 3000,
+            path: `/wordchecker/${this.room_settings.language}/${word}`,
+            method: "GET",
+            headers: { "Content-Type": "application/json" }
+        };
+        const request = http.request(options, (response) => {
             response.setEncoding("utf-8");
-            response.on("data", (chunk: string) => {
-                const exists: boolean = JSON.parse(chunk)["exists"];
+            response.on("data", (data) => {
+                console.log(data);
+                const exists: boolean = JSON.parse(data)["exists"];
                 if (!exists) {
                     return this.emitWordStatus(socket, word, false, "Word doesn't exist in our dictionary");
                 }
@@ -97,6 +102,10 @@ export class Game {
                 return this.emitWordStatus(socket, word, true, "Submitted word was valid");
             });
         });
+        request.on("error", (e: Error) => {
+            this.emitWordStatus(socket, word, false, e.message);
+        });
+        request.end();
     }
 
     private emitWordStatus(socket: Socket, word: string, valid: boolean, reason?: string) {
