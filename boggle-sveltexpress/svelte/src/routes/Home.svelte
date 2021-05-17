@@ -20,7 +20,9 @@
   } from "@components/svg/index";
   import Modal from "@components/Modal.svelte";
 
-  export let socket: Socket;
+
+
+  export let socket: Socket
 
   let invite_link: string;
   const searchParams = new URLSearchParams(window.location.search);

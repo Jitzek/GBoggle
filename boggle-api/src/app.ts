@@ -1,26 +1,34 @@
 import express from 'express';
 import cors from 'cors';
 import { wordExists } from "./scripts/word-lookup";
-import { Tedis } from "redis-typescript";
+// import { Tedis } from "redis-typescript";
 import { readFileSync } from "fs";
+import redis from "redis";
 
 const app = express();
 const port = 3000;
+const redis_port = 6379;
+
+app.use(cors());
+
+const redis_client = redis.createClient(redis_port);
+redis_client.auth(readFileSync("./.redis_password", "utf-8"));
 
 let DATABASE_CONNECTED = false;
-const tedis = new Tedis({
+/*const tedis = new Tedis({
   port: 6379,
   host: "127.0.0.1",
   password: readFileSync("./.redis_password", "utf-8")
-});
+});*/
 
-tedis.on("connect", () => {
+redis_client.on("connect", () => {
   DATABASE_CONNECTED = true;
 });
 
-tedis.on("close", () => {
+redis_client.on("close", () => {
   DATABASE_CONNECTED = false;
 });
+
 
 /** 
  * Cross-origin resource sharing (CORS)
@@ -32,7 +40,6 @@ tedis.on("close", () => {
  * src: https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
  */
 app.use(cors());
-
 /**
  * Body parser middleware
  * 
@@ -71,23 +78,102 @@ app.get('/wordchecker/:language/:word', (req, res) => {
   });
 });
 
+app.get('/highscores', (req, res) => {
+  const start = req.query["start"];
+  const end = req.query["end"];
+
+  let offset;
+  let count;
+
+  if (start && end) {
+    if (isNaN(Number(start)) || isNaN(Number(end))) {
+      res.json({
+        success: false,
+        reason: "Start or End were not valid numbers"
+      });
+      return;
+    }
+    offset = Number(start);
+    count = Number(end) - Number(start) + 1;
+    if (count < 0) {
+      res.json({
+        success: false,
+        reason: "Invalid start and end position, end should be bigger or the same as start"
+      });
+      return;
+    }
+  }
+
+  // SORT highscore_indices BY *->score asc GET *->name GET *->score GET *->avatar GET *->layout LIMIT offset count
+  redis_client.sort(
+    "highscore_indices",
+    `BY *->score desc GET *->name GET *->score GET *->avatar GET *->layout LIMIT ${offset} ${count}`.split(' '),
+    (err, values) => {
+      if (err) {
+        res.json({
+          success: false,
+          reason: "Error while retrieving requested data"
+        });
+        return;
+      }
+      let return_object: Object[] = [];
+      let i = 0;
+      while (i < values.length) {
+        return_object.push({
+          name: values[i++],
+          score: values[i++],
+          avatar: values[i++],
+          layout: values[i++]
+        });
+      }
+      res.json({
+        success: true,
+        values: return_object
+      });
+    }
+  );
+});
+
 app.post('/highscores/:uuid/:name/:score/:avatar/:layout', (req, res) => {
-  try {
-    tedis.hmset("highscore", {
-      uuid: req.params.uuid,
-      name: req.params.name,
-      score: req.params.score,
-      avatar: req.params.avatar,
-      layout: req.params.layout
+  // TODO: Add authentication
+  if (!DATABASE_CONNECTED) {
+    res.json({
+      succes: false,
+      reason: "Database is not connected"
     });
+    return;
+  }
+  try {
+    const highscore_key = `highscore:${req.params.uuid}`;
+    const name: string = req.params.name;
+    if (isNaN(Number(req.params.score))) {
+      res.json({
+        success: false,
+        reason: "Score was not a valid number"
+      });
+      return;
+    }
+    const score: number = Number(req.params.score);
+    const avatar: string = req.params.avatar;
+    const layout: number[] = JSON.parse(req.params.layout);
+    redis_client.hset(highscore_key,
+      "name", name,
+      "score", score.toString(),
+      "avatar", avatar,
+      "layout", JSON.stringify(layout)
+    );
+
+    // Set indice (used for sorting)
+    redis_client.sadd('highscore_indices', highscore_key);
     res.json({
       succes: true
     });
-  } catch(e) {
+  } catch (e) {
+    console.log(e);
     res.json({
       succes: false,
-      reason: e
-    })
+      reason: "Error while retrieving requested data"
+    });
   }
 });
 
