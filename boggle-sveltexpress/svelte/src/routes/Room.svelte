@@ -4,7 +4,7 @@
   import RoomSettings from "@components/room/RoomSettings.svelte";
   import Players from "@components/room/Players.svelte";
   import Chat from "@components/room/chat/Chat.svelte";
-  import { Chat_Icon, User, Send } from "@components/svg/index";
+  import { Chat_Icon, User, Send, Logout } from "@components/svg/index";
   import SideWindow from "@components/SideWindow.svelte";
   import GamePage from "@components/game/GamePage.svelte";
   import { getCookie, deleteCookie } from "@utils/cookies";
@@ -13,6 +13,7 @@
   import LinkButton from "@components/LinkButton.svelte";
   import EndScreen from "@components/game/EndScreen.svelte";
   import { PlayersObject } from "@components/room/PlayersObject";
+  import { navigate } from "svelte-routing";
 
   enum ROOM_STATE {
     LOBBY,
@@ -207,6 +208,14 @@
       on:click="{() => join_room(passwordValue)}"
       ><Send width="20px" color="#46a350" /></LinkButton
     >
+    <div style="margin-bottom: 2rem"></div>
+    <LinkButton
+        on:click="{() => (navigate("/", { replace: true }))}"
+        btn_width="60%"
+        value="Close"
+        btn_background="#f55a42"
+        ><Logout width="20px" color="#f55a42" /></LinkButton
+      >
   </div>
 </Modal>
 {#if showEndscreenModal}

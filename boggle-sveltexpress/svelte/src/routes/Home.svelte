@@ -20,8 +20,6 @@
   } from "@components/svg/index";
   import Modal from "@components/Modal.svelte";
 
-
-
   export let socket: Socket
 
   let invite_link: string;

@@ -73,11 +73,11 @@ io.on("connection", (socket: Socket) => {
     console.log(`📡 [socket]: Client ${name} requests to join room ${room_uuid}`);
 
     // Approximate file sizes
-    if (Math.round((avatar.length - 22)*3/4) > 500000) {
+    if (avatar && Math.round((avatar.length - 22)*3/4) > 500000) {
       console.log("❗📡 [socket]: Avatar wasn't valid");
       return socket.emit("invalid_avatar", "Size of avatar exceeded allowed size of ~0.5mb");
     }
-    if (Math.round((victory_audio.length - 22)*3/4) > 500000) {
+    if (victory_audio && Math.round((victory_audio.length - 22)*3/4) > 500000) {
       console.log("❗📡 [socket]: Victory Audio wasn't valid");
       return socket.emit("invalid_victory_audio", "Size of victory audio exceeds allowed size of ~0.5mb");
     }
