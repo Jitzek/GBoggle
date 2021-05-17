@@ -92,7 +92,6 @@ export class Game {
         const request = http.request(options, (response) => {
             response.setEncoding("utf-8");
             response.on("data", (data) => {
-                console.log(data);
                 const exists: boolean = JSON.parse(data)["exists"];
                 if (!exists) {
                     return this.emitWordStatus(socket, word, false, "Word doesn't exist in our dictionary");

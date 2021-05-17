@@ -52,6 +52,7 @@
         placement="{i + 1}"
         name="{playerScore.name}"
         score="{playerScore.score}"
+        avatarpath="{playerScore.avatar}"
       />
     {/each}
   </div>

@@ -18,7 +18,7 @@
     : (filename = filename_victory_audio);
   const onFileSelected = (e) => {
     let file: File = e.target.files[0];
-    if (file.size > 2000000) {
+    if (file.size > 500000) {
       alert("file too big!");
       return;
     }

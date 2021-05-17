@@ -11,7 +11,7 @@
   class="user-icon"
   style="height: {size}; width: {size}; background: {background}; border: 1px solid {border_color};"
 >
-  <img src="{src}" alt="{alt}" style="height: auto; width: {size};" />
+  <img src="{src}" alt="{alt}" style="height: {size}; width: {size};" />
 </div>
 
 <style lang="scss">
@@ -38,5 +38,6 @@
     -ms-transform: translate(-50%, -50%);
     -o-transform: translate(-50%, -50%);
     transform: translate(-50%, -50%);
+    object-fit: cover;
   }
 </style>

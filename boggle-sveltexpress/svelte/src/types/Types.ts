@@ -10,4 +10,5 @@ export type RoomProperties = {
 export type PlayerScores = {
     name: string;
     score: number;
+    avatar: string;
 }

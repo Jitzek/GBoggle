@@ -91,6 +91,16 @@
     location.href = `http://${location.host}/`;
   });
 
+  socket.on("invalid_avatar", (reason: string) => {
+    alert(`Invalid avatar, reason: ${reason}`);
+    location.href = `http://${location.host}/`;
+  });
+
+  socket.on("invalid_victory_audio", (reason: string) => {
+    alert(`Invalid victory audio, reason: ${reason}`);
+    location.href = `http://${location.host}/`;
+  });
+
   socket.on("disconnected", (reason: string) => {
     console.log(`disconnected with reason: ${reason}`);
   });
@@ -202,7 +212,7 @@
 {#if showEndscreenModal}
   <Modal id="endscreen_modal" show="{showEndscreenModal}" padding_top="10vh" z_index={9}>
     <div class="endscreen-modal-content">
-      <EndScreen players="{players}" backToMenu="{backToMenu}" />
+      <EndScreen players="{players}" backToMenu="{backToMenu}" socket="{socket}" singleplayer="{is_singleplayer}" />
     </div>
   </Modal>
 {/if}

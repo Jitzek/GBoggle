@@ -4,13 +4,12 @@ import { wordExists } from "./scripts/word-lookup";
 // import { Tedis } from "redis-typescript";
 import { readFileSync } from "fs";
 import redis from "redis";
+import { urlencoded } from "body-parser";
 
 const app = express();
 const port = 3000;
 const redis_port = 6379;
 const api_key = readFileSync("./.api_key", "utf-8");
-
-app.use(cors());
 
 const redis_client = redis.createClient(redis_port);
 redis_client.auth(readFileSync("./.redis_password", "utf-8"));
@@ -56,6 +55,10 @@ app.use(cors());
  * src: http://expressjs.com/en/resources/middleware/body-parser.html
  */
 app.use(express.json())
+app.use(urlencoded({
+  extended: true,
+  limit: '2mb'
+}));
 
 // GET Endpoint example
 app.get('/', (req, res) => {
@@ -142,8 +145,7 @@ app.get('/highscores', (req, res) => {
   );
 });
 
-app.post('/highscores/:uuid/:name/:score/:avatar/:layout', (req, res) => {
-  // TODO: Add authentication
+app.post('/highscores', (req, res) => {
   if (!DATABASE_CONNECTED) {
     return res.json({
       succes: false,
@@ -163,17 +165,41 @@ app.post('/highscores/:uuid/:name/:score/:avatar/:layout', (req, res) => {
     });
   }
   try {
-    const highscore_key = `highscore:${req.params.uuid}`;
-    const name: string = req.params.name;
-    if (isNaN(Number(req.params.score))) {
+    if (req.body["id"] === undefined) {
+      return res.json({
+        success: false,
+        reason: "ID was undefined"
+      });
+    }
+    const highscore_key = `highscore:${req.body["id"]}`;
+    const name: string = req.body["name"];
+    if (req.body["name"] === undefined) {
+      return res.json({
+        success: false,
+        reason: "Name was undefined"
+      });
+    }
+    if (req.body["score"] === undefined || isNaN(Number(req.body["score"]))) {
       return res.json({
         success: false,
         reason: "Score was not a valid number"
       });
     }
-    const score: number = Number(req.params.score);
-    const avatar: string = req.params.avatar;
-    const layout: number[] = JSON.parse(req.params.layout);
+    const score: number = Number(req.body["score"]);
+    if (req.body["avatar"] === undefined) {
+      return res.json({
+        success: false,
+        reason: "Avatar was undefined"
+      });
+    }
+    const avatar: string = req.body["avatar"];
+    if (req.body["layout"] === undefined) {
+      return res.json({
+        success: false,
+        reason: "Layout was undefined"
+      });
+    }
+    const layout: string[] = JSON.parse(req.body["layout"]);
     redis_client.hset(highscore_key,
       "name", name,
       "score", score.toString(),
@@ -184,12 +210,12 @@ app.post('/highscores/:uuid/:name/:score/:avatar/:layout', (req, res) => {
     // Set indice (used for sorting)
     redis_client.sadd('highscore_indices', highscore_key);
     return res.json({
-      succes: true
+      success: true
     });
   } catch (e) {
-    console.log(e);
+    console.log(`An error occured: ${e}`);
     return res.json({
-      succes: false,
+      success: false,
       reason: "Error while retrieving requested data"
     });
   }
