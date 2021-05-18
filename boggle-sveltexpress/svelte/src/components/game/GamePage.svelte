@@ -21,7 +21,9 @@
   let selected_dice_string: string = "";
   let current_round = 1;
   let next_round = 1;
-  let duplicate_words: Map<string, string[]>;
+  let players_with_found_words: Map<string, string[]>;
+  let players_with_duplicate_words: Map<string, string[]>;
+  let duplicated_words_current_player: Map<string, string[]>;
 
   $: {
     selected_dice;
@@ -81,6 +83,7 @@
   socket.on("round_started", (layout: string[], round: number) => {
     console.log(`Starting round ${round}`);
     reset_dice_selection();
+    foundWords = [];
     showNextRoundModal = false;
     current_round = round;
     letters = layout;
@@ -110,14 +113,47 @@
     showNextRoundModal = true;
   });
 
-  socket.on("round_ended", (_next_round: number, _duplicate_words: string) => {
+  socket.on("round_ended", (_next_round: number, _players_with_found_words: string, _players_with_duplicate_words: string) => {
     next_round = _next_round;
-    if (_duplicate_words) {
-      duplicate_words = new Map<string, string[]>(JSON.parse(_duplicate_words));
+    if (_players_with_duplicate_words) {
+      players_with_duplicate_words = new Map<string, string[]>(JSON.parse(_players_with_duplicate_words));
+      duplicated_words_current_player = getDuplicatedWordsWithPlayerIdsForCurrentPlayer();
+      console.log(duplicated_words_current_player);
+      console.log(duplicated_words_current_player.size);
+    }
+    if (_players_with_found_words) {
+      players_with_found_words = new Map<string, string[]>(JSON.parse(_players_with_found_words));
     }
     console.log("round ended");
     reset_dice_selection();
   });
+
+  function getDuplicatedWordsWithPlayerIdsForCurrentPlayer(): Map<string, string[]> {
+        const duplicate_word_with_player_ids = new Map<string, string[]>();
+
+        let all_duplicate_words: string[] = [];
+        players_with_duplicate_words.forEach((words: string[], player_id: string) => {
+          all_duplicate_words = all_duplicate_words.concat(words.filter((word) => !all_duplicate_words.includes(word)));
+        });
+
+        all_duplicate_words.forEach((word) => {
+            duplicate_word_with_player_ids.set(word, []);
+            players_with_duplicate_words.forEach((words: string[], player_id: string) => {
+              if (words.includes(word)) {
+                duplicate_word_with_player_ids.get(word)!.push(player_id);
+              }
+            });
+        });
+
+        duplicate_word_with_player_ids.forEach((player_ids: string[], word: string) => {
+          // Remove duplicate word if it doesn't include the current player
+          if (!player_ids.includes(socket.id)) {
+            duplicate_word_with_player_ids.delete(word);
+          }
+        });
+
+        return duplicate_word_with_player_ids;
+    }
 
   socket.on("game_ended", () => {
     showNextRoundModal = false;
@@ -131,6 +167,8 @@
         return;
       }
       console.log(`Word: ${word} was valid, reason: ${reason}`);
+      foundWords.push(word);
+      foundWords = foundWords;
     }
   );
 
@@ -148,7 +186,12 @@
   }
 </script>
 
-<Modal id="next-round-modal" z_index="99" show="{showNextRoundModal}" padding_top="10vh">
+<Modal
+  id="next-round-modal"
+  z_index="99"
+  show="{showNextRoundModal}"
+  padding_top="10vh"
+>
   <div class="next-round-modal-content">
     {#if next_round <= totalRounds}
       {#if next_round_time != 1}
@@ -159,17 +202,22 @@
     {:else}
       <h1>Game ends in {next_round_time} seconds</h1>
     {/if}
-    {#if duplicate_words && duplicate_words.entries.length > 0}
-      <div style="margin-top: 2rem;"/>
+    {#if duplicated_words_current_player && duplicated_words_current_player.size > 0}
+      <div style="margin-top: 2rem;"></div>
       <h3>Duplicate Words (No points awarded):</h3>
       <div class="duplicate-words-container">
         <table class="duplicate-words-table">
-          {#each [...duplicate_words] as [word, player_ids]}
+          {#each [...duplicated_words_current_player] as [word, player_ids]}
             <tr>
               <td><strike>{word}</strike></td>
               {#each player_ids as player_id}
                 {#if player_id !== socket.id}
-                  <td><UserIcon src="{players.getPlayerById(player_id)?.avatar}" background="#fff" /></td>
+                  <td
+                    ><UserIcon
+                      src="{players.getPlayerById(player_id)?.avatar}"
+                      background="#fff"
+                    /></td
+                  >
                 {/if}
               {/each}
             </tr>
@@ -236,10 +284,10 @@
       color: #fff;
       text-align: left;
 
-      tr>td {
+      tr > td {
         padding-bottom: 1rem;
       }
-      
+
       td {
         padding-right: 0.5rem;
       }

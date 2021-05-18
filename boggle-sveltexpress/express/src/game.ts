@@ -37,7 +37,7 @@ export class Game {
     public stop() {
         console.log("🎮 [game]: Game ended");
         this.started = false;
-        const winner = this.room.players.reduce((prev, current) => {
+        const winner = this.room.players?.reduce((prev, current) => {
             return (prev.score > current.score) ? prev : current;
         });
         this.room.emit("game_ended", winner ? winner.victory_audio : "");
@@ -179,7 +179,14 @@ export class Game {
                         this.room.emit("player_score_changed", player.id, player.score);
                     });
 
-                    this.room.emit("round_ended", this.current_round + 1, JSON.stringify(Array.from(this.getDuplicateWordWithPlayerIds())));
+                    let players_and_found_words = new Map<string, string[]>();
+                    let players_and_duplicate_words = new Map<string, string[]>();
+                    this.room.players.forEach((player) => {
+                        players_and_found_words.set(player.id, player.found_words);
+                        players_and_duplicate_words.set(player.id, player.duplicate_words);
+                    });
+                    this.room.emit("round_ended", this.current_round + 1, JSON.stringify(Array.from(players_and_found_words)), JSON.stringify(Array.from(players_and_duplicate_words)));
+                    // this.room.emit("round_ended", this.current_round + 1, JSON.stringify(Array.from(this.getDuplicateWordWithPlayerIds())));
                 } else {
                     // Non-unique words allowed
                     this.room.players.forEach((player) => {
@@ -197,7 +204,7 @@ export class Game {
         });
     }
 
-    private getDuplicateWordWithPlayerIds(): Map<string, string[]> {
+    /*private getDuplicateWordWithPlayerIds(): Map<string, string[]> {
         const duplicate_word_with_player_ids = new Map<string, string[]>();
 
         let all_duplicate_words: string[] = [];
@@ -215,7 +222,7 @@ export class Game {
         });
 
         return duplicate_word_with_player_ids;
-    }
+    }*/
 
     private async roundTimer(second_passed: Function, round_ended: Function) {
         while (this.round_timer < this.room_settings.round_time) {
