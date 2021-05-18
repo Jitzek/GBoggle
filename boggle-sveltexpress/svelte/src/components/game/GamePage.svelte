@@ -113,47 +113,85 @@
     showNextRoundModal = true;
   });
 
-  socket.on("round_ended", (_next_round: number, _players_with_found_words: string, _players_with_duplicate_words: string) => {
-    next_round = _next_round;
-    if (_players_with_duplicate_words) {
-      players_with_duplicate_words = new Map<string, string[]>(JSON.parse(_players_with_duplicate_words));
-      duplicated_words_current_player = getDuplicatedWordsWithPlayerIdsForCurrentPlayer();
-      console.log(duplicated_words_current_player);
-      console.log(duplicated_words_current_player.size);
+  socket.on(
+    "round_ended",
+    (
+      _next_round: number,
+      _players_with_found_words: string,
+      _players_with_duplicate_words: string
+    ) => {
+      next_round = _next_round;
+      if (_players_with_duplicate_words) {
+        players_with_duplicate_words = new Map<string, string[]>(
+          JSON.parse(_players_with_duplicate_words)
+        );
+        duplicated_words_current_player =
+          getDuplicatedWordsWithPlayerIdsForCurrentPlayer();
+        console.log(duplicated_words_current_player);
+        console.log(duplicated_words_current_player.size);
+      }
+      if (_players_with_found_words) {
+        players_with_found_words = new Map<string, string[]>(
+          JSON.parse(_players_with_found_words)
+        );
+      }
+      console.log("round ended");
+      reset_dice_selection();
     }
-    if (_players_with_found_words) {
-      players_with_found_words = new Map<string, string[]>(JSON.parse(_players_with_found_words));
-    }
-    console.log("round ended");
-    reset_dice_selection();
-  });
+  );
 
   function getDuplicatedWordsWithPlayerIdsForCurrentPlayer(): Map<string, string[]> {
-        const duplicate_word_with_player_ids = new Map<string, string[]>();
+    const duplicate_word_with_player_ids = new Map<string, string[]>();
 
-        let all_duplicate_words: string[] = [];
-        players_with_duplicate_words.forEach((words: string[], player_id: string) => {
-          all_duplicate_words = all_duplicate_words.concat(words.filter((word) => !all_duplicate_words.includes(word)));
-        });
+    players_with_duplicate_words.get(socket.id).forEach((word) => {
+      duplicate_word_with_player_ids.set(word, []);
+      players_with_duplicate_words.forEach((words: string[], player_id: string) => {
+        if (player_id != socket.id && words.includes(word)) {
+          duplicate_word_with_player_ids.get(word)?.push(player_id);
+        }
+      });
+    });
 
-        all_duplicate_words.forEach((word) => {
-            duplicate_word_with_player_ids.set(word, []);
-            players_with_duplicate_words.forEach((words: string[], player_id: string) => {
-              if (words.includes(word)) {
-                duplicate_word_with_player_ids.get(word)!.push(player_id);
-              }
-            });
-        });
+    return duplicate_word_with_player_ids;
+  }
 
-        duplicate_word_with_player_ids.forEach((player_ids: string[], word: string) => {
-          // Remove duplicate word if it doesn't include the current player
-          if (!player_ids.includes(socket.id)) {
-            duplicate_word_with_player_ids.delete(word);
+  /*function getDuplicatedWordsWithPlayerIdsForCurrentPlayer(): Map<
+    string,
+    string[]
+  > {
+    const duplicate_word_with_player_ids = new Map<string, string[]>();
+
+    let all_duplicate_words: string[] = [];
+    players_with_duplicate_words.forEach(
+      (words: string[], player_id: string) => {
+        all_duplicate_words = all_duplicate_words.concat(
+          words.filter((word) => !all_duplicate_words.includes(word))
+        );
+      }
+    );
+
+    all_duplicate_words.forEach((word) => {
+      duplicate_word_with_player_ids.set(word, []);
+      players_with_duplicate_words.forEach(
+        (words: string[], player_id: string) => {
+          if (words.includes(word)) {
+            duplicate_word_with_player_ids.get(word)!.push(player_id);
           }
-        });
+        }
+      );
+    });
 
-        return duplicate_word_with_player_ids;
-    }
+    duplicate_word_with_player_ids.forEach(
+      (player_ids: string[], word: string) => {
+        // Remove duplicate word if it doesn't include the current player
+        if (!player_ids.includes(socket.id)) {
+          duplicate_word_with_player_ids.delete(word);
+        }
+      }
+    );
+
+    return duplicate_word_with_player_ids;
+  }*/
 
   socket.on("game_ended", () => {
     showNextRoundModal = false;
