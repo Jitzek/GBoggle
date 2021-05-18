@@ -7,6 +7,10 @@ export class PlayersObject {
         this.players = [];
     }
 
+    public getPlayerById(id: string): PlayerObject | undefined {
+        return this.players.find(player => player.id === id);
+    }
+
     public addPlayer(id: string, name: string, avatar: string, score: number, is_host: boolean) {
         this.players.push({
             id: id,

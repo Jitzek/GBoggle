@@ -12,7 +12,9 @@ const redis_port = 6379;
 const api_key = readFileSync("./.api_key", "utf-8");
 
 const redis_client = redis.createClient(redis_port);
-redis_client.auth(readFileSync("./.redis_password", "utf-8"));
+const redis_password = readFileSync("./.redis_password", "utf-8");
+redis_client.config("SET", "requirepass", redis_password);
+redis_client.auth(redis_password);
 
 let DATABASE_CONNECTED = false;
 /*const tedis = new Tedis({
@@ -164,41 +166,27 @@ app.post('/highscores', (req, res) => {
       reason: "Invalid credentials"
     });
   }
-  try {
-    if (req.body["id"] === undefined) {
+  // Require all necessary keys
+  for (let key of ["id", "name", "score", "avatar", "layout"]) {
+    if (req.body[key] === undefined) {
       return res.json({
         success: false,
-        reason: "ID was undefined"
+        reason: `"${key}" was undefined`
       });
     }
+  }
+  try {
     const highscore_key = `highscore:${req.body["id"]}`;
     const name: string = req.body["name"];
-    if (req.body["name"] === undefined) {
-      return res.json({
-        success: false,
-        reason: "Name was undefined"
-      });
-    }
-    if (req.body["score"] === undefined || isNaN(Number(req.body["score"]))) {
+    // Require score to be numerical
+    if (isNaN(Number(req.body["score"]))) {
       return res.json({
         success: false,
         reason: "Score was not a valid number"
       });
     }
     const score: number = Number(req.body["score"]);
-    if (req.body["avatar"] === undefined) {
-      return res.json({
-        success: false,
-        reason: "Avatar was undefined"
-      });
-    }
     const avatar: string = req.body["avatar"];
-    if (req.body["layout"] === undefined) {
-      return res.json({
-        success: false,
-        reason: "Layout was undefined"
-      });
-    }
     const layout: string[] = JSON.parse(req.body["layout"]);
     redis_client.hset(highscore_key,
       "name", name,

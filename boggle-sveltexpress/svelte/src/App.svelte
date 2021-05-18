@@ -6,6 +6,7 @@
   import GboggleLogo from "@components/GBoggleLogo.svelte";
   import { deleteCookie } from "./utils/cookies";
   import { navigate } from "svelte-routing";
+import GamePage from "./components/game/GamePage.svelte";
 
   export let url = window.location.pathname;
   

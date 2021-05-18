@@ -7,16 +7,21 @@
   import { DiceObject } from "./DiceObject";
   import type { Socket } from "socket.io-client";
   import Modal from "@components/Modal.svelte";
+  import type { PlayersObject } from "../room/PlayersObject";
+  import UserIcon from "@components/UserIcon.svelte";
 
   export let socket: Socket;
-
   export let uuid: string;
+  export let totalRounds: number;
+  export let players: PlayersObject;
 
   let letters: string[] = [];
   let dice: DiceObject[] = [];
   let selected_dice: DiceObject[] = [];
   let selected_dice_string: string = "";
   let current_round = 1;
+  let next_round = 1;
+  let duplicate_words: Map<string, string[]>;
 
   $: {
     selected_dice;
@@ -73,7 +78,7 @@
     return true;
   }
 
-  socket.on("round_started", (round: number, layout: string[]) => {
+  socket.on("round_started", (layout: string[], round: number) => {
     console.log(`Starting round ${round}`);
     reset_dice_selection();
     showNextRoundModal = false;
@@ -100,18 +105,22 @@
 
   let next_round_time: number = 0;
   let showNextRoundModal = false;
-  socket.on(
-    "next_round_timer_changed",
-    (round: number, new_next_round_time: number) => {
-      current_round = round;
-      next_round_time = new_next_round_time;
-      showNextRoundModal = true;
-    }
-  );
+  socket.on("next_round_timer_changed", (new_next_round_time: number) => {
+    next_round_time = new_next_round_time;
+    showNextRoundModal = true;
+  });
 
-  socket.on("round_ended", () => {
+  socket.on("round_ended", (_next_round: number, _duplicate_words: string) => {
+    next_round = _next_round;
+    if (_duplicate_words) {
+      duplicate_words = new Map<string, string[]>(JSON.parse(_duplicate_words));
+    }
     console.log("round ended");
     reset_dice_selection();
+  });
+
+  socket.on("game_ended", () => {
+    showNextRoundModal = false;
   });
 
   socket.on(
@@ -139,12 +148,34 @@
   }
 </script>
 
-<Modal id="next-round-modal" z_index="99" show="{showNextRoundModal}">
+<Modal id="next-round-modal" z_index="99" show="{showNextRoundModal}" padding_top="10vh">
   <div class="next-round-modal-content">
-    {#if next_round_time != 1}
-    <h1>Round {current_round} starts in {next_round_time} seconds</h1>
+    {#if next_round <= totalRounds}
+      {#if next_round_time != 1}
+        <h1>Round {next_round} starts in {next_round_time} seconds</h1>
+      {:else}
+        <h1>Round {next_round} starts in {next_round_time} second</h1>
+      {/if}
     {:else}
-    <h1>Round {current_round} starts in {next_round_time} second</h1>
+      <h1>Game ends in {next_round_time} seconds</h1>
+    {/if}
+    {#if duplicate_words && duplicate_words.entries.length > 0}
+      <div style="margin-top: 2rem;"/>
+      <h3>Duplicate Words (No points awarded):</h3>
+      <div class="duplicate-words-container">
+        <table class="duplicate-words-table">
+          {#each [...duplicate_words] as [word, player_ids]}
+            <tr>
+              <td><strike>{word}</strike></td>
+              {#each player_ids as player_id}
+                {#if player_id !== socket.id}
+                  <td><UserIcon src="{players.getPlayerById(player_id)?.avatar}" background="#fff" /></td>
+                {/if}
+              {/each}
+            </tr>
+          {/each}
+        </table>
+      </div>
     {/if}
   </div>
 </Modal>
@@ -185,11 +216,33 @@
     h1 {
       color: #fff;
     }
+
+    h3 {
+      text-align: left;
+      color: #fff;
+    }
   }
 
   @media screen and (max-width: 500px) {
     .next-round-modal-content {
       width: 90%;
+    }
+  }
+
+  .duplicate-words-container {
+    max-height: 60vh;
+    overflow: auto;
+    .duplicate-words-table {
+      color: #fff;
+      text-align: left;
+
+      tr>td {
+        padding-bottom: 1rem;
+      }
+      
+      td {
+        padding-right: 0.5rem;
+      }
     }
   }
 </style>

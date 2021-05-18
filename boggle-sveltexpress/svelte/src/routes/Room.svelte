@@ -41,6 +41,7 @@
   let victory_audio = localStorage.getItem("victory_audio");
   let room_state = ROOM_STATE.LOBBY;
   let is_singleplayer = false;
+  let total_rounds = 1;
 
   let showPasswordModal = false;
 
@@ -117,8 +118,10 @@
     user_uuid = uuid;
   });
 
-  socket.on("game_started", () => {
+  socket.on("game_started", (_total_rounds: number) => {
     console.log("game started");
+    total_rounds = _total_rounds;
+    console.log(total_rounds);
     showEndscreenModal = false;
     room_state = ROOM_STATE.INGAME;
   });
@@ -262,7 +265,7 @@
       {#if room_state === ROOM_STATE.LOBBY}
         <RoomSettings roomId="{id}" isHost="{isHost}" socket="{socket}" singleplayer="{is_singleplayer}" />
       {:else if room_state == ROOM_STATE.INGAME}
-        <div><GamePage socket="{socket}" uuid="{user_uuid}" /></div>
+        <div><GamePage socket="{socket}" uuid="{user_uuid}" totalRounds="{total_rounds}" players="{players}" /></div>
       {/if}
     </div>
     <div class="chat-component"></div>

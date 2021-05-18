@@ -80,9 +80,11 @@ export class Room {
         socket.on("disconnect", (reason: string) => this.on_disconnect(socket, reason));
         socket.on("start_game", () => this.on_start_game(socket));
         socket.on("submit_word", (positions: number[]) => this.game.on_submit(socket, positions));
+        socket.on("request_settings", () => this.on_request_settings(socket));
         socket.on("rounds_setting_changed", (new_rounds: number) => this.on_rounds_changed(socket, new_rounds));
         socket.on("round_time_setting_changed", (new_round_time: number) => this.on_round_time_changed(socket, new_round_time));
         socket.on("language_setting_changed", (new_language: string) => this.on_language_changed(socket, new_language));
+        socket.on("unique_words_only_setting_changed", (new_unique_words_only: boolean) => this.on_unique_words_only_changed(socket, new_unique_words_only));
         socket.on("send_message", (message: string) => this.on_chat_message(socket, message));
         
         socket.emit("joined", socket.id);
@@ -95,16 +97,22 @@ export class Room {
         }
 
         // Send up to date settings to the newly joined player
-        socket.emit("settings_changed", this.room_settings.rounds, this.room_settings.round_time, this.room_settings.language);
+        this.on_request_settings(socket);
         if (this.game && this.game.started) {
-            socket.emit("game_started");
-            socket.emit("round_started", this.game.current_round, this.game.board.layout);
-            if (!this.game.round_in_progress) {
-                socket.emit("round_ended");
+            socket.emit("game_started", this.room_settings.rounds);
+            if (this.game.round_in_progress) {
+                socket.emit("round_started", this.game.board.layout, this.game.current_round);
+            }
+            else {
+                socket.emit("round_ended", this.game.current_round + 1);
             }
         }
 
         console.log(`🏚️  [room]: ${player.name} (ID: ${player.id}) joined`);
+    }
+
+    protected on_request_settings(socket: Socket) {
+        socket.emit("settings_changed", this.room_settings.rounds, this.room_settings.round_time, this.room_settings.language, this.room_settings.unique_words_only);
     }
 
     protected on_rounds_changed(socket: Socket, new_rounds: number) {
@@ -120,6 +128,11 @@ export class Room {
     protected on_language_changed(socket: Socket, new_language: string) {
         if (socket.id !== this.host_id) return;
         this.room_settings.change_language(socket, new_language);
+    }
+
+    protected on_unique_words_only_changed(socket: Socket, new_unique_words_only: boolean) {
+        if (socket.id !== this.host_id) return;
+        this.room_settings.change_unique_words_only(socket, new_unique_words_only);
     }
 
     protected on_chat_message(socket: Socket, message: string) {

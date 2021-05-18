@@ -5,6 +5,7 @@
   import LinkButton from "@components/LinkButton.svelte";
   import { Shuttle } from "@components/svg/index.js";
   import type { Socket } from "socket.io-client";
+  import CheckboxInput from "../inputs/CheckboxInput.svelte";
 
   export let roomId: string;
   export let isHost = false;
@@ -14,6 +15,7 @@
   let rounds_value: number;
   let round_time_value: number;
   let language_value: string;
+  let unique_words_only_value: boolean = true;
 
   let inviteLink: HTMLElement;
 
@@ -33,12 +35,14 @@
     document.execCommand("copy");
   }
 
+  socket.emit("request_settings");
   socket.on(
     "settings_changed",
-    (rounds: number, round_time: number, language: string) => {
+    (rounds: number, round_time: number, language: string, unique_words_only: boolean) => {
       rounds_value = rounds;
       round_time_value = round_time;
       language_value = language;
+      unique_words_only_value = unique_words_only;
     }
   );
 
@@ -48,6 +52,8 @@
     socket.emit("round_time_setting_changed", round_time_value);
   const language_setting_changed = () =>
     socket.emit("language_setting_changed", language_value);
+  const unique_words_only_setting_changed = () =>
+    socket.emit("unique_words_only_setting_changed", unique_words_only_value);
 
   function start_game() {
     if (!isHost && !singleplayer) return;
@@ -95,6 +101,10 @@
           <option value="English">English</option>
         {/each}
       </SelectInput>
+      <div style="margin-top: 2rem;"></div>
+      <div style="text-align: left;">
+        <CheckboxInput value="Unique words only" bind:checked={unique_words_only_value} on:message={unique_words_only_setting_changed} disabled="{!isHost}" />
+      </div>
       <div style="margin-top: 6rem;"></div>
       <LinkButton
         btn_background="#13a8e0"

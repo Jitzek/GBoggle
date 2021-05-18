@@ -3,6 +3,7 @@ import { Board } from "./board";
 import { RoomSettings } from "./room_settings";
 import { Socket } from "socket.io";
 import * as http from "http";
+import { Player } from "./player";
 
 export class Game {
     started = false;
@@ -10,9 +11,9 @@ export class Game {
     board!: Board;
     room_settings: RoomSettings;
     round_timer: number = 0;
-    next_round_time: number = 6;
+    next_round_time: number = 10;
     next_round_timer: number = 0;
-    current_round: number = 1;
+    current_round: number = 0;
     round_in_progress = false;
 
     constructor(room: Room, room_settings: RoomSettings) {
@@ -26,9 +27,9 @@ export class Game {
             player.score = 0;
             this.room.emit("player_score_changed", player.id, player.score);
         });
-        this.current_round = 1;
+        this.current_round = 0;
         this.started = true;
-        this.room.emit("game_started");
+        this.room.emit("game_started", this.room_settings.rounds);
 
         this.startRound();
     }
@@ -96,8 +97,8 @@ export class Game {
                 if (!exists) {
                     return this.emitWordStatus(socket, word, false, "Word doesn't exist in our dictionary");
                 }
-                player.score += this.determineScore(word_arr);
-                player.found_words.push(word);
+                // player.score += this.determineScore(word_arr);
+                player.addFoundWord(word);
                 return this.emitWordStatus(socket, word, true, "Submitted word was valid");
             });
         });
@@ -109,31 +110,46 @@ export class Game {
 
     private emitWordStatus(socket: Socket, word: string, valid: boolean, reason?: string) {
         socket.emit("word_validated", word, valid, reason);
+        /*
         const player = this.room.get_player_by_id(socket.id);
         if (!player) return;
         if (valid) {
             this.room.emit("player_score_changed", player.id, player.score);
         }
+        */
     }
 
-    private determineScore(word_arr: string[]): number {
-        return 12;
+    private determineScore(word: string): number {
+        if (word.length >= 8) return 11;
+        if (word.length >= 7) return 5;
+        if (word.length >= 6) return 3;
+        if (word.length >= 5) return 2;
+        return 1;
     }
 
     public async startRound() {
-        this.room.players.forEach((player) => player.found_words = []);
+        this.room.players.forEach((player) => {
+            player.resetFoundWords();
+            player.resetDuplicateWords();
+        });
         // Announce round ended
         this.nextRoundTimer(() => {
             // Second passed
-            this.room.emit("next_round_timer_changed", this.current_round, (this.next_round_time - this.next_round_timer));
+            this.room.emit("next_round_timer_changed", (this.next_round_time - this.next_round_timer));
         }, () => {
+            this.current_round++;
+            if (this.current_round > this.room_settings.rounds) {
+                // Game ended
+                this.stop();
+                return;
+            }
             // Start next round
             this.round_in_progress = true;
 
             // Create new board
             this.board = new Board();
             console.log(`🎮 [game]: Starting round ${this.current_round}`);
-            this.room.emit("round_started", this.current_round, this.board.layout);
+            this.room.emit("round_started", this.board.layout, this.current_round);
             this.room.emit("round_timer_changed", this.room_settings.round_time);
             this.roundTimer(() => {
                 // Second Passed
@@ -141,15 +157,64 @@ export class Game {
             }, () => {
                 // Round ended
                 this.round_in_progress = false;
-                if (this.current_round++ >= this.room_settings.rounds) {
-                    // Game ended
-                    this.stop();
-                    return;
+                // Assign duplicate words
+                if (this.room_settings.unique_words_only) {
+                    // Unique words only
+                    this.room.players.forEach((player) => {
+                        this.room.players.filter((_player) => _player.id !== player.id).forEach((_player) => {
+                            _player.found_words.forEach((word) => {
+                                if (player.found_words.includes(word)) {
+                                    player.addDuplicateWord(word);
+                                }
+                            });
+                        });
+                    });
+
+                    this.room.players.forEach((player) => {
+                        player.found_words.forEach((word) => {
+                            if (!player.duplicate_words.includes(word)) {
+                                player.score += this.determineScore(word);
+                            }
+                        });
+                        this.room.emit("player_score_changed", player.id, player.score);
+                    });
+
+                    this.room.emit("round_ended", this.current_round + 1, JSON.stringify(Array.from(this.getDuplicateWordWithPlayerIds())));
+                } else {
+                    // Non-unique words allowed
+                    this.room.players.forEach((player) => {
+                        player.found_words.forEach((word) => {
+                            player.score += this.determineScore(word);
+                        });
+                        this.room.emit("player_score_changed", player.id, player.score);
+                    });
                 }
-                this.room.emit("round_ended");
+
+                // TODO: Send to each player which words were duplicates
+                this.room.emit("round_ended", this.current_round + 1);
                 this.startRound();
             });
         });
+    }
+
+    private getDuplicateWordWithPlayerIds(): Map<string, string[]> {
+        const duplicate_word_with_player_ids = new Map<string, string[]>();
+
+        let all_duplicate_words: string[] = [];
+        this.room.players.forEach((player) => {
+            all_duplicate_words = all_duplicate_words.concat(player.duplicate_words.filter((word) => !all_duplicate_words.includes(word)));
+        });
+
+        all_duplicate_words.forEach((word) => {
+            duplicate_word_with_player_ids.set(word, []);
+            this.room.players.forEach((player) => {
+                if (player.duplicate_words.includes(word)) {
+                    duplicate_word_with_player_ids.get(word)!.push(player.id);
+                }
+            });
+        });
+
+        return duplicate_word_with_player_ids;
     }
 
     private async roundTimer(second_passed: Function, round_ended: Function) {
