@@ -213,26 +213,6 @@ export class Game {
         });
     }
 
-    /*private getDuplicateWordWithPlayerIds(): Map<string, string[]> {
-        const duplicate_word_with_player_ids = new Map<string, string[]>();
-
-        let all_duplicate_words: string[] = [];
-        this.room.players.forEach((player) => {
-            all_duplicate_words = all_duplicate_words.concat(player.duplicate_words.filter((word) => !all_duplicate_words.includes(word)));
-        });
-
-        all_duplicate_words.forEach((word) => {
-            duplicate_word_with_player_ids.set(word, []);
-            this.room.players.forEach((player) => {
-                if (player.duplicate_words.includes(word)) {
-                    duplicate_word_with_player_ids.get(word)!.push(player.id);
-                }
-            });
-        });
-
-        return duplicate_word_with_player_ids;
-    }*/
-
     private async roundTimer(second_passed: Function, round_ended: Function) {
         while (this.round_timer < this.room_settings.round_time) {
             await new Promise(resolve => setTimeout(resolve, 1000));
