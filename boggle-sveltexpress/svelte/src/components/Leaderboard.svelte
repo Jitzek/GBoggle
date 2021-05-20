@@ -36,10 +36,10 @@
     playerScores = data["values"];
   }
 
-  $: {
-    playerScores;
-    playerScores = _.orderBy(playerScores, "score", "desc");
-  }
+  // $: {
+  //   playerScores;
+  //   playerScores = _.orderBy(playerScores, "score", "desc");
+  // }
 </script>
 
 <div>

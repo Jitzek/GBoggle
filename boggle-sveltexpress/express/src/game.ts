@@ -115,14 +115,7 @@ export class Game {
     }
 
     private emitWordStatus(socket: Socket, word: string, valid: boolean, reason?: string) {
-        socket.emit("word_validated", word, valid, reason);
-        /*
-        const player = this.room.get_player_by_id(socket.id);
-        if (!player) return;
-        if (valid) {
-            this.room.emit("player_score_changed", player.id, player.score);
-        }
-        */
+        socket.emit("word_validated", word, valid, reason, this.determineScore(word));
     }
 
     private determineScore(word: string): number {

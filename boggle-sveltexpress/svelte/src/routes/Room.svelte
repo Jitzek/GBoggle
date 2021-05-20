@@ -12,21 +12,17 @@
   import { TextInput } from "@components/inputs/index";
   import LinkButton from "@components/LinkButton.svelte";
   import EndScreen from "@components/game/EndScreen.svelte";
-  import { PlayersObject } from "@components/room/PlayersObject";
   import { navigate } from "svelte-routing";
-
-  enum ROOM_STATE {
-    LOBBY,
-    INGAME,
-  }
+  import {
+    Room as RoomObject,
+    RoomState,
+  } from "../components/room/objects/Room";
+  import { User as UserObject } from "../components/room/objects/User";
+  import type { Player as PlayerObject } from "../components/room/objects/Player";
+  import type { Game as GameObject } from "../components/room/objects/game/Game";
 
   export let socket: Socket;
   export let id: string;
-
-  let user_uuid: string;
-
-  let isHost = false;
-  let is_connected = false;
 
   // Don't allow users to join without invite link (forces selection/confirmation of nickname, avatar and victory audio)
   if (getCookie("room_id") != id) {
@@ -34,107 +30,52 @@
     location.href = `http://${window.location.host}/`;
   }
 
-  let passwordValue: string;
-
   let nickname = localStorage.getItem("nickname");
   let avatar = localStorage.getItem("avatar");
   let victory_audio = localStorage.getItem("victory_audio");
-  let room_state = ROOM_STATE.LOBBY;
-  let is_singleplayer = false;
-  let total_rounds = 1;
 
-  let showPasswordModal = false;
-
-  // Check if room exists
-  socket.emit("room_information", id);
-  socket.on(
-    "room_information",
-    (
-      room_exists: boolean,
-      room_is_password_protected: boolean,
-      user_is_host: boolean,
-      room_is_singleplayer: boolean
-    ) => {
-      if (!room_exists) {
-        // Room doesn't exist
-        // TODO: notify user
-        window.location.href = `http://${window.location.host}/`;
-      }
-      is_singleplayer = room_is_singleplayer;
-      isHost = user_is_host;
-      if (room_is_password_protected && !user_is_host) {
-        // Request password
-        console.log("password required");
-        showPasswordModal = true;
-        return;
-      }
-      // Request connection to room
-      join_room("");
-      return;
-    }
+  let room: RoomObject = new RoomObject(
+    socket,
+    id,
+    new UserObject("", nickname, avatar, victory_audio)
   );
 
-  socket.on("kick", (player_id: string, reason: string) => {
-    console.log(`${player_id} kicked from room with reason: ${reason}`);
-    if (player_id == socket.id) {
-      deleteCookie("room_id");
-      window.location.href = `http://${window.location.host}/`;
-    }
+  let game: GameObject;
+
+  let inProgress: boolean = false;
+  room.setGameStartedCallback(() => {
+    game = room.game;
+    inProgress = true;
   });
 
-  socket.on("incorrect_password", () => {
-    // Retry password
-    console.log("password was incorrect");
+  room.setGameEndedCallback(() => {
+    game = undefined;
+    inProgress = false;
+  });
+
+  let roomState: RoomState;
+  room.state.subscribe((value) => {
+    roomState = value;
+  });
+
+  let players: PlayerObject[] = [];
+  room.setPlayersChangedCallback((newPlayers: PlayerObject[]) => {
+    players = newPlayers;
+  });
+
+  let passwordValue: string;
+  room.setIncorrectPasswordCallback(() => {
     passwordValue = "";
   });
 
-  socket.on("invalid_name", (reason: string) => {
-    alert(`Invalid name, reason: ${reason}`);
-    location.href = `http://${location.host}/`;
+  let connected = false;
+  room.setConnectionStatusChangedCallback((_connected: boolean) => {
+    connected = _connected;
   });
 
-  socket.on("invalid_avatar", (reason: string) => {
-    alert(`Invalid avatar, reason: ${reason}`);
-    location.href = `http://${location.host}/`;
-  });
-
-  socket.on("invalid_victory_audio", (reason: string) => {
-    alert(`Invalid victory audio, reason: ${reason}`);
-    location.href = `http://${location.host}/`;
-  });
-
-  socket.on("disconnected", (reason: string) => {
-    console.log(`disconnected with reason: ${reason}`);
-  });
-
-  socket.on("message", (message: string) => {
-    console.log(`received message: ${message}`);
-  });
-
-  socket.on("joined", (uuid: string) => {
-    console.log("succesfully joined");
-    is_connected = true;
-    showPasswordModal = false;
-    user_uuid = uuid;
-  });
-
-  socket.on("game_started", (_total_rounds: number) => {
-    console.log("game started");
-    total_rounds = _total_rounds;
-    showEndscreenModal = false;
-    room_state = ROOM_STATE.INGAME;
-  });
-
-  let playing_victory_audio = new Audio();
-  let showEndscreenModal = false;
-  socket.on("game_ended", (victory_audio: string) => {
-    console.log("Game ended");
-    playing_victory_audio = new Audio(victory_audio);
-    playing_victory_audio.volume = 0.5;
-    showEndscreenModal = true;
-    setTimeout(() => {
-      playing_victory_audio.play();
-    }, 1000);
+  let passwordProtected = false;
+  room.passwordProtected.subscribe((value) => {
+    passwordProtected = value;
   });
 
   let players_collapsed: boolean = true;
@@ -153,48 +94,15 @@
 
   const passwordModalInputOnKeyPress = (e) => {
     // If enter was pressed
-    if (e.charCode === 13) join_room(passwordValue);
+    if (e.charCode === 13) room.join(passwordValue);
   };
-
-  function join_room(password: string) {
-    socket.emit("join_room", id, nickname, avatar, victory_audio, password);
-  }
-
-  let players = new PlayersObject();
-  socket.on(
-    "player_joined",
-    (
-      _id: string,
-      _name: string,
-      _avatar: string,
-      _score: number,
-      _is_host: boolean
-    ) => {
-      players.addPlayer(_id, _name, _avatar, _score, _is_host);
-      players = players;
-    }
-  );
-
-  socket.on("player_removed", (id: string) => {
-    players.removePlayerByID(id);
-    players = players;
-  });
-
-  socket.on("player_score_changed", (id: string, score: number) => {
-    players.changeScoreOfPlayerByID(id, score);
-    players = players;
-  });
-
-  function backToMenu() {
-    // Stop victory audio from playing
-    playing_victory_audio.pause();
-    playing_victory_audio = new Audio();
-    showEndscreenModal = false;
-    room_state = ROOM_STATE.LOBBY;
-  }
 </script>
 
-<Modal id="password_modal" show="{showPasswordModal}" z_index={9}>
+<Modal
+  id="password_modal"
+  show="{passwordProtected === true && connected === false}"
+  z_index="{9}"
+>
   <div class="password-modal-content">
     <TextInput
       label="Password: "
@@ -207,27 +115,30 @@
       btn_width="80%"
       value="Join"
       btn_background="#46a350"
-      on:click="{() => join_room(passwordValue)}"
+      on:click="{() => room.join(passwordValue)}"
       ><Send width="20px" color="#46a350" /></LinkButton
     >
     <div style="margin-bottom: 2rem"></div>
     <LinkButton
-        on:click="{() => (navigate("/", { replace: true }))}"
-        btn_width="60%"
-        value="Close"
-        btn_background="#f55a42"
-        ><Logout width="20px" color="#f55a42" /></LinkButton
-      >
+      on:click="{() => navigate('/', { replace: true })}"
+      btn_width="60%"
+      value="Close"
+      btn_background="#f55a42"
+      ><Logout width="20px" color="#f55a42" /></LinkButton
+    >
   </div>
 </Modal>
-{#if showEndscreenModal}
-  <Modal id="endscreen_modal" show="{showEndscreenModal}" padding_top="10vh" z_index={9}>
-    <div class="endscreen-modal-content">
-      <EndScreen players="{players}" backToMenu="{backToMenu}" socket="{socket}" singleplayer="{is_singleplayer}" />
-    </div>
-  </Modal>
-{/if}
-{#if is_connected}
+<Modal
+  id="endscreen_modal"
+  show="{roomState === RoomState.INGAME && !inProgress}"
+  padding_top="10vh"
+  z_index="{9}"
+>
+  <div class="endscreen-modal-content">
+    <EndScreen room="{room}" players="{players}" />
+  </div>
+</Modal>
+{#if connected}
   <div class="room-container">
     <div class="players-component" class:players_invisible>
       <SideWindow
@@ -255,16 +166,16 @@
           <Chat_Icon color="#7f3f98" width="60%" />
         </div>
         <div slot="window">
-          <Chat socket="{socket}" players="{players}"/>
+          <Chat room="{room}" />
         </div>
       </SideWindow>
     </div>
     <div class="main-component">
       <!-- Dependent on the state of the Game (Lobby or Ingame) load in the correct component -->
-      {#if room_state === ROOM_STATE.LOBBY}
-        <RoomSettings roomId="{id}" isHost="{isHost}" socket="{socket}" singleplayer="{is_singleplayer}" />
-      {:else if room_state == ROOM_STATE.INGAME}
-        <div><GamePage socket="{socket}" uuid="{user_uuid}" totalRounds="{total_rounds}" players="{players}" /></div>
+      {#if roomState === RoomState.LOBBY}
+        <RoomSettings room="{room}" />
+      {:else if roomState == RoomState.INGAME}
+        <div><GamePage game="{game}" /></div>
       {/if}
     </div>
     <div class="chat-component"></div>

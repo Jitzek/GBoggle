@@ -4,305 +4,145 @@
   import Dice from "@components/game/Dice.svelte";
   import TopBar from "@components/game/TopBar.svelte";
   import FoundList from "@components/game/FoundList.svelte";
-  import { DiceObject } from "./DiceObject";
-  import type { Socket } from "socket.io-client";
   import Modal from "@components/Modal.svelte";
-  import type { PlayersObject } from "../room/PlayersObject";
   import UserIcon from "@components/UserIcon.svelte";
   import BitText from "@components/BitText.svelte";
+  import type { Player } from "../room/objects/Player";
+  import type { Board } from "../room/objects/game/Board";
+  import type { Dice as DiceObject } from "../room/objects/game/Dice";
+  import type { Game as GameObject } from "../room/objects/game/Game";
 
-  export let socket: Socket;
-  export let uuid: string;
-  export let totalRounds: number;
-  export let players: PlayersObject;
+  export let game: GameObject;
 
-  let letters: string[] = [];
-  let dice: DiceObject[] = [];
-  let selected_dice: DiceObject[] = [];
-  let selected_dice_string: string = "";
-  let current_round = 1;
-  let next_round = 1;
-  let players_with_found_words: Map<string, string[]>;
-  let players_with_duplicate_words: Map<string, string[]>;
-  let players_with_score_gained: Map<string, number>;
-
-  let duplicated_words_of_current_player: Map<string, string[]>;
-  let score_gained_of_current_player: number;
+  let layout: DiceObject[];
+  let selectedDiceString: string = "";
+  let scoreOfCurrentPlayer: number = 0;
+  let foundWords: string[] = [];
+  let roundTimer: number;
+  let nextRoundTimer: number;
+  let nextRound: number;
+  let duplicateWordsOfCurrentPlayerWithOtherPlayers: Map<string, Player[]>;
+  let scoreGainedOfCurrentPlayer: number;
 
   $: {
-    selected_dice;
-    selected_dice_string = selected_dice.map((e) => e.value).join("");
-  }
-
-  let foundWords: string[] = [];
-
-  const allowed_position_difs = [0, 1, 3, 4, 5];
-  function onDicePress(position: number) {
-    let _dice = dice.find((e) => e.position === position);
-    if (!_dice) {
-      return;
-    }
-    // Check if dice is allowed to be pressed
-    if (!allowedDicePress(_dice)) {
-      // Dice is not allowed to be (de)selected
-      return;
-    }
-    _dice.toggle();
-    if (_dice.selected) {
-      // Add to pressed dice
-      selected_dice.push(_dice);
-    } else {
-      // Remove from pressed dice, if it was the last selected one
-      selected_dice = selected_dice.filter(
-        (e) => e.position !== _dice.position
-      );
-    }
-    dice = dice;
-    selected_dice = selected_dice;
-  }
-
-  function allowedDicePress(_dice: DiceObject): boolean {
-    let last_selected_dice = selected_dice[selected_dice.length - 1];
-    if (!last_selected_dice) {
-      // This is the first dice to be selected
-      return true;
-    }
-    if (_dice.selected && _dice.position !== last_selected_dice.position) {
-      // If dice is selected (deselect request) but it's not the last selected dice, return false
-      return false;
-    }
-    if (selected_dice.length > dice.length) {
-      return false;
-    }
-    if (_dice.position > dice.length) {
-      return false;
-    }
-    const position_dif = Math.abs(_dice.position - last_selected_dice.position);
-    if (!allowed_position_difs.includes(position_dif)) {
-      return false;
-    }
-    return true;
-  }
-
-  socket.on("game_started", (_total_rounds: number) => {
-    current_round = 1;
-  });
-
-  socket.on("round_started", (layout: string[], round: number) => {
-    console.log(`Starting round ${round}`);
-    reset_dice_selection();
-    foundWords = [];
-    showNextRoundModal = false;
-    current_round = round;
-    letters = layout;
-    let new_dice: DiceObject[] = [];
-    for (let i = 0; i < letters.length; i++) {
-      new_dice.push(new DiceObject(letters[i], i, false));
-    }
-    dice = new_dice;
-  });
-
-  let score: number = 0;
-  socket.on("player_score_changed", (id: string, _score: number) => {
-    if (uuid == id) {
-      score = _score;
-    }
-  });
-
-  let round_time: number = 0;
-  socket.on("round_timer_changed", (new_round_time: number) => {
-    round_time = new_round_time;
-  });
-
-  let next_round_time: number = 0;
-  let showNextRoundModal = false;
-  socket.on("next_round_timer_changed", (new_next_round_time: number) => {
-    next_round_time = new_next_round_time;
-    showNextRoundModal = true;
-  });
-
-  socket.on(
-    "round_ended",
-    (
-      _next_round: number,
-      _players_with_found_words: string,
-      _players_with_duplicate_words: string,
-      _players_with_score_gained: string
-    ) => {
-      next_round = _next_round;
-      if (_players_with_duplicate_words) {
-        players_with_duplicate_words = new Map<string, string[]>(
-          JSON.parse(_players_with_duplicate_words)
-        );
-        duplicated_words_of_current_player =
-          getDuplicatedWordsWithPlayerIdsForCurrentPlayer();
-        console.log(duplicated_words_of_current_player);
-        console.log(duplicated_words_of_current_player.size);
-      }
-      if (_players_with_found_words) {
-        players_with_found_words = new Map<string, string[]>(
-          JSON.parse(_players_with_found_words)
-        );
-      }
-      if (_players_with_score_gained) {
-        players_with_score_gained = new Map<string, number>(
-          JSON.parse(_players_with_score_gained)
-        );
-        score_gained_of_current_player = players_with_score_gained.get(socket.id) || 0;
-      }
-      console.log(players_with_score_gained);
-      console.log("round ended");
-      reset_dice_selection();
-    }
-  );
-
-  function getDuplicatedWordsWithPlayerIdsForCurrentPlayer(): Map<string, string[]> {
-    const duplicate_word_with_player_ids = new Map<string, string[]>();
-
-    players_with_duplicate_words.get(socket.id).forEach((word) => {
-      duplicate_word_with_player_ids.set(word, []);
-      players_with_duplicate_words.forEach((words: string[], player_id: string) => {
-        if (words.includes(word)) {
-          duplicate_word_with_player_ids.get(word)?.push(player_id);
-        }
+    game;
+    if (game) {
+      game.setBoardChangedCallback((newBoard: Board) => {
+        layout = newBoard.layout;
+        newBoard.setBoardLayoutChangedCallback((newLayout: DiceObject[]) => {
+          layout = newLayout;
+        });
+        newBoard.setDiceSelectedCallback(() => {
+          layout = game.board.layout;
+          selectedDiceString = game.board.getSelectedDiceAsString();
+        });
       });
-    });
 
-    return duplicate_word_with_player_ids;
-  }
+      game.setPlayerScoreChangedCallback((newScore: number) => {
+        scoreOfCurrentPlayer = newScore;
+      });
 
-  /*function getDuplicatedWordsWithPlayerIdsForCurrentPlayer(): Map<
-    string,
-    string[]
-  > {
-    const duplicate_word_with_player_ids = new Map<string, string[]>();
+      game.foundWords.subscribe((value) => {
+        foundWords = value;
+      });
 
-    let all_duplicate_words: string[] = [];
-    players_with_duplicate_words.forEach(
-      (words: string[], player_id: string) => {
-        all_duplicate_words = all_duplicate_words.concat(
-          words.filter((word) => !all_duplicate_words.includes(word))
-        );
-      }
-    );
-
-    all_duplicate_words.forEach((word) => {
-      duplicate_word_with_player_ids.set(word, []);
-      players_with_duplicate_words.forEach(
-        (words: string[], player_id: string) => {
-          if (words.includes(word)) {
-            duplicate_word_with_player_ids.get(word)!.push(player_id);
-          }
-        }
-      );
-    });
-
-    duplicate_word_with_player_ids.forEach(
-      (player_ids: string[], word: string) => {
-        // Remove duplicate word if it doesn't include the current player
-        if (!player_ids.includes(socket.id)) {
-          duplicate_word_with_player_ids.delete(word);
-        }
-      }
-    );
-
-    return duplicate_word_with_player_ids;
-  }*/
-
-  socket.on("game_ended", () => {
-    showNextRoundModal = false;
-  });
-
-  socket.on(
-    "word_validated",
-    (word: string, valid: boolean, reason?: string) => {
-      if (!valid) {
-        console.log(`Word: ${word} was not valid, reason: ${reason}`);
-        return;
-      }
-      console.log(`Word: ${word} was valid, reason: ${reason}`);
-      foundWords.push(word);
-      foundWords = foundWords;
+      game.roundTimer.subscribe((value) => {
+        roundTimer = value;
+      });
+      game.nextRoundTimer.subscribe((value) => {
+        nextRoundTimer = value;
+      });
+      game.nextRound.subscribe((value) => {
+        nextRound = value;
+      });
+      game.duplicateWordsOfCurrentPlayerWithOtherPlayers.subscribe((value) => {
+        duplicateWordsOfCurrentPlayerWithOtherPlayers = value;
+      });
+      game.scoreGainedOfCurrentPlayer.subscribe((value) => {
+        scoreGainedOfCurrentPlayer = value;
+      });
+      game.start();
+    } else {
+      foundWords = [];
+      scoreOfCurrentPlayer = 0;
+      scoreGainedOfCurrentPlayer = 0;
+      nextRound = 1;
+      roundTimer = 0;
+      layout = [];
     }
-  );
-
-  function on_submit() {
-    if (selected_dice.length < 1) return;
-    let selected_dice_positions = selected_dice.map((e) => e.position);
-    socket.emit("submit_word", selected_dice_positions);
-    reset_dice_selection();
-  }
-
-  function reset_dice_selection() {
-    dice.forEach((_dice) => (_dice.selected = false));
-    dice = dice;
-    selected_dice = [];
   }
 </script>
 
-<Modal
-  id="next-round-modal"
-  z_index="99"
-  show="{showNextRoundModal}"
-  padding_top="10vh"
->
-  <div class="next-round-modal-content">
-    {#if next_round <= totalRounds}
-      {#if next_round_time != 1}
-        <h1>Round {next_round} starts in {next_round_time} seconds</h1>
+{#if game}
+  <Modal
+    id="next-round-modal"
+    z_index="99"
+    show="{game && roundTimer <= 0 && nextRoundTimer > 0}"
+    padding_top="10vh"
+  >
+    <div class="next-round-modal-content">
+      {#if nextRound <= game.totalRounds}
+        {#if nextRound != 1}
+          <h1>Round {nextRound} starts in {nextRoundTimer} seconds</h1>
+        {:else}
+          <h1>Round {nextRound} starts in {nextRoundTimer} second</h1>
+        {/if}
       {:else}
-        <h1>Round {next_round} starts in {next_round_time} second</h1>
+        <h1>Game ends in {nextRoundTimer} seconds</h1>
       {/if}
-    {:else}
-      <h1>Game ends in {next_round_time} seconds</h1>
-    {/if}
-    {#if duplicated_words_of_current_player && duplicated_words_of_current_player.size > 0}
-      <div style="margin-top: 2rem;"></div>
-      <h3>Duplicate Words (No points awarded):</h3>
-      <div class="duplicate-words-container">
-        <table class="duplicate-words-table">
-          {#each [...duplicated_words_of_current_player] as [word, player_ids]}
-            <tr>
-              <td><strike>{word}</strike></td>
-              {#each player_ids as player_id}
-                {#if player_id !== socket.id}
-                  <td
-                    ><UserIcon
-                      src="{players.getPlayerById(player_id)?.avatar}"
-                      background="#fff"
-                    /></td
-                  >
-                {/if}
-              {/each}
-            </tr>
-          {/each}
-        </table>
-      </div>
-      <div style="margin-bottom: 2rem;"></div>
-    {/if}
-    {#if score_gained_of_current_player}
-      <div class="score-gained-container">
-        <BitText color="#fff" fontSize="2rem" value="+{score_gained_of_current_player}" />
-      </div>
-    {/if}
-  </div>
-</Modal>
+      {#if duplicateWordsOfCurrentPlayerWithOtherPlayers && duplicateWordsOfCurrentPlayerWithOtherPlayers.size > 0}
+        <div style="margin-top: 2rem;"></div>
+        <h3>Duplicate Words (No points awarded):</h3>
+        <div class="duplicate-words-container">
+          <table class="duplicate-words-table">
+            {#each [...duplicateWordsOfCurrentPlayerWithOtherPlayers] as [word, players]}
+              <tr>
+                <td><strike>{word}</strike></td>
+                {#each players as player}
+                  {#if player && player.uuid !== game.playerId}
+                    <td><UserIcon src="{player.avatar}" background="#fff" /></td
+                    >
+                  {/if}
+                {/each}
+              </tr>
+            {/each}
+          </table>
+        </div>
+        <div style="margin-bottom: 2rem;"></div>
+      {/if}
+      {#if scoreGainedOfCurrentPlayer}
+        <div class="score-gained-container">
+          <BitText
+            color="#fff"
+            fontSize="2rem"
+            value="+{scoreGainedOfCurrentPlayer}"
+          />
+        </div>
+      {/if}
+    </div>
+  </Modal>
+{/if}
 <BasicContainer style="margin: 10px">
-  <TopBar time="{round_time}" score="{score}" />
+  <TopBar time="{roundTimer}" score="{scoreOfCurrentPlayer}" />
 </BasicContainer>
 <BasicContainer style="margin: 10px; padding: 10px">
   <div class="game">
-    {#each dice as _dice}
-      <Dice
-        on:click="{() => onDicePress(_dice['position'])}"
-        value="{_dice['value']}"
-        selected="{_dice['selected']}"
-      />
-    {/each}
+    {#if layout}
+      {#each layout as dice}
+        <Dice
+          on:click="{() => game.board.selectDice(dice.position)}"
+          value="{dice.value}"
+          selected="{dice.selected}"
+        />
+      {/each}
+    {/if}
   </div>
 </BasicContainer>
 <BasicContainer style="margin: 10px">
-  <GameInput on:click="{on_submit}" value="{selected_dice_string}" />
+  <GameInput
+    on:click="{() => game.submitWord()}"
+    value="{selectedDiceString}"
+  />
 </BasicContainer>
 <BasicContainer style="margin: 10px">
   <FoundList foundWords="{foundWords}" />

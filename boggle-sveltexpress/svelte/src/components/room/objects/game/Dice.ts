@@ -1,4 +1,4 @@
-export class DiceObject {
+export class Dice {
     value: string;
     position: number;
     selected: boolean;

@@ -1,13 +1,13 @@
 <script lang="ts">
   import Player from "@components/room/Player.svelte";
-  import type { PlayersObject } from "./PlayersObject";
+  import type { Player as PlayerObject } from "../room/objects/Player";
 
-  export let players: PlayersObject;
+  export let players: PlayerObject[];
 
 </script>
 
 <table class="players">
-  {#each players.players as player}
+  {#each players as player}
     <Player name="{player.name}" avatar="{player.avatar}" score="{player.score}" />
   {/each}
 </table>

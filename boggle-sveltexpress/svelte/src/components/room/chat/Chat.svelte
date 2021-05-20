@@ -3,15 +3,17 @@
   import {Send} from "@components/svg/index";
   import Message from "@components/room/chat/Message.svelte";
   import { afterUpdate } from "svelte";
-  import type { Socket } from "socket.io-client";
-  import type { PlayersObject } from "../PlayersObject";
-  import type { PlayerObject } from "../PlayerObject";
+  import type { Room as RoomObject } from "../objects/Room";
+  import type { MessageBlock as MessageBlockObject } from "../objects/chat/MessageBlock";
 
-  export let socket: Socket;
-  export let players: PlayersObject;
+  export let room: RoomObject;
 
   let chatContainer: HTMLElement;
-  let messageBlocks: Object[] = [];
+  let messageBlocks: MessageBlockObject[] = [];
+
+  room.chat.setOnMessageCallback(() => {
+    messageBlocks = room.chat.messageBlocks;
+  });
 
   let newMessagesButton: HTMLButtonElement;
   let newMessagesButtonWidth: string = "8rem";
@@ -47,54 +49,14 @@
     chatContainer.scrollTop = chatContainer.scrollHeight - chatContainer.clientHeight;
   }
 
-  socket.on("message_send", (userId: string, message: string) => onMessage(userId, message));
-
-  function onMessage(userId: string, message: string) {
-    if (message.length < 1) {
-      console.log("Message length was smaller than 0, not displaying");
-      return;
-    }
-    // Get current messageblock
-    let c_m_block: Object = messageBlocks[messageBlocks.length - 1];
-
-    if (!c_m_block || c_m_block["userId"] !== userId) {
-      // Message from a new user, Create new Messageblock
-      appendMessageBlock(userId);
-      c_m_block = messageBlocks[messageBlocks.length - 1];
-    }
-
-    // Add message to the newest messageblock
-    addMessage(message, messageBlocks[messageBlocks.length - 1]);
-  }
-
-  function appendMessageBlock(userId: string) {
-    const player: PlayerObject = players.players.find((player) => player.id === userId);
-    if (!player) return;
-
-    messageBlocks.push({
-      userId: player.id,
-      userName: player.name,
-      userIcon: player.avatar,
-      messages: [],
-    });
-  }
-
-  function addMessage(message: string, messageBlock: Object) {
-    messageBlock["messages"].push(message);
-
-    // State changed, request UI update
-    messageBlocks = messageBlocks;
-  }
-
   function sendMessage() {
     if (chatInputValue.length < 1) return;
-    socket.emit("send_message", chatInputValue);
+    room.chat.sendMessage(chatInputValue);
     chatInputValue = ""; 
   }
 
-  const chatInputOnKeyPress = e => {
-    // If enter was pressed
-    if (e.charCode === 13) sendMessage();
+  const chatInputOnKeyPress = (e: KeyboardEvent) => {
+    if (e.key === "Enter") sendMessage();
   }
 </script>
 
@@ -103,10 +65,10 @@
     <div class="messages">
       {#each messageBlocks as messageBlock}
         <MessageBlock
-          userName="{messageBlock['userName']}"
-          userIcon="{messageBlock['userIcon']}"
+          userName="{messageBlock.player.name}"
+          userIcon="{messageBlock.player.avatar}"
         >
-          {#each messageBlock["messages"] as message}
+          {#each messageBlock.messages as message}
             <Message message="{message}" />
           {/each}
         </MessageBlock>
@@ -115,7 +77,7 @@
     <button bind:this="{newMessagesButton}" class="new-messages-btn" on:click="{scrollToBottom}" style="width: {newMessagesButtonWidth}" />
     <div class="send-message">
       <input type="text" bind:value="{chatInputValue}" on:keypress="{chatInputOnKeyPress}" />
-      <button on:click="{sendMessage}">
+      <button on:click="{() => sendMessage()}">
         <Send width="27px" />
       </button>
     </div>

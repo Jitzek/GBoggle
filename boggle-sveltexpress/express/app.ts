@@ -58,15 +58,17 @@ io.on("connection", (socket: Socket) => {
     let room = getRoomByUUID(room_uuid);
     let exists = false;
     let password_protected = false;
-    let is_host = false;
+    let host_id = "";
+    let user_id = "";
     let is_singleplayer = false;
     if (room) {
       exists = true;
       password_protected = room.is_password_protected();
-      is_host = room.host_id === socket.id;
+      host_id = room.host_id;
+      user_id = socket.id;
       is_singleplayer = (room instanceof SingleplayerRoom);
     }
-    socket.emit("room_information", exists, password_protected, is_host, is_singleplayer);
+    socket.emit("room_information", exists, password_protected, host_id, user_id, is_singleplayer);
   });
 
   socket.on("join_room", (room_uuid: string, name: string, avatar: string, victory_audio: string, password: string) => {
