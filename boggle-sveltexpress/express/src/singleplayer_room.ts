@@ -16,6 +16,7 @@ export class SingleplayerRoom extends Room {
     constructor(server: Server, host_id: string, password: string) {
         super(server, host_id, password);
         this.room_settings.round_time = 180;
+        this.room_settings.unique_words_only = false;
         try {
             this.api_key = readFileSync(path.resolve(__dirname, "../.api_key"), "utf-8");
         }
@@ -38,6 +39,7 @@ export class SingleplayerRoom extends Room {
     protected on_start_game(socket: Socket) {
         if (socket.id !== this.player.id) return;
         this.game = new Game(this, this.room_settings);
+        this.game.next_round_time = 4;
         this.game.start();
     }
 

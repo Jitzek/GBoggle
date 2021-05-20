@@ -1,33 +1,28 @@
 <script lang="ts">
   import Player from "@components/room/Player.svelte";
-  import type { PlayersObject } from "../room/PlayersObject";
-  import type { PlayerObject } from "../room/PlayerObject";
   import LinkButton from "@components/LinkButton.svelte";
   import { Logout, Send } from "@components/svg/index";
   import type { Socket } from "socket.io-client";
   import BitText from "@components/BitText.svelte";
   import UserIcon from "@components/UserIcon.svelte";
+  import type { Player as PlayerObject } from "../room/objects/Player";
+  import type { Room as RoomObject } from "../room/objects/Room";
+  import { GameType } from "@components/room/objects/Room";
 
-  export let socket: Socket
-  export let players: PlayersObject;
-  export let singleplayer: boolean = false;
-  export let backToMenu: Function;
+  export let room: RoomObject;
+  export let players: PlayerObject[];
+
+  let players_copy: PlayerObject[];
+  let winner: PlayerObject;
+
+  let _players_copy = [];
+  players.forEach((player) => {
+    _players_copy.push(Object.assign({}, player));
+  });
+  players_copy = _players_copy;
 
   // players should already be sorted
-  let winner: PlayerObject = players.players[0];
-  let players_copy: PlayerObject[] = [];
-  players.players.forEach((player) => {
-    players_copy.push(player);
-  });
-
-  function submit_score() {
-    socket.emit("submit_score");
-  }
-
-  socket.on("score_submitted", (success: boolean) => {
-    console.log(success);
-    backToMenu();
-  });
+  winner = players_copy[0];
 </script>
 
 <div class="endscreen-container">
@@ -50,7 +45,7 @@
 
   <table class="players-table">
     {#each players_copy as player}
-      {#if player.id !== winner.id}
+      {#if player.uuid !== winner.uuid}
         <Player
           name="{player.name}"
           avatar="{player.avatar}"
@@ -62,17 +57,16 @@
     {/each}
   </table>
   <div style="margin-bottom: 2rem"></div>
-  {#if singleplayer}
+  {#if room.gametype === GameType.SINGLEPLAYER}
     <LinkButton
-      on:click="{submit_score}"
+      on:click="{() => room.submitScore()}"
       btn_width="90%"
       value="Submit Score"
-      btn_background="#0080ff"
-      ><Send width="20px" color="#0080ff" /></LinkButton
+      btn_background="#0080ff"><Send width="20px" color="#0080ff" /></LinkButton
     >
   {/if}
   <LinkButton
-    on:click="{() => backToMenu()}"
+    on:click="{() => room.backToMenu()}"
     btn_width="90%"
     value="Back To Menu"
     btn_background="#13a8e0"><Logout width="20px" color="#13a8e0" /></LinkButton

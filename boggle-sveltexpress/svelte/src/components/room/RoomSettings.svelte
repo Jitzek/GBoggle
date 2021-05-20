@@ -4,18 +4,27 @@
   import { SelectInput } from "@components/inputs";
   import LinkButton from "@components/LinkButton.svelte";
   import { Shuttle } from "@components/svg/index.js";
-  import type { Socket } from "socket.io-client";
   import CheckboxInput from "../inputs/CheckboxInput.svelte";
+  import { GameType, Room } from "./objects/Room";
 
-  export let roomId: string;
-  export let isHost = false;
-  export let socket: Socket;
-  export let singleplayer = false;
+  export let room: Room;
 
-  let rounds_value: number;
-  let round_time_value: number;
-  let language_value: string;
-  let unique_words_only_value: boolean = true;
+  let rounds_value: number = room.roomSettings.rounds;
+  let round_time_value: number = room.roomSettings.roundTime;
+  let language_value: string = room.roomSettings.language;
+  let unique_words_only_value: boolean = room.roomSettings.uniqueWordsOnly;
+
+  // Could be replaced with svelte stores
+  room.roomSettings.setSettingsChangedCallback(
+    (rounds: number, roundTime: number, language: string, uniqueWordsOnly: boolean) => {
+      rounds_value = rounds;
+      round_time_value = roundTime;
+      language_value = language;
+      unique_words_only_value = uniqueWordsOnly;
+  });
+
+  let isHost = room.hostId === room.client.id;
+  let singleplayer = room.gametype === GameType.SINGLEPLAYER;
 
   let inviteLink: HTMLElement;
 
@@ -35,29 +44,18 @@
     document.execCommand("copy");
   }
 
-  socket.emit("request_settings");
-  socket.on(
-    "settings_changed",
-    (rounds: number, round_time: number, language: string, unique_words_only: boolean) => {
-      rounds_value = rounds;
-      round_time_value = round_time;
-      language_value = language;
-      unique_words_only_value = unique_words_only;
-    }
-  );
-
   const rounds_setting_changed = () =>
-    socket.emit("rounds_setting_changed", rounds_value);
+    room.roomSettings.changeRounds(rounds_value);
   const round_time_setting_changed = () =>
-    socket.emit("round_time_setting_changed", round_time_value);
+    room.roomSettings.changeRoundTime(round_time_value);
   const language_setting_changed = () =>
-    socket.emit("language_setting_changed", language_value);
+    room.roomSettings.changeLanguage(language_value);
   const unique_words_only_setting_changed = () =>
-    socket.emit("unique_words_only_setting_changed", unique_words_only_value);
+    room.roomSettings.changeUniqueWordsOnly(unique_words_only_value);
 
   function start_game() {
     if (!isHost && !singleplayer) return;
-    socket.emit("start_game");
+    room.startGame();
   }
 </script>
 
@@ -128,7 +126,7 @@
     <table class="invite-container" on:click="{() => copyElement(inviteLink)}">
       <td class="invite-link-container">
         <span bind:this="{inviteLink}" class="invite-link"
-          >{`http://${window.location.host}/?invite-link=${roomId}`}</span
+          >{`http://${window.location.host}/?invite-link=${room.uuid}`}</span
         >
       </td>
       <td class="copy-btn-container">
