@@ -128,16 +128,18 @@
     >
   </div>
 </Modal>
-<Modal
-  id="endscreen_modal"
-  show="{roomState === RoomState.INGAME && !inProgress}"
-  padding_top="10vh"
-  z_index="{9}"
->
-  <div class="endscreen-modal-content">
-    <EndScreen room="{room}" players="{players}" />
-  </div>
-</Modal>
+{#if roomState === RoomState.INGAME && !inProgress}
+  <Modal
+    id="endscreen_modal"
+    show="{roomState === RoomState.INGAME && !inProgress}"
+    padding_top="10vh"
+    z_index="{9}"
+  >
+    <div class="endscreen-modal-content">
+      <EndScreen room="{room}" players="{players}" />
+    </div>
+  </Modal>
+{/if}
 {#if connected}
   <div class="room-container">
     <div class="players-component" class:players_invisible>

@@ -12,21 +12,17 @@
   export let room: RoomObject;
   export let players: PlayerObject[];
 
-
   let players_copy: PlayerObject[];
   let winner: PlayerObject;
 
-  $: {
-    players;
-    let _players_copy = [];
-    players.forEach((player) => {
-      _players_copy.push(player);
-    });
-    players_copy = _players_copy;
+  let _players_copy = [];
+  players.forEach((player) => {
+    _players_copy.push(Object.assign({}, player));
+  });
+  players_copy = _players_copy;
 
-    // players should already be sorted
-    winner = players_copy[0];
-  }
+  // players should already be sorted
+  winner = players_copy[0];
 </script>
 
 <div class="endscreen-container">
@@ -50,7 +46,6 @@
   <table class="players-table">
     {#each players_copy as player}
       {#if player.uuid !== winner.uuid}
-        {console.log(player.name)}
         <Player
           name="{player.name}"
           avatar="{player.avatar}"

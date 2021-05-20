@@ -94,6 +94,7 @@ export class Game {
         this._foundWords.push(word);
         this.foundWords.set(this._foundWords);
 
+        // Real-time score for current client if words don't have to be unique (no point deduction)
         if (this.settings.uniqueWordsOnly === false && score) {
             this.playerScore += score;
             this.playerScoreChangedCallback(this.playerScore);
