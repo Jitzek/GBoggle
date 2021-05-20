@@ -121,7 +121,6 @@
   socket.on("game_started", (_total_rounds: number) => {
     console.log("game started");
     total_rounds = _total_rounds;
-    console.log(total_rounds);
     showEndscreenModal = false;
     room_state = ROOM_STATE.INGAME;
   });

@@ -9,6 +9,7 @@
   import Modal from "@components/Modal.svelte";
   import type { PlayersObject } from "../room/PlayersObject";
   import UserIcon from "@components/UserIcon.svelte";
+  import BitText from "@components/BitText.svelte";
 
   export let socket: Socket;
   export let uuid: string;
@@ -23,7 +24,10 @@
   let next_round = 1;
   let players_with_found_words: Map<string, string[]>;
   let players_with_duplicate_words: Map<string, string[]>;
-  let duplicated_words_current_player: Map<string, string[]>;
+  let players_with_score_gained: Map<string, number>;
+
+  let duplicated_words_of_current_player: Map<string, string[]>;
+  let score_gained_of_current_player: number;
 
   $: {
     selected_dice;
@@ -80,6 +84,10 @@
     return true;
   }
 
+  socket.on("game_started", (_total_rounds: number) => {
+    current_round = 1;
+  });
+
   socket.on("round_started", (layout: string[], round: number) => {
     console.log(`Starting round ${round}`);
     reset_dice_selection();
@@ -118,23 +126,31 @@
     (
       _next_round: number,
       _players_with_found_words: string,
-      _players_with_duplicate_words: string
+      _players_with_duplicate_words: string,
+      _players_with_score_gained: string
     ) => {
       next_round = _next_round;
       if (_players_with_duplicate_words) {
         players_with_duplicate_words = new Map<string, string[]>(
           JSON.parse(_players_with_duplicate_words)
         );
-        duplicated_words_current_player =
+        duplicated_words_of_current_player =
           getDuplicatedWordsWithPlayerIdsForCurrentPlayer();
-        console.log(duplicated_words_current_player);
-        console.log(duplicated_words_current_player.size);
+        console.log(duplicated_words_of_current_player);
+        console.log(duplicated_words_of_current_player.size);
       }
       if (_players_with_found_words) {
         players_with_found_words = new Map<string, string[]>(
           JSON.parse(_players_with_found_words)
         );
       }
+      if (_players_with_score_gained) {
+        players_with_score_gained = new Map<string, number>(
+          JSON.parse(_players_with_score_gained)
+        );
+        score_gained_of_current_player = players_with_score_gained.get(socket.id) || 0;
+      }
+      console.log(players_with_score_gained);
       console.log("round ended");
       reset_dice_selection();
     }
@@ -146,7 +162,7 @@
     players_with_duplicate_words.get(socket.id).forEach((word) => {
       duplicate_word_with_player_ids.set(word, []);
       players_with_duplicate_words.forEach((words: string[], player_id: string) => {
-        if (player_id != socket.id && words.includes(word)) {
+        if (words.includes(word)) {
           duplicate_word_with_player_ids.get(word)?.push(player_id);
         }
       });
@@ -240,12 +256,12 @@
     {:else}
       <h1>Game ends in {next_round_time} seconds</h1>
     {/if}
-    {#if duplicated_words_current_player && duplicated_words_current_player.size > 0}
+    {#if duplicated_words_of_current_player && duplicated_words_of_current_player.size > 0}
       <div style="margin-top: 2rem;"></div>
       <h3>Duplicate Words (No points awarded):</h3>
       <div class="duplicate-words-container">
         <table class="duplicate-words-table">
-          {#each [...duplicated_words_current_player] as [word, player_ids]}
+          {#each [...duplicated_words_of_current_player] as [word, player_ids]}
             <tr>
               <td><strike>{word}</strike></td>
               {#each player_ids as player_id}
@@ -261,6 +277,12 @@
             </tr>
           {/each}
         </table>
+      </div>
+      <div style="margin-bottom: 2rem;"></div>
+    {/if}
+    {#if score_gained_of_current_player}
+      <div class="score-gained-container">
+        <BitText color="#fff" fontSize="2rem" value="+{score_gained_of_current_player}" />
       </div>
     {/if}
   </div>
@@ -330,5 +352,9 @@
         padding-right: 0.5rem;
       }
     }
+  }
+
+  .score-gained-container {
+    text-align: left;
   }
 </style>

@@ -15,10 +15,16 @@ export class Game {
     next_round_timer: number = 0;
     current_round: number = 0;
     round_in_progress = false;
+    player_snapshot!: Player[];
 
     constructor(room: Room, room_settings: RoomSettings) {
         this.room = room;
         this.room_settings = room_settings;
+    }
+
+    private snapshotPlayers() {
+        this.player_snapshot = [];
+        this.room.players.forEach((player) => { this.player_snapshot.push(Object.assign({}, player)); });
     }
 
     public async start() {
@@ -137,6 +143,7 @@ export class Game {
             // Second passed
             this.room.emit("next_round_timer_changed", (this.next_round_time - this.next_round_timer));
         }, () => {
+            this.snapshotPlayers();
             this.current_round++;
             if (this.current_round > this.room_settings.rounds) {
                 // Game ended
@@ -181,11 +188,19 @@ export class Game {
 
                     let players_and_found_words = new Map<string, string[]>();
                     let players_and_duplicate_words = new Map<string, string[]>();
+                    let players_and_score_gained = new Map<string, number>();
                     this.room.players.forEach((player) => {
                         players_and_found_words.set(player.id, player.found_words);
                         players_and_duplicate_words.set(player.id, player.duplicate_words);
+                        players_and_score_gained.set(player.id, player.score - (this.player_snapshot.find((_player) => _player.id === player.id)?.score || 0))
                     });
-                    this.room.emit("round_ended", this.current_round + 1, JSON.stringify(Array.from(players_and_found_words)), JSON.stringify(Array.from(players_and_duplicate_words)));
+                    this.room.emit(
+                        "round_ended", 
+                        this.current_round + 1, 
+                        JSON.stringify(Array.from(players_and_found_words)), 
+                        JSON.stringify(Array.from(players_and_duplicate_words)), 
+                        JSON.stringify(Array.from(players_and_score_gained))
+                    );
                     // this.room.emit("round_ended", this.current_round + 1, JSON.stringify(Array.from(this.getDuplicateWordWithPlayerIds())));
                 } else {
                     // Non-unique words allowed
