@@ -19,7 +19,6 @@
   } from "../components/room/objects/Room";
   import { User as UserObject } from "../components/room/objects/User";
   import type { Player as PlayerObject } from "../components/room/objects/Player";
-  import type { Game as GameObject } from "../components/room/objects/game/Game";
 
   export let socket: Socket;
   export let id: string;
@@ -40,17 +39,9 @@
     new UserObject("", nickname, avatar, victory_audio)
   );
 
-  let game: GameObject;
-
   let inProgress: boolean = false;
-  room.setGameStartedCallback(() => {
-    game = room.game;
-    inProgress = true;
-  });
-
-  room.setGameEndedCallback(() => {
-    game = undefined;
-    inProgress = false;
+  room.gameInProgress.subscribe((value: boolean) => {
+    inProgress = value;
   });
 
   let roomState: RoomState;
@@ -59,18 +50,18 @@
   });
 
   let players: PlayerObject[] = [];
-  room.setPlayersChangedCallback((newPlayers: PlayerObject[]) => {
-    players = newPlayers;
+  room.players.subscribe((value: PlayerObject[]) => {
+    players = value;
   });
 
   let passwordValue: string;
-  room.setIncorrectPasswordCallback(() => {
-    passwordValue = "";
+  room.passwordWasIncorrect.subscribe((value: boolean) => {
+    if (!value) passwordValue = "";
   });
 
   let connected = false;
-  room.setConnectionStatusChangedCallback((_connected: boolean) => {
-    connected = _connected;
+  room.connectionStatus.subscribe((value: boolean) => {
+    connected = value;
   });
 
   let passwordProtected = false;
@@ -177,7 +168,7 @@
       {#if roomState === RoomState.LOBBY}
         <RoomSettings room="{room}" />
       {:else if roomState == RoomState.INGAME}
-        <div><GamePage game="{game}" /></div>
+        <div><GamePage room="{room}" /></div>
       {/if}
     </div>
     <div class="chat-component"></div>

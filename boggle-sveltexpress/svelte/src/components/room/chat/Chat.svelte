@@ -11,8 +11,8 @@
   let chatContainer: HTMLElement;
   let messageBlocks: MessageBlockObject[] = [];
 
-  room.chat.setOnMessageCallback(() => {
-    messageBlocks = room.chat.messageBlocks;
+  room.chat.messageBlocks.subscribe((value: MessageBlockObject[]) => {
+    messageBlocks = value;
   });
 
   let newMessagesButton: HTMLButtonElement;

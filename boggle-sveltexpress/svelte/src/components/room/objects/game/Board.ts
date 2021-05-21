@@ -1,7 +1,8 @@
+import { ObservableValue } from "src/utils/ObservableValue";
 import { Dice } from "./Dice";
 
 export class BoardFactory {
-    constructor() {}
+    constructor() { }
 
     static getBoard(layout: string[]): Board {
         const _layout: Dice[] = [];
@@ -13,65 +14,48 @@ export class BoardFactory {
 }
 
 export class Board {
-    layout: Dice[];
+    layout = new ObservableValue<Dice[]>([]);
     selectedDice: Dice[] = [];
     allowedPositionDiffs = [0, 1, 3, 4, 5];
 
-    boardLayoutChangedCallback: (newLayout: Dice[]) => void;
-    diceSelectedCallback: () => void;
-
     constructor(layout: Dice[]) {
-        this.setLayout(layout);
-    }
- 
-    public setDiceSelectedCallback(callback: () => void) {
-        this.diceSelectedCallback = callback;
-    }
-
-    public setBoardLayoutChangedCallback(callback: (newLayout: Dice[]) => void) {
-        this.boardLayoutChangedCallback = callback;
+        this.layout.set(layout);
     }
 
     public deselectAllDice() {
         this.selectedDice = [];
-        this.layout.forEach((dice: Dice) => dice.selected = false);
-        this.boardLayoutChangedCallback(this.layout);
-        this.diceSelectedCallback();
+        this.layout.update((layout) => {
+            layout.forEach((dice: Dice) => dice.selected = false);
+        });
     }
 
     public selectDice(position: number) {
-        let dice = this.layout.find((e) => e.position === position);
-        if (!dice) {
-            return;
-        }
-        // Check if dice is allowed to be pressed
-        if (!this.allowedDicePress(dice)) {
-            // Dice is not allowed to be (de)selected
-            return;
-        }
-        dice.toggle();
-        if (dice.selected) {
-            // Add to pressed dice
-            this.selectedDice.push(dice);
-        } else {
-            // Remove from pressed dice, if it was the last selected one
-            this.selectedDice = this.selectedDice.filter(
-                (_dice) => _dice.position !== dice.position
-            );
-        }
-        this.setLayout(this.layout);
-        this.diceSelectedCallback();
+        this.layout.update((layout) => {
+            let dice = layout.find((e) => e.position === position);
+            if (!dice) {
+                return;
+            }
+            // Check if dice is allowed to be pressed
+            if (!this.allowedDicePress(dice)) {
+                // Dice is not allowed to be (de)selected
+                return;
+            }
+            dice.toggle();
+            if (dice.selected) {
+                // Add to pressed dice
+                this.selectedDice.push(dice);
+            } else {
+                // Remove from pressed dice, if it was the last selected one
+                this.selectedDice = this.selectedDice.filter(
+                    (_dice) => _dice.position !== dice.position
+                );
+            }
+        });
+
     }
 
     public getSelectedDiceAsString() {
         return this.selectedDice.map((dice) => dice.value).join("");
-    }
-
-    protected setLayout(layout: Dice[]) {
-        this.layout = layout;
-        if (this.boardLayoutChangedCallback) {
-            this.boardLayoutChangedCallback(this.layout);
-        }
     }
 
     private allowedDicePress(dice: Dice): boolean {
@@ -84,10 +68,10 @@ export class Board {
             // If dice is selected (deselect request) but it's not the last selected dice, return false
             return false;
         }
-        if (this.selectedDice.length > this.layout.length) {
+        if (this.selectedDice.length > this.layout.get().length) {
             return false;
         }
-        if (dice.position > this.layout.length) {
+        if (dice.position > this.layout.get().length) {
             return false;
         }
         const position_dif = Math.abs(dice.position - lastSelectedDice.position);

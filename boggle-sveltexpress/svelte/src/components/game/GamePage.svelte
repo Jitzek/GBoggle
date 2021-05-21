@@ -10,11 +10,11 @@
   import type { Player } from "../room/objects/Player";
   import type { Board } from "../room/objects/game/Board";
   import type { Dice as DiceObject } from "../room/objects/game/Dice";
+  import type { Room as RoomObject } from "../room/objects/Room";
   import type { Game as GameObject } from "../room/objects/game/Game";
 
-  export let game: GameObject;
+  export let room: RoomObject;
 
-  let layout: DiceObject[];
   let selectedDiceString: string = "";
   let scoreOfCurrentPlayer: number = 0;
   let foundWords: string[] = [];
@@ -24,28 +24,26 @@
   let duplicateWordsOfCurrentPlayerWithOtherPlayers: Map<string, Player[]>;
   let scoreGainedOfCurrentPlayer: number;
 
+  let game: GameObject;
+  let board: Board;
+  let layout: DiceObject[];
+
+  room.game.subscribe((value) => {
+    game = value;
+  });
+
   $: {
     game;
     if (game) {
-      game.setBoardChangedCallback((newBoard: Board) => {
-        layout = newBoard.layout;
-        newBoard.setBoardLayoutChangedCallback((newLayout: DiceObject[]) => {
-          layout = newLayout;
-        });
-        newBoard.setDiceSelectedCallback(() => {
-          layout = game.board.layout;
-          selectedDiceString = game.board.getSelectedDiceAsString();
-        });
+      game.board.subscribe((value) => {
+        board = value;
       });
-
-      game.setPlayerScoreChangedCallback((newScore: number) => {
-        scoreOfCurrentPlayer = newScore;
+      game.playerScore.subscribe((_playerScore) => {
+        scoreOfCurrentPlayer = _playerScore;
       });
-
       game.foundWords.subscribe((value) => {
         foundWords = value;
       });
-
       game.roundTimer.subscribe((value) => {
         roundTimer = value;
       });
@@ -69,6 +67,17 @@
       nextRound = 1;
       roundTimer = 0;
       layout = [];
+    }
+  }
+
+  $: {
+    board;
+    if (board) {
+      layout = board.layout.get();
+      board.layout.subscribe((value) => {
+        layout = value;
+        selectedDiceString = board.getSelectedDiceAsString();
+      });
     }
   }
 </script>
@@ -130,7 +139,8 @@
     {#if layout}
       {#each layout as dice}
         <Dice
-          on:click="{() => game.board.selectDice(dice.position)}"
+          on:click="{() =>
+            game.board.update((board) => board.selectDice(dice.position))}"
           value="{dice.value}"
           selected="{dice.selected}"
         />

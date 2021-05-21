@@ -9,18 +9,22 @@
 
   export let room: Room;
 
-  let rounds_value: number = room.roomSettings.rounds;
-  let round_time_value: number = room.roomSettings.roundTime;
-  let language_value: string = room.roomSettings.language;
-  let unique_words_only_value: boolean = room.roomSettings.uniqueWordsOnly;
+  let rounds_value: number = room.roomSettings.rounds.get();
+  let round_time_value: number = room.roomSettings.roundTime.get();
+  let language_value: string = room.roomSettings.language.get();
+  let unique_words_only_value: boolean = room.roomSettings.uniqueWordsOnly.get();
 
-  // Could be replaced with svelte stores
-  room.roomSettings.setSettingsChangedCallback(
-    (rounds: number, roundTime: number, language: string, uniqueWordsOnly: boolean) => {
-      rounds_value = rounds;
-      round_time_value = roundTime;
-      language_value = language;
-      unique_words_only_value = uniqueWordsOnly;
+  room.roomSettings.rounds.subscribe((value) => {
+    rounds_value = value;
+  });
+  room.roomSettings.roundTime.subscribe((value) => {
+    round_time_value = value;
+  });
+  room.roomSettings.language.subscribe((value) => {
+    language_value = value;
+  });
+  room.roomSettings.uniqueWordsOnly.subscribe((value) => {
+    unique_words_only_value = value;
   });
 
   let isHost = room.hostId === room.client.id;

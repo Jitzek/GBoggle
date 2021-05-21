@@ -1,13 +1,12 @@
 import type { Socket } from "socket.io-client";
+import { ObservableValue } from "src/utils/ObservableValue";
 
 export class RoomSettings {
     client: Socket;
-    rounds: number = 1;
-    roundTime: number = 30;
-    language: string = "Dutch";
-    uniqueWordsOnly: boolean = true;
-
-    settingsChangedCallback: (rounds: number, roundTime: number, language: string, uniqueWordsOnly: boolean) => void;
+    rounds = new ObservableValue<number>(1);
+    roundTime = new ObservableValue<number>(30);
+    language = new ObservableValue<string>("Dutch");
+    uniqueWordsOnly = new ObservableValue<boolean>(true);
 
     constructor(client: Socket) {
         this.client = client;
@@ -20,10 +19,6 @@ export class RoomSettings {
                 this.on_settings_changed(rounds, round_time, language, unique_words_only)
         );
 
-    }
-
-    public setSettingsChangedCallback(callback: (rounds: number, roundTime: number, language: string, uniqueWordsOnly: boolean) => void) {
-        this.settingsChangedCallback = callback
     }
 
     public changeRounds(newRounds: number) {
@@ -43,13 +38,9 @@ export class RoomSettings {
     }
 
     private on_settings_changed(rounds: number, round_time: number, language: string, unique_words_only: boolean) {
-        this.rounds = rounds;
-        this.roundTime = round_time;
-        this.language = language;
-        this.uniqueWordsOnly = unique_words_only;
-
-        if (this.settingsChangedCallback) {
-            this.settingsChangedCallback(this.rounds, this.roundTime, this.language, this.uniqueWordsOnly);
-        }
+        this.rounds.set(rounds);
+        this.roundTime.set(round_time);
+        this.language.set(language);
+        this.uniqueWordsOnly.set(unique_words_only)
     }
 }

@@ -5,6 +5,7 @@ import { Player } from "./Player";
 import { RoomSettings } from "./RoomSettings";
 import type { User } from "./User";
 import { Writable, writable } from 'svelte/store';
+import { ObservableValue } from "src/utils/ObservableValue";
 
 export enum RoomState {
     LOBBY,
@@ -21,9 +22,9 @@ export class Room {
     uuid: string;
     client: Socket;
     playerId!: string;
-    players: Player[] = [];
+    players = new ObservableValue<Player[]>([]);
     roomSettings: RoomSettings;
-    game!: Game;
+    game = new ObservableValue<Game>(null);
     state: Writable<RoomState>;
     chat!: Chat;
 
@@ -34,11 +35,9 @@ export class Room {
     passwordProtected: Writable<boolean> = writable(false);
     gametype!: GameType;
 
-    incorrectPasswordCallback: { (): void };
-    connectionStatusChangedCallback: { (connected: boolean): void };
-    playersChangedCallback: { (newPlayers: Player[]): void };
-    gameStartedCallback: { (): void };
-    gameEndedCallback: { (): void };
+    passwordWasIncorrect = new ObservableValue<boolean>(false);
+    connectionStatus = new ObservableValue<boolean>(false);
+    gameInProgress = new ObservableValue<boolean>(false);
 
     playingVictoryAudio = new Audio();
 
@@ -50,26 +49,6 @@ export class Room {
         this.state = writable(RoomState.LOBBY);
 
         this.init();
-    }
-
-    public setIncorrectPasswordCallback(callback: () => void) {
-        this.incorrectPasswordCallback = callback;
-    }
-
-    public setConnectionStatusChangedCallback(callback: (connected: boolean) => void) {
-        this.connectionStatusChangedCallback = callback;
-    }
-
-    public setPlayersChangedCallback(callback: { (newPlayers: Player[]): void; }) {
-        this.playersChangedCallback = callback;
-    }
-
-    public setGameStartedCallback(callback: { (): void; }) {
-        this.gameStartedCallback = callback;
-    }
-
-    public setGameEndedCallback(callback: { (): void; }) {
-        this.gameEndedCallback = callback;
     }
 
     private init() {
@@ -124,15 +103,17 @@ export class Room {
     }
 
     private on_game_started(totalRounds: number) {
-        this.game = new Game(this.client, this.players, this.roomSettings, this.playerId, totalRounds);
+        this.game.set(new Game(this.client, this.players, this.roomSettings, this.playerId, totalRounds));
         this.state.set(RoomState.INGAME);
-        this.gameStartedCallback();
+        this.gameInProgress.set(true);
     }
 
     private on_game_ended(victoryAudio: string) {
-        this.gameEndedCallback();
+        this.gameInProgress.set(false);
         if (this.game) {
-            this.game.stop();
+            this.game.update((game) => {
+                game.stop()
+            });
         }
         this.playingVictoryAudio = new Audio(victoryAudio);
         this.playingVictoryAudio.volume = 0.5;
@@ -155,27 +136,24 @@ export class Room {
         }
 
         this.joined = true;
-        if (this.connectionStatusChangedCallback) {
-            this.connectionStatusChangedCallback(this.joined);
-        }
+        this.connectionStatus.set(this.joined);
         this.chat = new Chat(this.client, this.players);
     }
 
     private on_player_joined(uuid: string, name: string, avatar: string, score: number) {
-        this.players.push(new Player(uuid, name, avatar, score));
+        // this.players.push(new Player(uuid, name, avatar, score));
+        this.players.update(players => {
+            players.push(new Player(uuid, name, avatar, score));
+        });
         this.updatePlayers();
     }
 
     private on_player_removed(uuid: string) {
-        this.players = this.players.filter((player) => player.uuid !== uuid);
+        this.players.set(this.players.get().filter((player) => player.uuid !== uuid));
         this.updatePlayers();
     }
 
     private on_disconnect() {
-
-    }
-
-    private requestPassword() {
 
     }
 
@@ -192,13 +170,11 @@ export class Room {
     }
 
     private on_incorrect_password() {
-        if (this.incorrectPasswordCallback) {
-            this.incorrectPasswordCallback();
-        }
+        this.passwordWasIncorrect.set(false);
     }
 
     private on_player_score_changed(uuid: string, score: number) {
-        this.players.find((player) => player.uuid === uuid).score = score;
+        this.players.update(players => players.find((player) => player.uuid === uuid).score = score);
         this.updatePlayers();
     }
 
@@ -214,18 +190,16 @@ export class Room {
 
     private updatePlayers() {
         // Order alphabetically
-        this.players.sort((_p1: Player, _p2: Player) => _p1.name.localeCompare(_p2.name));
+        this.players.update(players => players.sort((_p1: Player, _p2: Player) => _p1.name.localeCompare(_p2.name)));
 
         // Order by score
-        this.players.sort((_p1: Player, _p2: Player) => {
+        this.players.update(players => players.sort((_p1: Player, _p2: Player) => {
             if (_p1.score == _p2.score) return 0;
             return _p1.score < _p2.score ? 1 : -1;
-        });
-
-        this.playersChangedCallback(this.players);
+        }));
     }
 
     public getPlayerById(id: string): Player | undefined {
-        return this.players.find(player => player.uuid === id);
+        return this.players.get().find(player => player.uuid === id);
     }
 }
