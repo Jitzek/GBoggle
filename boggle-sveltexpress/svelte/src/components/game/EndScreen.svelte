@@ -15,6 +15,13 @@
   let players_copy: PlayerObject[];
   let winner: PlayerObject;
 
+  /**
+   * The players variable will be dynamically updated when new players join/leave or their score get updated.
+   * To avoid this affecting the endscreen ranking make a copy and use this instead.
+   * 
+   * This will result in the endscreen displaying a snapshot of the end of the game which will not change if players leave
+   * or their scores get changed.
+  */
   let _players_copy = [];
   players.forEach((player) => {
     _players_copy.push(Object.assign({}, player));

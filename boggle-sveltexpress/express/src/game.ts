@@ -195,7 +195,6 @@ export class Game {
                         JSON.stringify(Array.from(players_and_duplicate_words)), 
                         JSON.stringify(Array.from(players_and_score_gained))
                     );
-                    // this.room.emit("round_ended", this.current_round + 1, JSON.stringify(Array.from(this.getDuplicateWordWithPlayerIds())));
                 } else {
                     // Non-unique words allowed
                     this.room.players.forEach((player) => {
@@ -206,7 +205,6 @@ export class Game {
                     });
                 }
 
-                // TODO: Send to each player which words were duplicates
                 this.room.emit("round_ended", this.current_round + 1);
                 this.startRound();
             });
