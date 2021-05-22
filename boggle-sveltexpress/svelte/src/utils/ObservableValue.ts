@@ -1,4 +1,4 @@
-declare type ObservableIdentifier = number;
+export declare type ObservableIdentifier = number;
 
 export class ObservableValue<T> {
     private _value: T;
@@ -16,7 +16,7 @@ export class ObservableValue<T> {
         this.notify();
     }
 
-    public update(callback: {(value: T): void;}) {
+    public update(callback: (value: T) => void) {
         callback(this._value);
         this.notify();
     }

@@ -24,22 +24,22 @@
   let duplicateWordsOfCurrentPlayerWithOtherPlayers: Map<string, Player[]>;
   let scoreGainedOfCurrentPlayer: number;
 
-  let game: GameObject;
+  let game: GameObject = room.game.get();
   let board: Board;
   let layout: DiceObject[];
 
   room.game.subscribe((value) => {
     game = value;
-  });
-
-  $: {
-    game;
     if (game) {
       game.board.subscribe((value) => {
         board = value;
+        if (board) {
+          layout = board.layout.get();
+          selectedDiceString = board.getSelectedDiceAsString();
+        }
       });
-      game.playerScore.subscribe((_playerScore) => {
-        scoreOfCurrentPlayer = _playerScore;
+      game.playerScore.subscribe((value) => {
+        scoreOfCurrentPlayer = value;
       });
       game.foundWords.subscribe((value) => {
         foundWords = value;
@@ -68,18 +68,7 @@
       roundTimer = 0;
       layout = [];
     }
-  }
-
-  $: {
-    board;
-    if (board) {
-      layout = board.layout.get();
-      board.layout.subscribe((value) => {
-        layout = value;
-        selectedDiceString = board.getSelectedDiceAsString();
-      });
-    }
-  }
+  });
 </script>
 
 {#if game}
@@ -140,7 +129,7 @@
       {#each layout as dice}
         <Dice
           on:click="{() =>
-            game.board.update((board) => board.selectDice(dice.position))}"
+            game?.board?.update((board) => board?.selectDice(dice.position))}"
           value="{dice.value}"
           selected="{dice.selected}"
         />

@@ -112,7 +112,7 @@ export class Room {
         this.gameInProgress.set(false);
         if (this.game) {
             this.game.update((game) => {
-                game.stop()
+                game.stop();
             });
         }
         this.playingVictoryAudio = new Audio(victoryAudio);

@@ -62,7 +62,7 @@ export class Game {
     }
 
     public submitWord() {
-        if (this.board.get() && this.board.get()!.selectedDice.length < 1) return;
+        if (!this.board.get() || this.board.get()!.selectedDice.length < 1) return;
         let selectedDicePositions = this.board.get()!.selectedDice.map((dice) => dice.position);
         this.client.emit("submit_word", selectedDicePositions);
 
@@ -83,7 +83,7 @@ export class Game {
 
         // Real-time score for current client if words don't have to be unique (no point deduction)
         if (this.settings.uniqueWordsOnly.get() === false && score) {
-            this.playerScore.update((playerScore) => playerScore += score);
+            this.playerScore.set(this.playerScore.get() + score);
         }
     }
 
