@@ -1,5 +1,7 @@
+import { Dice } from "./dice";
+
 export class Board {
-    layout: string[] = [];
+    layout: Dice[] = [];
     dice = [
         // Row 1
         ['R', 'I', 'F', 'O', 'B', 'X'], ['I', 'F', 'E', 'H', 'E', 'Y'], ['D', 'E', 'N', 'O', 'W', 'S'], ['U', 'T', 'O', 'K', 'N', 'D'],
@@ -20,7 +22,7 @@ export class Board {
         this.layout = [];
         // Layout is 4x4 (so 16 positions)
         for (let i = 0; i < 16; i++) {
-            this.layout.push(this.getRandomLetterOfDice(i));
+            this.layout.push(new Dice(this.getRandomLetterOfDice(i), i, false, [4, 4]));
         }
     }
 

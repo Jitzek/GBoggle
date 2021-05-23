@@ -23,6 +23,7 @@
   let nextRound: number;
   let duplicateWordsOfCurrentPlayerWithOtherPlayers: Map<string, Player[]>;
   let scoreGainedOfCurrentPlayer: number;
+  let selectableDice: DiceObject[] = [];
 
   let game: GameObject = room.game.get();
   let board: Board;
@@ -36,6 +37,7 @@
         if (board) {
           layout = board.layout.get();
           selectedDiceString = board.getSelectedDiceAsString();
+          selectableDice = board.getSelectableDice();
         }
       });
       game.playerScore.subscribe((value) => {
@@ -67,6 +69,7 @@
       nextRound = 1;
       roundTimer = 0;
       layout = [];
+      selectableDice = [];
     }
   });
 </script>

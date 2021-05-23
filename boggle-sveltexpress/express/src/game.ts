@@ -11,7 +11,7 @@ export class Game {
     board!: Board;
     room_settings: RoomSettings;
     round_timer: number = 0;
-    next_round_time: number = 10;
+    next_round_time: number = 1;
     next_round_timer: number = 0;
     current_round: number = 0;
     round_in_progress = false;
@@ -62,7 +62,7 @@ export class Game {
             if (position < 0 || position > this.board.layout.length) {
                 return this.emitWordStatus(socket, "", false, "Submitted position exceeded possible range of positions");
             }
-            word_arr.push(this.board.layout[position]);
+            word_arr.push(this.board.layout[position].value);
         }
         const word: string = word_arr.join("");
         if (word.length < 3) {
@@ -76,14 +76,12 @@ export class Game {
         if (positions.length > this.board.layout.length) {
             return this.emitWordStatus(socket, word, false, `Submitted word exceeded maximum possible size. Size of board: ${this.board.layout.length}, Length of word ${positions.length}`);
         }
-        const allowed_position_difs = [1, 3, 4, 5];
         for (let i = 0; i < positions.length; i++) {
             if (i == 0) {
                 // First position is always valid
                 continue;
             }
-            const position_dif = Math.abs(positions[i] - positions[i - 1]);
-            if (!allowed_position_difs.includes(position_dif)) {
+            if (positions[i] === positions[i - 1] || !this.board.layout[positions[i - 1]].boundsWith(this.board.layout[positions[i]])) {
                 return this.emitWordStatus(socket, "", false, "Submitted order of positions were not allowed");
             }
         }
@@ -150,7 +148,7 @@ export class Game {
             // Create new board
             this.board = new Board();
             console.log(`🎮 [game]: Starting round ${this.current_round}`);
-            this.room.emit("round_started", this.board.layout, this.current_round);
+            this.room.emit("round_started", this.board.layout.map((dice) => dice.value), this.current_round);
             this.room.emit("round_timer_changed", this.room_settings.round_time);
             this.roundTimer(() => {
                 // Second Passed

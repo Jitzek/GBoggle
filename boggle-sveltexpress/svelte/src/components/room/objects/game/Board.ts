@@ -7,7 +7,7 @@ export class BoardFactory {
     static getBoard(layout: string[]): Board {
         const _layout: Dice[] = [];
         layout.forEach((letter, i) => {
-            _layout.push(new Dice(letter, i, false));
+            _layout.push(new Dice(letter, i, false, [4, 4]));
         });
         return new Board(_layout);
     }
@@ -27,6 +27,22 @@ export class Board {
         this.layout.update((layout) => {
             layout.forEach((dice: Dice) => dice.selected = false);
         });
+    }
+
+    public getSelectableDice() {
+        // Get Last selected dice
+        const lastSelectedDice = this.selectedDice.length > 0 ? this.selectedDice[this.selectedDice.length - 1] : undefined;
+        if (!lastSelectedDice) {
+            // Any dice is selectable
+            return this.layout.get();
+        }
+        console.log(lastSelectedDice);
+        let selectableDice: Dice[] = this.layout.get().filter((dice) => {
+            return dice.position !== lastSelectedDice.position && 
+            !dice.selected && 
+            this.allowedPositionDiffs.includes(Math.abs(lastSelectedDice.position - dice.position));
+        });
+        return selectableDice;
     }
 
     public selectDice(position: number) {
@@ -74,8 +90,11 @@ export class Board {
         if (dice.position > this.layout.get().length) {
             return false;
         }
-        const position_dif = Math.abs(dice.position - lastSelectedDice.position);
-        if (!this.allowedPositionDiffs.includes(position_dif)) {
+        // const position_dif = Math.abs(dice.position - lastSelectedDice.position);
+        // if (!this.allowedPositionDiffs.includes(position_dif)) {
+        //     return false;
+        // }
+        if (lastSelectedDice.position !== dice.position && !lastSelectedDice.boundsWith(dice)) {
             return false;
         }
         return true;
