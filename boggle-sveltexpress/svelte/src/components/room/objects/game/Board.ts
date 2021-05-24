@@ -36,7 +36,6 @@ export class Board {
             // Any dice is selectable
             return this.layout.get();
         }
-        console.log(lastSelectedDice);
         let selectableDice: Dice[] = this.layout.get().filter((dice) => {
             return dice.position !== lastSelectedDice.position && 
             !dice.selected && 
@@ -90,10 +89,6 @@ export class Board {
         if (dice.position > this.layout.get().length) {
             return false;
         }
-        // const position_dif = Math.abs(dice.position - lastSelectedDice.position);
-        // if (!this.allowedPositionDiffs.includes(position_dif)) {
-        //     return false;
-        // }
         if (lastSelectedDice.position !== dice.position && !lastSelectedDice.boundsWith(dice)) {
             return false;
         }
