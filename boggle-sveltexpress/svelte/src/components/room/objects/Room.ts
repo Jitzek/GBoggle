@@ -141,7 +141,6 @@ export class Room {
     }
 
     private on_player_joined(uuid: string, name: string, avatar: string, score: number) {
-        // this.players.push(new Player(uuid, name, avatar, score));
         this.players.update(players => {
             players.push(new Player(uuid, name, avatar, score));
         });

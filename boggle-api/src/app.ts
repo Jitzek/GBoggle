@@ -1,7 +1,6 @@
 import express from 'express';
 import cors from 'cors';
 import { wordExists } from "./scripts/word-lookup";
-// import { Tedis } from "redis-typescript";
 import { readFileSync } from "fs";
 import redis from "redis";
 import { urlencoded } from "body-parser";
@@ -13,15 +12,17 @@ const api_key = readFileSync("./.api_key", "utf-8");
 
 const redis_client = redis.createClient(redis_port);
 const redis_password = readFileSync("./.redis_password", "utf-8");
+
+// Always attempt authenticate before configuration
+redis_client.auth(redis_password);
+
+// Set the requirepass
 redis_client.config("SET", "requirepass", redis_password);
+
+// Authenticate again after setting the requirepass
 redis_client.auth(redis_password);
 
 let DATABASE_CONNECTED = false;
-/*const tedis = new Tedis({
-  port: 6379,
-  host: "127.0.0.1",
-  password: readFileSync("./.redis_password", "utf-8")
-});*/
 
 redis_client.on("connect", () => {
   DATABASE_CONNECTED = true;
