@@ -2,7 +2,7 @@
 
 ## Quick Start
 
-1. Make sure nodejs and npm is installed
+1. Make sure nodejs and npm are installed
    - Debian: `curl -fsSL https://deb.nodesource.com/setup_16.x | bash -` (run as root, not sudo) (version might vary)
      `apt install nodejs` (run as root)
    - Arch Linux: `pacman -S nodejs npm`
