@@ -27,7 +27,7 @@
 
   let game: GameObject = room.game.get();
   let board: Board;
-  let layout: DiceObject[];
+  let layout: DiceObject[] = [];
 
   room.game.subscribe((value) => {
     game = value;
@@ -35,7 +35,9 @@
       game.board.subscribe((value) => {
         board = value;
         if (board) {
-          layout = board.layout.get();
+          board.layout.subscribe((_layout) => {
+            layout = _layout;
+          });
           selectedDiceString = board.getSelectedDiceAsString();
           selectableDice = board.getSelectableDice();
         }
@@ -128,16 +130,15 @@
 </BasicContainer>
 <BasicContainer style="margin: 10px; padding: 10px">
   <div class="game">
-    {#if layout}
-      {#each layout as dice}
-        <Dice
-          on:click="{() =>
-            game?.board?.update((board) => board?.selectDice(dice.position))}"
-          value="{dice.value}"
-          selected="{dice.selected}"
-        />
-      {/each}
-    {/if}
+    {#each layout as dice}
+      <Dice
+        on:click="{() =>
+          game?.board?.update((board) => board?.selectDice(dice.position))}"
+        dice="{dice}"
+        selectableDice="{selectableDice}"
+        lastSelected="{board?.selectedDice[board?.selectedDice.length - 1] === dice}"
+      />
+    {/each}
   </div>
 </BasicContainer>
 <BasicContainer style="margin: 10px">

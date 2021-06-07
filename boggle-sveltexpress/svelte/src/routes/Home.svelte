@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { Socket } from "socket.io-client";
-  import { setCookie, deleteCookie } from "@utils/cookies";
+  import { setCookie } from "@utils/cookies";
 
   import BasicContainer from "@components/BasicContainer.svelte";
   import { TextInput } from "@components/inputs/index";
@@ -235,11 +235,6 @@
   .buttons {
     padding: 2rem 0 2rem 0;
   }
-  /* .topbuttons{
-        display: flex;
-        justify-content: space-evenly;
-        margin-bottom: 1rem;
-    } */
 
   .play-modal-content {
     margin: auto;

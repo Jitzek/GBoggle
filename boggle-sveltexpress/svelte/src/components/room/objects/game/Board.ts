@@ -16,7 +16,6 @@ export class BoardFactory {
 export class Board {
     layout = new ObservableValue<Dice[]>([]);
     selectedDice: Dice[] = [];
-    allowedPositionDiffs = [0, 1, 3, 4, 5];
 
     constructor(layout: Dice[]) {
         this.layout.set(layout);
@@ -38,8 +37,7 @@ export class Board {
         }
         let selectableDice: Dice[] = this.layout.get().filter((dice) => {
             return dice.position !== lastSelectedDice.position && 
-            !dice.selected && 
-            this.allowedPositionDiffs.includes(Math.abs(lastSelectedDice.position - dice.position));
+            !dice.selected && lastSelectedDice.boundsWith(dice);
         });
         return selectableDice;
     }

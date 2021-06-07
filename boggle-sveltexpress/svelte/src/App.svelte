@@ -25,7 +25,9 @@ import GamePage from "./components/game/GamePage.svelte";
 </script>
 
 <main>
-  <GboggleLogo size="20rem" on:click="{onLogoClick}" clickable={true} />
+  <a href="http://{location.host}/">
+    <GboggleLogo size="20rem"  />
+  </a>
   <Router url="{url}">
     <Route path="/">
       <Home socket="{socket}" />
