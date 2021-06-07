@@ -11,7 +11,7 @@ export class Game {
     board!: Board;
     room_settings: RoomSettings;
     round_timer: number = 0;
-    next_round_time: number = 1;
+    next_round_time: number = 10;
     next_round_timer: number = 0;
     current_round: number = 0;
     round_in_progress = false;
@@ -130,11 +130,11 @@ export class Game {
             player.resetFoundWords();
             player.resetDuplicateWords();
         });
-        // Announce round ended
         this.nextRoundTimer(() => {
             // Second passed
             this.room.emit("next_round_timer_changed", (this.next_round_time - this.next_round_timer));
         }, () => {
+            // Round ended
             this.snapshotPlayers();
             this.current_round++;
             if (this.current_round > this.room_settings.rounds) {
