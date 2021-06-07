@@ -4,8 +4,8 @@
   "description": "",
   "main": "express/app.ts",
   "scripts": {
-    "start": "ts-node express/app.ts",
-    "dev": "nodemon express/app.ts"
+    "start": "ts-node app.ts",
+    "dev": "nodemon app.ts"
   },
   "author": "",
   "license": "ISC",

@@ -1,5 +1,3 @@
-import type { Socket } from "socket.io";
-
 export class Player {
     uuid: string;
     name: string;
