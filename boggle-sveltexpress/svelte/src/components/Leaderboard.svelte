@@ -31,15 +31,12 @@
       return;
     }
     if (data["success"] === false) {
-      console.log(`Failed to get highscore data with reason: ${data["reason"]}`);
+      console.log(
+        `Failed to get highscore data with reason: ${data["reason"]}`
+      );
     }
     playerScores = data["values"];
   }
-
-  // $: {
-  //   playerScores;
-  //   playerScores = _.orderBy(playerScores, "score", "desc");
-  // }
 </script>
 
 <div>

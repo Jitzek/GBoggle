@@ -35,7 +35,7 @@
     (having no whitespace between named slots will also remove the warning)
     see https://github.com/sveltejs/svelte/issues/4546
    -->
-  {#if false}<slot></slot>{/if}
+  {#if false}<slot />{/if}
 </div>
 
 <style lang="scss">

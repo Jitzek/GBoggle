@@ -6,10 +6,10 @@
   import GboggleLogo from "@components/GBoggleLogo.svelte";
   import { deleteCookie } from "./utils/cookies";
   import { navigate } from "svelte-routing";
-import GamePage from "./components/game/GamePage.svelte";
+  import GamePage from "./components/game/GamePage.svelte";
 
   export let url = window.location.pathname;
-  
+
   // Socket connection is reset, leave current room
   deleteCookie("room_id");
 
@@ -26,7 +26,7 @@ import GamePage from "./components/game/GamePage.svelte";
 
 <main>
   <a href="http://{location.host}/">
-    <GboggleLogo size="20rem"  />
+    <GboggleLogo size="20rem" />
   </a>
   <Router url="{url}">
     <Route path="/">
