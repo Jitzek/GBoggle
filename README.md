@@ -17,10 +17,14 @@
 3. Install npm dependencies
    - `./install-npm-dependencies.sh`
      or
-   - `npm install --prefix ./boggle-sveltexpress/svelte ./boggle-sveltexpress/svelte`
-     `npm install --prefix ./boggle-sveltexpress/express ./boggle-sveltexpress/express`
-     `npm install --prefix ./boggle-api ./boggle-api`
-     or you can navigate to all the directories with a package.json and run `npm install` in that directory.
+   - `npm install --prefix ./boggle-sveltexpress/svelte`
+     `npm install --prefix ./boggle-sveltexpress/express`
+     `npm install --prefix ./boggle-api`
+     optionally:
+     `npm audit fix --prefix ./boggle-sveltexpress/svelte`
+     `npm audit fix --prefix ./boggle-sveltexpress/express`
+     `npm audit fix --prefix ./boggle-api`
+     or you can navigate to all the directories with a package.json and run `npm install` in that directory (and optionally `npm audit fix`).
 4. Install Redis Server
    - Debian:<br>
      `apt install redis-server`
