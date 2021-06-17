@@ -15,6 +15,7 @@ export class SingleplayerRoom extends Room {
 
     constructor(server: Server, host_id: string, password: string) {
         super(server, host_id, password);
+        this.room_settings.rounds = 1;
         this.room_settings.round_time = 180;
         this.room_settings.unique_words_only = false;
         try {

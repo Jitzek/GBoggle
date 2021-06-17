@@ -43,6 +43,9 @@ export class Game {
     public stop() {
         console.log("🎮 [game]: Game ended");
         this.started = false;
+        if (this.room.players.length < 1) {
+            return;
+        }
         const winner = this.room.players?.reduce((prev, current) => {
             return (prev.score > current.score) ? prev : current;
         });
@@ -134,7 +137,7 @@ export class Game {
             // Second passed
             this.room.emit("next_round_timer_changed", (this.next_round_time - this.next_round_timer));
         }, () => {
-            // Round ended
+            // Next round timer ended
             this.snapshotPlayers();
             this.current_round++;
             if (this.current_round > this.room_settings.rounds) {
