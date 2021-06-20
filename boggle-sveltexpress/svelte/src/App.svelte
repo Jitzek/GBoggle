@@ -1,19 +1,43 @@
 <script lang="ts">
+  import { io } from "socket.io-client";
+
   import { Router, Route } from "svelte-routing";
   import { Room, NotFound, Home, RoomBrowser } from "@routes";
   import GboggleLogo from "@components/GBoggleLogo.svelte";
+  import { deleteCookie } from "./utils/cookies";
+  import { navigate } from "svelte-routing";
+  import GamePage from "./components/game/GamePage.svelte";
 
   export let url = window.location.pathname;
+
+  // Socket connection is reset, leave current room
+  deleteCookie("room_id");
+
+  const socket = io("http://localhost:8000");
+
+  socket.on("connect", () => {
+    console.log("connected");
+  });
+
+  function onLogoClick() {
+    location.href = `http://${location.host}/`;
+  }
 </script>
 
 <main>
-  <GboggleLogo size="20rem" />
+  <a href="http://{location.host}/">
+    <GboggleLogo size="20rem" />
+  </a>
   <Router url="{url}">
-    <Route path="/" component="{Home}"/>
-    <Route path="room/:id" let:params>
-      <Room id="{params.id}" />
+    <Route path="/">
+      <Home socket="{socket}" />
     </Route>
-    <Route path="/roombrowser" component="{RoomBrowser}"/>
+    <Route path="room/:id" let:params>
+      <Room id="{params.id}" socket="{socket}" />
+    </Route>
+    <Route path="/roombrowser">
+      <RoomBrowser socket="{socket}" />
+    </Route>
     <Route component="{NotFound}" />
   </Router>
 </main>

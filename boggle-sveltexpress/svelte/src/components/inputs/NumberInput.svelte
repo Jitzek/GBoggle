@@ -6,6 +6,8 @@
   export let name: string = label || "unset";
   export let style: string;
 
+  export let value: number;
+
   let validated: boolean = false;
 
   let inputElement: HTMLInputElement;
@@ -48,6 +50,7 @@
   </button>
   <input
     bind:this="{inputElement}"
+    bind:value="{value}"
     class:validated
     disabled="{disabled}"
     name="{name}"

@@ -43,12 +43,6 @@ export default {
 		file: 'public/build/bundle.js'
 	},
 	plugins: [
-		typescript({
-			sourceMap: !production,
-			inlineSources: !production
-		}),
-		// commonjs might have to process ts output, so put it after ts
-		commonjs(),
 		svelte({
 			preprocess: sveltePreprocess({ sourceMap: !production }),
 			compilerOptions: {
@@ -56,6 +50,7 @@ export default {
 				dev: !production
 			}
 		}),
+		
 		// we'll extract any component CSS out into
 		// a separate file - better for performance
 		css({ output: 'bundle.css' }),
@@ -69,7 +64,13 @@ export default {
 			browser: true,
 			dedupe: ['svelte']
 		}),
-		
+
+		typescript({
+			sourceMap: !production,
+			inlineSources: !production
+		}),
+		// commonjs might have to process ts output, so put it after ts
+		commonjs(),
 
 		// In dev mode, call `npm run start` once
 		// the bundle has been generated
@@ -84,6 +85,7 @@ export default {
 		production && terser(),
 
 		alias({
+			resolve: ['.js', '.ts', '.svelte'],
 			entries: [
 				{
 					find: '@src',
@@ -101,11 +103,10 @@ export default {
 					find: '@stores',
 					replacement: path.resolve(projectRootDir, 'src/stores')
 				},
-				// @types is useless, not picked up by IntelliSense
-				// {
-				// 	find: '@types',
-				// 	replacement: path.resolve(projectRootDir, 'src/types')
-				// }
+				{
+					find: '@utils',
+					replacement: path.resolve(projectRootDir, 'src/utils')
+				}
 			]
 		})
 	],

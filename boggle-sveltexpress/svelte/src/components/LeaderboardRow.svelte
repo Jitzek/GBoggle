@@ -5,9 +5,9 @@
     import {Medal_First, Medal_Second, Medal_Third, Trash} from "@components/svg/index";
 
     export let placement: number;
-    export let avatarpath: string;
-    export let name: string;
-    export let score: number;
+    export let avatarpath: string = "";
+    export let name: string = "";
+    export let score: number = 0;
 </script>
 
 <BasicContainer style="border-top: 1px solid rgba(255, 255, 255, 0.400); border-bottom: 1px solid rgba(255, 255, 255, 0.400);">

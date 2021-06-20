@@ -1,44 +1,18 @@
 <script lang="ts">
-  import BitText from "../BitText.svelte";
-  import UserIcon from "../UserIcon.svelte";
+  import Player from "@components/room/Player.svelte";
+  import type { Player as PlayerObject } from "../room/objects/Player";
 
-  export let roomId: string;
+  export let players: PlayerObject[];
 
-  // TODO: Connect to room and get players
-
-  let icon_size = "2.5rem";
 </script>
 
 <table class="players">
-  <tr class="player">
-
-    <!-- User's Image -->
-    <td class="user-icon" style="width: {icon_size}">
-      <UserIcon src="/images/hey.png" size="{icon_size}" background="#2b6a34" border_color="#2b6a34" />
-    </td>
-
-    <!-- User's Name -->
-    <td class="user-name">
-      <p>Hey</p>
-    </td>
-
-    <!-- User's Points -->
-    <td class="user-points">
-      <BitText color="#2b6a34" fontSize="1.2rem" value="99999" />
-    </td>
-    
-  </tr>
+  {#each players as player}
+    <Player name="{player.name}" avatar="{player.avatar}" score="{player.score}" />
+  {/each}
 </table>
 
 <style lang="scss">
-  .user-icon {
-    padding: 1rem;
-  }
-
-  .user-name {
-    text-align: left;
-  }
-
   .players {
     width: 100%;
   }

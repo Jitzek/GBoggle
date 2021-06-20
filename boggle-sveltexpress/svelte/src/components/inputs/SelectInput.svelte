@@ -1,29 +1,23 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
-  const dispatch = createEventDispatcher();
-
   export let disabled: boolean = false;
   export let label: string;
   export let name: string = label || "unset";
-  export let style: string;
-  export let selected;
+  export let style: string = "";
+  export let value: string = "";
 
   let validated: boolean = true;
 </script>
 
 <div class="input-field" style="{style}" class:disabled>
+  <!-- svelte-ignore a11y-no-onchange -->
   <select
     class:validated
     disabled="{disabled}"
     name="{name}"
     required
     type="text"
-    bind:value={selected}
-    on:change={() => {
-      dispatch(
-          'message',
-      )
-  }}
+    bind:value={value}
+    on:change
   >
     <slot />
   </select>

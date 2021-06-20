@@ -3,19 +3,24 @@
   import {Send} from "@components/svg/index";
   import Message from "@components/room/chat/Message.svelte";
   import { afterUpdate } from "svelte";
+  import type { Room as RoomObject } from "../objects/Room";
+  import type { MessageBlock as MessageBlockObject } from "../objects/chat/MessageBlock";
 
-  export let roomId: string;
-
-  // TODO: Connect to room and get players
+  export let room: RoomObject;
 
   let chatContainer: HTMLElement;
-  let messageBlocks: Object[] = [];
+  let messageBlocks: MessageBlockObject[] = [];
+
+  room.chat.messageBlocks.subscribe((value: MessageBlockObject[]) => {
+    messageBlocks = value;
+  });
 
   let newMessagesButton: HTMLButtonElement;
   let newMessagesButtonWidth: string = "8rem";
 
   let scrollDif = 0;
 
+  let chatInputValue: string;
 
   afterUpdate(() => {
     // Only autoscroll if the user is already at bottom of the chat
@@ -44,39 +49,14 @@
     chatContainer.scrollTop = chatContainer.scrollHeight - chatContainer.clientHeight;
   }
 
-
-  function onMessage(userId: string, message: string) {
-    // Get current messageblock
-    let c_m_block: Object = messageBlocks[messageBlocks.length - 1];
-
-    if (!c_m_block || c_m_block["userId"] !== userId) {
-      // Message from a new user, Create new Messageblock
-      appendMessageBlock(userId);
-      c_m_block = messageBlocks[messageBlocks.length - 1];
-    }
-
-    // Add message to the newest messageblock
-    addMessage(message, messageBlocks[messageBlocks.length - 1]);
+  function sendMessage() {
+    if (chatInputValue.length < 1) return;
+    room.chat.sendMessage(chatInputValue);
+    chatInputValue = ""; 
   }
 
-  function appendMessageBlock(userId: string) {
-    // TODO, use userId and roomId to get userName and userIcon
-    let userName: string = "VSauce";
-    let userIcon: string = "/images/hey.png";
-
-    messageBlocks.push({
-      userId: userId,
-      userName: userName,
-      userIcon: userIcon,
-      messages: [],
-    });
-  }
-
-  function addMessage(message: string, messageBlock: Object) {
-    messageBlock["messages"].push(message);
-
-    // State changed, request UI update
-    messageBlocks = messageBlocks;
+  const chatInputOnKeyPress = (e: KeyboardEvent) => {
+    if (e.key === "Enter") sendMessage();
   }
 </script>
 
@@ -85,12 +65,10 @@
     <div class="messages">
       {#each messageBlocks as messageBlock}
         <MessageBlock
-          id="{messageBlock['id']}"
-          userId="{messageBlock['userId']}"
-          userName="{messageBlock['userName']}"
-          userIcon="{messageBlock['userIcon']}"
+          userName="{messageBlock.player.name}"
+          userIcon="{messageBlock.player.avatar}"
         >
-          {#each messageBlock["messages"] as message}
+          {#each messageBlock.messages as message}
             <Message message="{message}" />
           {/each}
         </MessageBlock>
@@ -98,9 +76,9 @@
     </div>
     <button bind:this="{newMessagesButton}" class="new-messages-btn" on:click="{scrollToBottom}" style="width: {newMessagesButtonWidth}" />
     <div class="send-message">
-      <input type="text" />
-      <button>
-        <Send width="1.75rem" />
+      <input type="text" bind:value="{chatInputValue}" on:keypress="{chatInputOnKeyPress}" />
+      <button on:click="{() => sendMessage()}">
+        <Send width="27px" />
       </button>
     </div>
   </div>

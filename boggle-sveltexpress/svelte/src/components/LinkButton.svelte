@@ -6,11 +6,16 @@
   export let btn_background_hover: string = btn_background;
   export let icon_background: string = "#ffffff";
   export let btn_width: string;
-  export let href: string;
+  export let href: string = undefined;
 </script>
 
 <button
-  on:click="{() => (location.href = href)}"
+  on:click="{() => {
+    if (href) {
+      location.href = href;
+    }
+  }}"
+  on:click
   class="link-btn"
   class:disabled
   style="color: {text_color}; background: linear-gradient(-45deg, {btn_background}, {btn_background_hover}); width: {btn_width};"

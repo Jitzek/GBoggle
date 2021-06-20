@@ -1,0 +1,3 @@
+/node_modules/
+.redis_password
+.api_key

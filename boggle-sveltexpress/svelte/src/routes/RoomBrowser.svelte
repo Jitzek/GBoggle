@@ -4,21 +4,21 @@
     import RoomBrowserRow from "@components/RoomBrowserRow.svelte"
     import type {RoomProperties} from "../types/Types"; 
     import { onMount } from "svelte";
+    import type { Socket } from "socket.io-client";
+
+    if (!localStorage.getItem("nickname")) {
+        location.href = `http://${location.host}/`;
+    }
+
+    export let socket: Socket;
+    let rooms: RoomProperties[] = [];
+
+    socket.emit("get_rooms");
+    socket.on("get_rooms", (_rooms: RoomProperties[]) => {
+        rooms = _rooms;
+    });
     
-    export let rooms: RoomProperties[] = [
-        {isLocked: true, name: "Gurbe", lang: "Dutch", totalPlayers: 16, maxPlayers: 16},
-        {isLocked: false, name: "Henk", lang: "English", totalPlayers: 3, maxPlayers: 16},
-        {isLocked: true, name: "Boeke", lang: "Frisian", totalPlayers: 5, maxPlayers: 16},
-        {isLocked: false, name: "Durk", lang: "French", totalPlayers: 5, maxPlayers: 16},
-        {isLocked: true, name: "Gerben", lang: "German", totalPlayers: 1, maxPlayers: 16},
-        {isLocked: false, name: "Gorge", lang: "Dutch", totalPlayers: 6, maxPlayers: 16},
-        {isLocked: true, name: "Hans", lang: "Dutch", totalPlayers: 3, maxPlayers: 16},
-        {isLocked: false, name: "Dien mem", lang: "Dutch", totalPlayers: 6, maxPlayers: 16},
-        {isLocked: true, name: "Net dien mem", lang: "Dutch", totalPlayers: 0, maxPlayers: 16},
-        {isLocked: true, name: "hah", lang: "Dutch", totalPlayers: 9, maxPlayers: 16},
-        {isLocked: true, name: "mhm", lang: "Dutch", totalPlayers: 0, maxPlayers: 16}
-    ];
-    $: showRooms = [];
+    $: showRooms = rooms;
     onMount(filterRooms);
 
     let notPasswordProtected: boolean = false;
@@ -49,7 +49,7 @@
                     <CheckboxInput value="Room not full" bind:checked={notFull} on:message={filterRooms}/>
                     <CheckboxInput value="Room not empty" bind:checked={notEmpty} on:message={filterRooms}/>
                 </div>
-                <SelectInput label="Language" on:message={filterRooms} bind:selected={language}>
+                <SelectInput label="Language" on:message={filterRooms} bind:value={language}>
                     <option value="Any">Any</option>
                     <option value="English">English</option>
                     <option value="Dutch">Dutch</option>
@@ -60,9 +60,13 @@
             </div>
         </BasicContainer>
         <div class="roomscontainer">
-            {#each showRooms as room, i (room)}
-                <RoomBrowserRow roomProperties={room}/>
-            {/each}
+            {#if showRooms.length < 1}
+                <p>No rooms available</p>
+            {:else}
+                {#each showRooms as room, i (room)}
+                    <RoomBrowserRow roomProperties={room}/>
+                {/each}
+            {/if}
         </div>
     </BasicContainer>
 

@@ -1,4 +1,5 @@
 export type RoomProperties = {
+    id: string;
     isLocked: boolean;
     name:string;
     lang: string;
@@ -9,4 +10,5 @@ export type RoomProperties = {
 export type PlayerScores = {
     name: string;
     score: number;
+    avatar: string;
 }

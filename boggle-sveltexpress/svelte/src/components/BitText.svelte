@@ -1,8 +1,8 @@
 <script lang="ts">
     export let color: string = "white";
-    export let fontSize: string;
-    export let value: string;
-    export let ref: string;
+    export let fontSize: string = "1rem";
+    export let value: string = "";
+    export let ref: string = "";
 </script>
 
 <p {ref} style="color: {color}; font-size: {fontSize}">{value}</p>
