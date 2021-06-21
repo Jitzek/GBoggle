@@ -1,10 +1,11 @@
 <script lang="ts">
   import MessageBlock from "@components/room/chat/MessageBlock.svelte";
-  import {Send} from "@components/svg/index";
+  import { Send } from "@components/svg/index";
   import Message from "@components/room/chat/Message.svelte";
   import { afterUpdate } from "svelte";
   import type { Room as RoomObject } from "../objects/Room";
   import type { MessageBlock as MessageBlockObject } from "../objects/chat/MessageBlock";
+  import { onMount } from "svelte";
 
   export let room: RoomObject;
 
@@ -46,38 +47,58 @@
 
   function scrollToBottom() {
     hideNewMessagesButton();
-    chatContainer.scrollTop = chatContainer.scrollHeight - chatContainer.clientHeight;
+    chatContainer.scrollTop =
+      chatContainer.scrollHeight - chatContainer.clientHeight;
   }
 
   function sendMessage() {
     if (chatInputValue.length < 1) return;
     room.chat.sendMessage(chatInputValue);
-    chatInputValue = ""; 
+    chatInputValue = "";
   }
 
   const chatInputOnKeyPress = (e: KeyboardEvent) => {
     if (e.key === "Enter") sendMessage();
-  }
+  };
+
+  onMount(() => {
+    chatContainer.onscroll = () => {
+      // Hide "New Messages" button if user is at the bottom of the chat
+      scrollDif = chatContainer.scrollHeight - chatContainer.clientHeight;
+      if (chatContainer.scrollTop == scrollDif) {
+        hideNewMessagesButton();
+      }
+    };
+  });
 </script>
 
-<div class="chat-container" bind:this="{chatContainer}">
+<div class="chat-container" bind:this={chatContainer}>
   <div class="chat">
     <div class="messages">
       {#each messageBlocks as messageBlock}
         <MessageBlock
-          userName="{messageBlock.player.name}"
-          userIcon="{messageBlock.player.avatar}"
+          userName={messageBlock.player.name}
+          userIcon={messageBlock.player.avatar}
         >
           {#each messageBlock.messages as message}
-            <Message message="{message}" />
+            <Message {message} />
           {/each}
         </MessageBlock>
       {/each}
     </div>
-    <button bind:this="{newMessagesButton}" class="new-messages-btn" on:click="{scrollToBottom}" style="width: {newMessagesButtonWidth}" />
+    <button
+      bind:this={newMessagesButton}
+      class="new-messages-btn"
+      on:click={scrollToBottom}
+      style="width: {newMessagesButtonWidth}"
+    />
     <div class="send-message">
-      <input type="text" bind:value="{chatInputValue}" on:keypress="{chatInputOnKeyPress}" />
-      <button on:click="{() => sendMessage()}">
+      <input
+        type="text"
+        bind:value={chatInputValue}
+        on:keypress={chatInputOnKeyPress}
+      />
+      <button on:click={() => sendMessage()}>
         <Send width="27px" />
       </button>
     </div>
