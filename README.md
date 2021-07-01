@@ -24,7 +24,7 @@
      `npm audit fix --prefix ./boggle-sveltexpress/svelte`<br>
      `npm audit fix --prefix ./boggle-sveltexpress/express`<br>
      `npm audit fix --prefix ./boggle-api`<br>
-     or you can navigate to all the directories with a package.json and run `npm install` in that directory (and optionally `npm audit fix`).
+     or you can navigate to all the directories with a package.json and run `npm install` in that directory (and optionally `npm audit fix`)
 4. Install Redis Server
    - Debian:<br>
      `apt install redis-server`
@@ -33,3 +33,4 @@
    - Windows:<br>
      https://redislabs.com/blog/redis-on-windows-10/
 5. Add a file called `.api_key` to `./boggle-sveltexpress/express/` and `./boggle-api/` containing a same value (used for submitting highscores)
+6. Run application with the `run.sh` script
