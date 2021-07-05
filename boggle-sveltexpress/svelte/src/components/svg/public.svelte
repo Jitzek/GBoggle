@@ -16,6 +16,7 @@
   style="enable-background:new 0 0 510 510;"
   xml:space="preserve"
 >
+<title>Public</title>
   <g>
     <g id="public">
       <path

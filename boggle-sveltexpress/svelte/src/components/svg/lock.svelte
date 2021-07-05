@@ -5,6 +5,7 @@
 
 <svg id="Layer_1" enable-background="new 0 0 512 512" viewBox="0 0 512 512" width="{width}"
     xmlns="http://www.w3.org/2000/svg">
+    <title>Password protected</title>
         <circle cx="256" cy="256" fill="#436375"
             r="256" />
         <path
