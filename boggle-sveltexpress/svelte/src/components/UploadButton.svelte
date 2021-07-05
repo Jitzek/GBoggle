@@ -66,6 +66,7 @@
               src="{avatar}"
               alt="avatar"
               class="uploadbutton"
+              tabindex="0"
               on:click="{() => {
                 fileinput.click();
               }}"
@@ -76,6 +77,7 @@
           {:else}
             <div
               class="uploadbutton labelstyle"
+              tabindex="0"
               on:click="{() => {
                 fileinput.click();
               }}"
@@ -103,6 +105,7 @@
           </div>
           <div
             class="uploadbutton labelstyle"
+            tabindex="0"
             on:click="{() => {
               fileinput.click();
             }}"
@@ -161,6 +164,11 @@
     object-fit: cover;
     grid-area: inners;
   }
+
+  .uploadbutton:focus{
+    outline: 10px solid white;
+  }
+
   @media only screen and (max-width: 700px) {
     .uploadbutton {
       width: 80px;

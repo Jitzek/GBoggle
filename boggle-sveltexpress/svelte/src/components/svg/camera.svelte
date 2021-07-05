@@ -16,6 +16,7 @@
 	width="{width}"
 	fill="{color}"
 >
+	<title>Upload avatar</title>
 	<g>
 		<g>
 			<g>

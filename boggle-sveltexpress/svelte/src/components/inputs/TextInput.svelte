@@ -43,6 +43,7 @@
 
 <div class="input-field" class:disabled style="{style}">
   <input
+    id="{name}"
     class:validated
     disabled="{disabled}"
     on:input="{() => verifyInput(String(inputElement.value))}"
@@ -75,6 +76,10 @@
     padding: 10px 10px;
     width: 100%;
     transition: border-color 0.5s;
+  }
+  
+  input:focus{
+    background-color: rgba(255, 255, 255, 0.75);
   }
 
   label {

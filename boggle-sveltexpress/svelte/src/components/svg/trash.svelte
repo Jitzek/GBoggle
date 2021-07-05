@@ -4,6 +4,7 @@
 
 <svg id="Capa_1" enable-background="new 0 0 511.999 511.999" viewBox="0 0 511.999 511.999" width="{width}"
     xmlns="http://www.w3.org/2000/svg">
+    <title>Fourth place</title>
     <g>
         <path
             d="m329.308 50.75h-146.622v-27.213c0-12.998 10.537-23.536 23.536-23.536h99.55c12.998 0 23.536 10.537 23.536 23.536z"
