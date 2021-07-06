@@ -121,7 +121,7 @@
       font-size: 2em;
     }
   }
-  @media only screen and (max-width: 370px) {
+  @media only screen and (max-width: 300px) {
     .dice {
       width: 45px;
       height: 45px;
