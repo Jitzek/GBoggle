@@ -1,5 +1,6 @@
 import express from 'express';
 import path from 'path';
+import cors from 'cors';
 import { Socket, Server, Namespace } from 'socket.io';
 import { Player } from './src/player';
 import { SingleplayerRoom } from './src/singleplayer_room';
@@ -12,7 +13,9 @@ let singleplayer_rooms: SingleplayerRoom[] = [];
 const PORT = 8000;
 const app = express();
 
-app.use(express.static(path.join(__dirname, "public")));
+app.use(cors());
+
+app.use(express.static(path.join(__dirname, "../", "svelte", "public")));
 
 // Return index.html of svelte
 app.get('*', (req, res) => {

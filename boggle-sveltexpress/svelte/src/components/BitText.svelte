@@ -10,8 +10,7 @@
 <style lang="scss">
     @font-face {
         font-family: '8bit';
-        src: url('http://localhost:8000/fonts/Early-Gameboy.woff') format('woff'),
-            url('http://localhost:8000/fonts/Early-Gameboy.woff') format('truetype')
+        src: url("/fonts/Early-Gameboy.woff") format('woff');
     }
 
     p {
